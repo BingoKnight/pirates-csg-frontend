@@ -1,0 +1,24 @@
+<svg xmlnsDc="http://purl.org/dc/elements/1.1/" xmlnsCc="http://creativecommons.org/ns#" xmlnsRdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlnsSvg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" xmlnsSodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlnsInkscape="http://www.inkscape.org/namespaces/inkscape" width="572mm" height="297mm" viewBox="0 0 572 297" version="1.1" id="svg889" inkscapeVersion="0.92.3 (2405546, 2018-03-11)" sodipodiDocname="cannons.svg">
+  <defs id="defs883"/>
+  <sodipodNamedview id="base" pagecolor="#ffffff" bordercolor="#666666" borderopacity="1.0" inkscapePageopacity="0.0" inkscapePageshadow="2" inkscapeZoom="0.7" inkscapeCx="903.32771" inkscapeCy="198.06767" inkscapeDocument-units="mm" inkscapeCurrent-layer="layer1" showgrid="false" inkscapeWindow-width="3840" inkscapeWindow-height="2050" inkscapeWindow-x="-12" inkscapeWindow-y="-12" inkscapeWindow-maximized="1"/>
+  <metadata id="metadata886">
+    <rdfRDF>
+      <ccWork rdfAbout="">
+        <dcFormat>image/svg+xml</dcFormat>
+        <dcType rdfResource="http://purl.org/dc/dcmitype/StillImage"/>
+        <dcTitle/>
+      </ccWork>
+    </rdfRDF>
+  </metadata>
+  <g inkscapeLabel="Calque 1" inkscapeGroupmode="layer" id="layer1">
+    <path style="display:inline;fill:#eee60e;fill-opacity:1;stroke:#000000;stroke-width:10;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.05925941;stroke-dasharray:none;stroke-opacity:1" d="M 62.199955,28.662592 327.5981,50.59297 323.53692,128.16152 56.311242,104.80973 Z" id="path831" inkscapeConnector-curvature="0" sodipodNodetypes="ccccc"/>
+    <path style="display:inline;fill:#eee60e;fill-opacity:1;stroke:#000000;stroke-width:10;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4.05925941;stroke-dasharray:none;stroke-opacity:1;paint-order:normal" d="m 26.619662,19.028114 37.46438,3.553528 -6.599412,88.533738 -37.972036,-3.04589 z" id="path829" inkscapeConnector-curvature="0"/>
+    <path style="display:inline;fill:#eee60e;fill-opacity:1;stroke:#000000;stroke-width:10;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.05925941;stroke-dasharray:none;stroke-opacity:1" d="m 445.48938,59.006607 c 0,0 2.72815,-10.050909 -67.62826,-15.363529 0,0 -55.71076,-5.312624 -56.42866,4.881867 L 316.40701,131.08598 439.746,141.1369 Z" id="path850" inkscapeConnector-curvature="0" sodipodNodetypes="cccccc"/>
+    <path style="display:inline;fill:#eee60e;fill-opacity:1;stroke:#000000;stroke-width:10;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4.05925941;stroke-dasharray:none;stroke-opacity:1" d="M 151.00177,90.301828 V 240.97162 H 504.52753 V 140.45742 H 447.26484 V 124.41574 H 398.93681 V 108.98326 H 350.20262 V 88.068176 Z" id="path852" inkscapeConnector-curvature="0"/>
+    <circle style="fill:#eee60e;fill-opacity:1;stroke:#000000;stroke-width:10;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4.05925941;stroke-dasharray:none;stroke-opacity:1;paint-order:normal" id="path854" cx="217.12634" cy="221.17334" r="55.51046"/>
+    <circle style="fill:#eee60e;fill-opacity:1;stroke:#000000;stroke-width:10;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4.05925941;stroke-dasharray:none;stroke-opacity:1;paint-order:normal" id="path858" cx="216.92326" cy="221.57947" r="18.782959"/>
+    <circle r="55.51046" cy="221.17334" cx="438.08087" id="circle860" style="fill:#eee60e;fill-opacity:1;stroke:#000000;stroke-width:10;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4.05925941;stroke-dasharray:none;stroke-opacity:1;paint-order:normal"/>
+    <circle r="18.782959" cy="221.57947" cx="437.87784" id="circle862" style="fill:#eee60e;fill-opacity:1;stroke:#000000;stroke-width:10;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4.05925941;stroke-dasharray:none;stroke-opacity:1;paint-order:normal"/>
+    <circle style="fill:#eee60e;fill-opacity:1;stroke:#000000;stroke-width:10;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4.05925941;stroke-dasharray:none;stroke-opacity:1;paint-order:normal" id="path864" cx="199.939" cy="89.692642" r="27.006849"/>
+  </g>
+</svg>

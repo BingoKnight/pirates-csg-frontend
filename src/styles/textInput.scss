@@ -1,0 +1,63 @@
+.form-input {
+	position: relative;
+    display: flex;
+    height: 22px;
+
+    input[type="text"], input[type="password"] {
+        background-color: transparent;
+        border: none;
+        border-bottom: 1px solid #999999;
+        color: #999999;
+        outline: none;
+        font-size: 1.1rem;
+        font-family: "Ubuntu Mono";
+        margin-bottom: 1px;
+	    width: 100%;
+
+        &:focus {
+            border-bottom: 2px solid #d25817;
+            margin-bottom: 0px;
+        }
+
+        + label {
+	        position: absolute;
+	        left: 2px;
+	        bottom: 3px;
+	        font-size: 1.1rem;
+	        color: #737373;
+	        transition: 0.2s;
+	        cursor: text;
+        }
+
+        &:focus + label {
+	        font-size: 0.9rem;
+	        bottom: 25px;
+	        color: #d25817;
+        }
+
+        + label.active {
+	        bottom: 25px !important;
+	        font-size: 0.9rem !important;
+	        transition: none !important;
+        }
+    }
+}
+
+
+// .form-input.valid > label {
+//     color: #339933 !important;
+// }
+//
+// .form-input.valid input[type="text"],
+// .form-input.valid input[type="password"]{
+//     border-bottom: 1px solid #339933;
+// }
+//
+// .form-input.invalid > label {
+//     color: #ff3333 !important;
+// }
+//
+// .form-input.invalid input[type="text"],
+// .form-input.invalid input[type="password"]{
+//     border-bottom: 1px solid #ff3333;
+// }
