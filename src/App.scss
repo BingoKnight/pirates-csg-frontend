@@ -6,7 +6,6 @@
 }
 
 .page-control {
-    margin-top: 30px;
     justify-content: space-evenly;
 
     #page-numbers {
@@ -46,10 +45,14 @@
     }
 }
 
+.query-content {
+    margin-top: 50px;
+}
+
 .upper {
     position: absolute;
     top: 70px;
-    right: 300px;
+    right: 350px;
 }
 
 .noselect {

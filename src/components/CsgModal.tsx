@@ -192,7 +192,7 @@ function CsgModal({ csgItem, closeModal }) {
                     </div>
                 </div>
                 <div className="row">
-                    <div className="col">
+                    <div className="col close-button-col">
                         <Button label="Close" onClick={closeModal} />
                     </div>
                 </div>

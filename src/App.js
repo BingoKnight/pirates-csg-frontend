@@ -327,6 +327,14 @@ function Content({ setActiveCsgItem }) {
     return (
         <div id='content'>
             <div className='page-content'>
+                <PageControl
+                    className="upper"
+                    pageNumber={pageNumber}
+                    maxPages={maxPages}
+                    setPageNumber={setPageNumber}
+                    lenPageNumbers={5}
+                    setPageSize={setPageSize}
+                />
                 <div className="query-content">
                     <div className="row">
                         <div className="col" />
@@ -347,21 +355,7 @@ function Content({ setActiveCsgItem }) {
                         </div>
                         
                     </div>
-                    
                 </div>
-                {/*
-                TODO:
-                    move page control to top right?
-                    move row selector around page control, probably top right
-                */}
-                <PageControl
-                    className="upper"
-                    pageNumber={pageNumber}
-                    maxPages={maxPages}
-                    setPageNumber={setPageNumber}
-                    lenPageNumbers={5}
-                    setPageSize={setPageSize}
-                />
                 <div className='result-content'>
                     <PirateCsgList
                         pirateCsgList={filteredCsgList.slice(pageSize * (pageNumber - 1), pageSize * pageNumber)}

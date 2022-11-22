@@ -1,4 +1,4 @@
-import React, { useState, FC } from 'react'
+import React, { useState } from 'react'
 import { ReactComponent as DownArrow } from '../images/angle-down-solid.svg'
 import { ReactComponent as Checkmark } from '../images/check-solid.svg'
 
