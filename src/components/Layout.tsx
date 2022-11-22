@@ -18,9 +18,12 @@ function Layout({ children }) {
 
     return (
         <div>
+            <div id="backdrops">
+                <div id="header-backdrop" />
+                <div id="page-content-backdrop" />
+            </div>
             <Header />
             <div className="container">
-                <div id='page-content-backdrop' />
                 <div className="page-content">{children}</div>
             </div>
         </div>

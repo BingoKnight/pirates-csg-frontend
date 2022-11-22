@@ -4,8 +4,11 @@ import '../styles/header.scss'
 
 export default function Header() {
     return (
-        <div className='header'>
-            Pirates CSG Database
+        <div className='row header-row'>
+            <div className='col header-title noselect'>
+                Pirates CSG Database
+            </div>
+            <div className="col" id="empty-col"></div>
         </div>
     )
 }

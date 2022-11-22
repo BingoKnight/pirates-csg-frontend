@@ -2,6 +2,7 @@ import React from 'react'
 import { ReactComponent as XIcon } from '../images/times.svg'
 
 import CannonImage from './CannonImages.tsx'
+import Button from '../components/Button.tsx'
 import factionImageMapper from '../utils/factionImageMapper.tsx'
 import fieldIconMapper from '../utils/fieldIconMapper.tsx'
 
@@ -182,17 +183,17 @@ function CsgModal({ csgItem, closeModal }) {
         <>
             <ModalOverlay closeModal={closeModal} />
             <div className="csg-modal">
-                <div className="row">
-                    <div className="col">
-                        <XIcon />
-                    </div>
-                </div>
                 <div className="row modal-content">
                     <div className="col" id="csg-image-col">
                         <CsgItemImage csgItem={csgItem} />
                     </div>
                     <div className="col" id="csg-details-col">
                         <CsgItemDetails csgItem={csgItem} />
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col">
+                        <Button label="Close" onClick={closeModal} />
                     </div>
                 </div>
             </div>

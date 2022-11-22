@@ -29,7 +29,7 @@ $raritiesColors: (
 .csg-modal {
     width: 950px;
     min-width: 950px;
-    padding: 50px 0;
+    padding: 20px;
 
     display: block;
     border-radius: $modal-border-radius;
@@ -40,7 +40,7 @@ $raritiesColors: (
     font-size: 1rem;
 
     position: fixed;
-    top: 20%;
+    top: 25%;
 
     z-index: 11;
 
@@ -103,6 +103,7 @@ $raritiesColors: (
                     font-size: 2rem;
                     text-align: left;
                     padding-left: 15px;
+                    line-height: 2.1rem;
                 }
 
                 .stats-row {

@@ -119,58 +119,6 @@ $faction-icons: (
     white-space: nowrap;
 }
 
-
-// .faction-col {
-//     flex: 4;
-// }
-//
-// .rarity-col {
-//     flex: 3;
-// }
-//
-// .id-col {
-//     flex: 6;
-// }
-//
-// .name-col {
-//     flex: 8;
-// }
-//
-// .type-col {
-//     flex: 4;
-// }
-//
-// .pointCost-col {
-//     flex: 2;
-// }
-//
-// .masts-col {
-//     flex: 2;
-// }
-//
-// .cargo-col {
-//     flex: 2;
-// }
-//
-// .baseMove-col {
-//     flex: 8;
-// }
-//
-// .cannons-col {
-//     flex: 8;
-// }
-//
-// .link-col {
-//     flex: 8;
-// }
-//
-// .ability-col {
-//     flex: 24;
-//     text-overflow: ellipsis;
-//     overflow: hidden;
-//     white-space: nowrap;
-// }
-
 @each $rarity, $color in $raritiesColors {
     .#{$rarity}-col {
         display: flex;

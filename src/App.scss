@@ -1,5 +1,67 @@
+@import './styles/variables.scss';
+
 #content {
     display: flex;
     width: 100%;
 }
 
+.page-control {
+    margin-top: 30px;
+    justify-content: space-evenly;
+
+    #page-numbers {
+        flex: 3;
+    }
+
+    .page-number-col {
+        cursor: pointer;
+        flex: 4;
+    }
+
+    .page-number-col:hover {
+        text-decoration: underline;
+    }
+
+    .ellipsis {
+        color: $disabled;
+        flex: 1;
+    }
+
+    .page-size-select-col {
+        margin: 0 25px;
+
+        .col {
+            margin: 5px;
+        }
+    }
+
+    .page-size-select {
+        background: #444;
+        border-radius: 5px;
+        padding: 5px;
+        color: white;
+        option:hover {
+            box-shadow: 0 0 10px 10px #000 inset;
+        }
+    }
+}
+
+.upper {
+    position: absolute;
+    top: 70px;
+    right: 300px;
+}
+
+.noselect {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+#search-text-box {
+    min-width: 900px;
+    width: 900px;
+}

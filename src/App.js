@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { getPirateCsgList } from './api.js'
 import Button from './components/Button.tsx'
 import CsgModal from './components/CsgModal.tsx'
+import Dropdown from './components/Dropdown.tsx'
 import Layout from './components/Layout.tsx'
 import ToggleButton from './components/ToggleButton.tsx'
 import {
@@ -22,9 +23,6 @@ import PirateCsgList from './components/PiratesCsgList.tsx';
 import TextInput from './components/TextInput.tsx'
 
 import './App.scss';
-
-// TODO: try pre loading images to prevent images from previous page from briefly displaying over
-// new page rows
 
 // Bugs:
 // TODO: on initial page load (not refresh) max pages is 0
@@ -124,12 +122,147 @@ function updateQuery(query, pirateCsgList, setFiltered) {
 
 }
 
+function PrevPageButton({ pageNumber, decrementPage }) {
+    const isDisabled = pageNumber === 1
+    const className = isDisabled ? 'disabled noselect' : 'noselect'
+
+    return (
+        <Button
+            label="Previous"
+            className={className}
+            id='next-page-button'
+            width='90px'
+            onClick={isDisabled ? null : decrementPage}
+        />
+    )
+}
+
+function NextPageButton({ pageNumber, maxPages, incrementPage }) {
+    const isDisabled = pageNumber === maxPages
+    const className = isDisabled ? 'disabled noselect' : 'noselect'
+
+    return (
+        <Button
+            label="Next"
+            className={className}
+            id='next-page-button'
+            width='90px'
+            onClick={isDisabled ? null : incrementPage}
+        />
+    )
+}
+
+function PageNumbers({ currentPageNumber, setPageNumber, maxPages, lenPageNumbers }) {
+    let pageNumbers = []
+    const half = Math.floor(lenPageNumbers / 2)
+
+    let i = currentPageNumber + half < maxPages ? currentPageNumber - half : maxPages - (lenPageNumbers - 1)
+    while (pageNumbers.length < lenPageNumbers) {
+        if (i > 0) {
+            pageNumbers.push(i)
+        }
+        i++;
+    }
+
+    if (!pageNumbers.includes(1) && !pageNumbers.includes(1 + 1)) {
+        pageNumbers = [1, '...', ...pageNumbers]
+    } else if (!pageNumbers.includes(1)) {
+        pageNumbers = [1, ...pageNumbers]
+    }
+
+    if (!pageNumbers.includes(maxPages) && !pageNumbers.includes(maxPages - 1)) {
+        pageNumbers = [...pageNumbers, '...', maxPages]
+    } else if (!pageNumbers.includes(maxPages)) {
+        pageNumbers = [...pageNumbers, maxPages]
+    }
+
+
+    return pageNumbers.map(num => {
+        if (isNaN(num)) {  // then it is an ellipsis
+            return <div className='col ellipsis'>...</div>
+        }
+        if (num === currentPageNumber) {
+            return <div
+                className='col page-number-col noselect'
+                style={{textDecoration: 'underline'}}
+            >
+                {num}
+            </div>
+        }
+        return <div
+            className='col page-number-col noselect'
+            onClick={() => setPageNumber(num)}
+        >
+            {num}
+        </div>
+    })
+}
+
+function PageSizeSelect({ setPageSize }) {
+    if (!setPageSize)
+        return null
+
+                    // <select className='page-size-select' onChange={(e) => setPageSize(e.target.value)}>
+                    //     <option value="10">10</option>
+                    //     <option value="25" selected>25</option>
+                    //     <option value="50">50</option>
+                    // </select>
+    const pageSizeOptions = [10, 25, 50]
+    return (
+        <div className="col page-size-select-col">
+            <Dropdown
+                label="Rows"
+                content={pageSizeOptions}
+                onChange={setPageSize}
+                selected={25}
+            />
+        </div>
+    )
+}
+
+function PageControl(props) {
+    const { pageNumber, maxPages, className, setPageNumber, setPageSize, lenPageNumbers = 9 } = props
+    const totalPageNumbers = Math.min(lenPageNumbers, maxPages)
+
+    function incrementPage() {
+        setPageNumber(pageNumber + 1)
+    }
+
+    function decrementPage() {
+        setPageNumber(pageNumber - 1)
+    }
+
+    const pageControlClass = `row page-control ${className}`
+
+        return (
+        <div className={pageControlClass}>
+            <PageSizeSelect setPageSize={setPageSize} />
+            <div className="col">
+                <PrevPageButton pageNumber={pageNumber} decrementPage={decrementPage} />
+            </div>
+            <div className="col" id="page-numbers"  style={{width: `${totalPageNumbers * 50}px`}}>
+                <div className="row">
+                    <PageNumbers
+                        currentPageNumber={pageNumber}
+                        setPageNumber={setPageNumber}
+                        maxPages={maxPages}
+                        lenPageNumbers={totalPageNumbers}
+                    />
+                </div>
+            </div>
+            <div className="col">
+                <NextPageButton pageNumber={pageNumber} maxPages={maxPages} incrementPage={incrementPage} />
+            </div>
+        </div>
+    )
+}
+
 function Content({ setActiveCsgItem }) {
     const [pirateCsgList, setPirateCsgList] = useState(JSON.parse(sessionStorage.getItem('pirateCsgList')) || [])
 
     const [filteredCsgList, setFilteredCsgList] = useState(pirateCsgList)
 
-    const pageSize = 50
+    const [pageSize, setPageSize] = useState(25)
     const [maxPages, setMaxPages] = useState(calculateMaxPages(filteredCsgList.length, pageSize))
     const [pageNumber, setPageNumber] = useState(parseInt(sessionStorage.getItem('page')) || 1)
 
@@ -148,14 +281,6 @@ function Content({ setActiveCsgItem }) {
                 .filter(faction => !['ut', 'none'].includes(faction.toLowerCase()))
         )
     ]
-
-    function incrementPage() {
-        setPageNumber(pageNumber + 1)
-    }
-
-    function decrementPage() {
-        setPageNumber(pageNumber - 1)
-    }
 
     function executeSearch() {
         setQuery({...query, search: searchRef.current.value})
@@ -180,6 +305,7 @@ function Content({ setActiveCsgItem }) {
     useEffect(() => {
         const filteredCsgListSize = updateQuery(query, pirateCsgList, setFilteredCsgList)
         sessionStorage.setItem('query', JSON.stringify(query))
+        setPageNumber(1)
     }, [query])
 
     useEffect(() => {
@@ -189,6 +315,14 @@ function Content({ setActiveCsgItem }) {
     useEffect(() => {
         setMaxPages(calculateMaxPages(filteredCsgList.length, pageSize))
     }, [filteredCsgList])
+
+    useEffect(() => {
+        const newMaxPages = calculateMaxPages(filteredCsgList.length, pageSize)
+        setMaxPages(newMaxPages)
+        if (pageNumber > newMaxPages) {
+            setPageNumber(newMaxPages)
+        }
+    }, [pageSize])
 
     return (
         <div id='content'>
@@ -211,42 +345,34 @@ function Content({ setActiveCsgItem }) {
                                 <FactionCheckboxes factionList={factionList} filterFactions={filterFactions} />
                             </div>
                         </div>
-                        <div className="col">
-                            <div className="row">
-                                {/* disable prev or next button, don't make disappear */}
-                                <div className="col">
-                                    Page: {pageNumber}/{maxPages}
-                                </div>
-                                <div className="col">
-                                    {
-                                        pageNumber > 1
-                                        && <Button
-                                                label="Previous"
-                                                id='next-page-button'
-                                                onClick={decrementPage}
-                                            />
-                                    }
-                                </div>
-                                <div className="col">
-                                    {
-                                        pageNumber < maxPages
-                                        && <Button
-                                                label="Next"
-                                                id='prev-page-button'
-                                                onClick={incrementPage}
-                                            />
-                                    }
-                                </div>
-                            </div>
-                        </div>
+                        
                     </div>
+                    
                 </div>
+                {/*
+                TODO:
+                    move page control to top right?
+                    move row selector around page control, probably top right
+                */}
+                <PageControl
+                    className="upper"
+                    pageNumber={pageNumber}
+                    maxPages={maxPages}
+                    setPageNumber={setPageNumber}
+                    lenPageNumbers={5}
+                    setPageSize={setPageSize}
+                />
                 <div className='result-content'>
                     <PirateCsgList
                         pirateCsgList={filteredCsgList.slice(pageSize * (pageNumber - 1), pageSize * pageNumber)}
                         setActiveCsgItem={setActiveCsgItem}
                     />
                 </div>
+                <PageControl
+                    pageNumber={pageNumber}
+                    maxPages={maxPages}
+                    setPageNumber={setPageNumber}
+                />
             </div>
         </div>
     )

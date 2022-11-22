@@ -1,0 +1,71 @@
+@import 'variables.scss';
+
+.dropdown-label {
+    color: $disabled
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+
+    .dropdown-button {
+        background-color: transparent;
+        color: white;
+        font-size: 1rem;
+        width: 50px;
+        padding: 5px;
+        border: none;
+        cursor: pointer;
+        border: 2px solid $button-border-color;
+
+        .dropdown-selected {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    }
+    
+    .content {
+        backdrop-filter: blur(4px);
+        display: none;
+        margin: 0;
+        padding: 0;
+        width: 46px;
+        position: absolute;
+        background-color: transparent;
+        border-left: 2px solid $button-border-hover-color;
+        border-right: 2px solid $button-border-hover-color;
+        border-bottom: 2px solid $button-border-hover-color;
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+        z-index: 2;
+        
+        li {
+            text-decoration: none;
+            display: flex;
+            cursor: pointer;
+            padding: 5px 5px;
+            text-align: left;
+            justify-content: space-between;
+            border-top: 1px solid transparent;
+            border-bottom: 1px solid transparent;
+            
+            &:hover {
+                // background-color: rgba(68, 68, 68, 0.3);
+                border-top: 1px solid $button-border-hover-color;
+                border-bottom: 1px solid $button-border-hover-color;
+                // border-color: $button-border-hover-color;
+            }
+        }
+    }
+
+    &:hover {
+        .content {
+            display: block;
+        }
+
+        .dropdown-button {
+            border-color: $button-border-hover-color;
+        }
+    }
+}
+

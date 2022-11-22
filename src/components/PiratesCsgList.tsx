@@ -45,13 +45,14 @@ interface CsgItem {
     teasureValues: [number] | null
 }
 
+function truncate(str: string, len = 40) {
+    return str && str.length > len ? str.slice(0, len) + '...' : str
+}
+
 function CsgItemColumns({ csgItem }) {
     return Object.keys(OrderedCsgFields).map(fieldName => {
         if (fieldName === 'ability') {
-            let abilityText = csgItem[fieldName]
-
-            if (csgItem[fieldName].length > 40)
-                abilityText = csgItem[fieldName].slice(0, 40) + '...'
+            let abilityText = truncate(csgItem[fieldName])
 
             return <div className={`col csg-col ${fieldName}-col`}>{abilityText}</div>
         }
@@ -105,6 +106,11 @@ function CsgItemColumns({ csgItem }) {
                 .reduce((prev, curr) => [prev, ' ', curr])
 
             return <div className={`col csg-col ${fieldName}-col`}>{cannonsList}</div>
+        }
+
+        if (fieldName === 'link') {
+            const linkText = truncate(csgItem[fieldName], 25)
+            return <div className={`col csg-col ${fieldName}-col`}>{linkText}</div>
         }
 
         return <div className={`col csg-col ${fieldName}-col`}>{csgItem[fieldName]}</div>

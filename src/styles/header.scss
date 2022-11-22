@@ -1,7 +1,13 @@
-.header {
-    height: 300px;
-    background-color: blue;
-    // background-image: url('../images/header.jpg');
-    // background-repeat: no-repeat;
-    // background-size: cover;
+.header-row {
+    height: 100px;
+}
+
+.header-title {
+    font-family: windlass, serif;
+    font-size: 2rem;
+    text-decoration: italic;
+}
+
+#empty-col {
+    flex: 1;
 }
