@@ -1,22 +1,17 @@
 @use "sass:map";
 
-@font-face {
-    font-family: 'windlass';
-    src: url('../../public/Windlass.woff');
-}
-
 $row-border-color: #555;
 $row-border-hover-color: #eee;
 
-$rarities: (
+$raritiesColors: (
     "common": red,
-    "uncommon": silver,
-    "rare": #E4C51F,
+    "uncommon": linear-gradient(rgba(170,169,173,1) 15%, rgba(85,85,85,1) 50%, rgba(170,169,173,1) 85%),
+    "rare": linear-gradient(rgba(228,197,31,1) 15%, rgba(133,116,27,1) 50%, rgba(228,197,31,1) 85%),
     "super-rare": black,
-    "promo": #B87333,
-    "le": #B87333,
-    "pr": #B87333,
-    "se": #3DB916,
+    "promo": linear-gradient(rgba(61,185,22,1) 15%, rgba(173,218,160,1) 50%, rgba(61,185,22,1) 85%),
+    "le": linear-gradient(rgba(61,185,22,1) 15%, rgba(173,218,160,1) 50%, rgba(61,185,22,1) 85%),
+    "pr": linear-gradient(rgba(61,185,22,1) 15%, rgba(173,218,160,1) 50%, rgba(61,185,22,1) 85%),
+    "se": linear-gradient(rgba(61,185,22,1) 15%, rgba(173,218,160,1) 50%, rgba(61,185,22,1) 85%),
     "special": blue,
     "one-of-one": #fff
 );
@@ -69,15 +64,6 @@ $faction-icons: (
     }
 }
 
-.noselect {
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-}
-
 .csg-col {
     padding: 5px 10px;
 }
@@ -95,7 +81,7 @@ $faction-icons: (
 }
 
 .name-col {
-    flex: 4;
+    flex: 5;
 }
 
 .type-col {
@@ -115,7 +101,7 @@ $faction-icons: (
 }
 
 .baseMove-col {
-    flex: 2;
+    flex: 4;
 }
 
 .cannons-col {
@@ -123,7 +109,7 @@ $faction-icons: (
 }
 
 .link-col {
-    flex: 2;
+    flex: 4;
 }
 
 .ability-col {
@@ -185,13 +171,18 @@ $faction-icons: (
 //     white-space: nowrap;
 // }
 
-@each $rarity, $color in $rarities {
+    // "uncommon": linear-gradient(90deg, rgba(170,169,173,1) 0%, rgba(92,92,92,1) 40%, rgba(92,92,92,1) 60%, rgba(170,169,173,1) 100%),
+@each $rarity, $color in $raritiesColors {
     .#{$rarity}-col {
         display: flex;
         height: 100%;
     
         .#{$rarity} {
-            background-color: $color;
+            @if $rarity == common or $rarity == super-rare or $rarity == special or $rarity == one-of-one {
+                background-color: $color;
+            } @else {
+                background-image: $color;
+            }
             width: 15px;
             height: 100%;
             border-right: 1px solid #000;

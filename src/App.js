@@ -131,7 +131,7 @@ function Content({ setActiveCsgItem }) {
 
     const pageSize = 50
     const [maxPages, setMaxPages] = useState(calculateMaxPages(filteredCsgList.length, pageSize))
-    const [pageNumber, setPageNumber] = useState(sessionStorage.getItem('page') || 1)
+    const [pageNumber, setPageNumber] = useState(parseInt(sessionStorage.getItem('page')) || 1)
 
     const sessionStorageQuery = JSON.parse(sessionStorage.getItem('query'))
 
@@ -192,7 +192,6 @@ function Content({ setActiveCsgItem }) {
 
     return (
         <div id='content'>
-            <div id='page-content-backdrop' />
             <div className='page-content'>
                 <div className="query-content">
                     <div className="row">
@@ -259,9 +258,7 @@ function App() {
     return (
         <Layout>
             <CsgModal csgItem={activeCsgItem} closeModal={() => setActiveCsgItem(null)} />
-            <div>
-                <Content setActiveCsgItem={setActiveCsgItem} />
-            </div>
+            <Content setActiveCsgItem={setActiveCsgItem} />
         </Layout>
     ) 
 }

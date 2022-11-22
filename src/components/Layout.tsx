@@ -20,6 +20,7 @@ function Layout({ children }) {
         <div>
             <Header />
             <div className="container">
+                <div id='page-content-backdrop' />
                 <div className="page-content">{children}</div>
             </div>
         </div>

@@ -1,28 +1,9 @@
 import React, { useState } from 'react'
 
 import CannonImage from './CannonImages.tsx'
-import {
-    BaseMoveImage,
-    CannonsImage,
-    CargoImage,
-    FactionImage,
-    LinkImage,
-    MastsImage,
-    RarityImage
-} from './FieldIcons.tsx'
-import {
-    AmericaImage,
-    CorsairImage,
-    CursedImage,
-    EnglandImage,
-    FranceImage,
-    JadeImage,
-    MercenaryImage,
-    PirateImage,
-    SpainImage,
-    VikingImage,
-    WhiteBeardRaidersImage
-} from './FactionImages.tsx'
+
+import factionImageMapper from '../utils/factionImageMapper.tsx'
+import fieldIconMapper from '../utils/fieldIconMapper.tsx'
 import {capitalize} from '../utils/string.tsx'
 
 import '../styles/pirateCsgList.scss'
@@ -65,20 +46,6 @@ interface CsgItem {
 }
 
 function CsgItemColumns({ csgItem }) {
-    const factionNameMapper = {
-        american: <AmericaImage />,
-        'barbary corsair': <CorsairImage />,
-        cursed: <CursedImage />,
-        english: <EnglandImage />,
-        french: <FranceImage />,
-        'jade rebellion': <JadeImage />,
-        mercenary: <MercenaryImage />,
-        pirate: <PirateImage />,
-        spanish: <SpainImage />,
-        viking: <VikingImage />,
-        "whitebeard's raiders": <WhiteBeardRaidersImage />
-    }
-
     return Object.keys(OrderedCsgFields).map(fieldName => {
         if (fieldName === 'ability') {
             let abilityText = csgItem[fieldName]
@@ -113,7 +80,7 @@ function CsgItemColumns({ csgItem }) {
             const lowerCaseFaction = csgItem.faction.toLowerCase()
             const colClassName = lowerCaseFaction.replaceAll(' ', '-',).replaceAll('\'', '')
             return <div className={`col csg-col faction-col ${colClassName}-col`}>
-                {factionNameMapper[lowerCaseFaction]}
+                {factionImageMapper[lowerCaseFaction] ? factionImageMapper[lowerCaseFaction]() : null}
             </div>
         }
 
@@ -153,15 +120,6 @@ function CsgItemRows({ pirateCsgList, setActive }) {
 }
 
 function HeaderRow() {
-    const fieldIconMapper = {
-        baseMove: <BaseMoveImage />,
-        cannons: <CannonsImage />,
-        cargo: <CargoImage />,
-        masts: <MastsImage />,
-        link: <LinkImage />,
-        rarity: <RarityImage />,
-        faction: <FactionImage />
-    }
     return (
         <div className='row csg-row' id='header-row'>
         {
@@ -176,7 +134,7 @@ function HeaderRow() {
 
                 return (
                     <div className={`${defaultClassName}${fieldName}-col`}>
-                        {Object.keys(fieldIconMapper).includes(fieldName) ? fieldIconMapper[fieldName] : prettyName}
+                        {Object.keys(fieldIconMapper).includes(fieldName) ? fieldIconMapper[fieldName]() : prettyName}
                     </div>
                 )
             })

@@ -13,31 +13,68 @@ const defaultProps = {
     draggable: false
 }
 
-export function BaseMoveImage() {
-    return <img src={baseMoveSvg} alt='Base Move' {...defaultProps} />
+export function BaseMoveImage(props) {
+    return <img
+        src={baseMoveSvg}
+        alt='Base Move'
+        {...defaultProps}
+        {...props}
+    />
 }
 
-export function CannonsImage() {
-    return <img src={cannonsSvg} alt='Cannons' {...defaultProps} />
+export function CannonsImage(props) {
+    return <img
+        src={cannonsSvg}
+        alt='Cannons'
+        {...defaultProps}
+        {...props}
+    />
 }
 
-export function CargoImage() {
-    return <img src={cargoSvg} alt='Cargo' {...defaultProps} />
+export function CargoImage(props) {
+    return <img
+        src={cargoSvg}
+        alt='Cargo'
+        {...defaultProps}
+        {...props}
+    />
 }
 
-export function MastsImage() {
-    return <img src={mastsSvg} alt='Masts' {...defaultProps} />
+export function MastsImage(props) {
+    return <img
+        src={mastsSvg}
+        alt='Masts'
+        {...defaultProps}
+        {...props}
+    />
 }
 
-export function LinkImage() {
-    return <img src={linkSvg} alt='Link' {...defaultProps} />
+export function LinkImage(props) {
+    const { height, ...linkImageProps } = defaultProps
+    return <img
+        src={linkSvg}
+        alt='Link'
+        {...linkImageProps}
+        height="35px"
+        {...props}
+    />
 }
 
-export function RarityImage() {
-    return <img src={raritySvg} alt='Rarity' {...defaultProps} />
+export function RarityImage(props) {
+    return <img
+        src={raritySvg}
+        alt='Rarity'
+        {...defaultProps}
+        {...props}
+    />
 }
 
-export function FactionImage() {
-    return <img src={factionSvg} alt='Faction' {...defaultProps} />
+export function FactionImage(props) {
+    return <img
+        src={factionSvg}
+        alt='Faction'
+        {...defaultProps}
+        {...props}
+    />
 }
 

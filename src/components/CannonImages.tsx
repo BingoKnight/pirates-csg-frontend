@@ -11,7 +11,8 @@ import fiveL from '../images/cannons/5L.png'
 import sixS from '../images/cannons/6S.png'
 import sixL from '../images/cannons/6L.png'
 
-export default function CannonImage({ cannon }) {
+export default function CannonImage(props) {
+    const { cannon, ...imageProps } = props
     const cannonMap = {
         '2S': twoS,
         '2L': twoL,
@@ -25,6 +26,12 @@ export default function CannonImage({ cannon }) {
         '6L': sixL
     }
 
-    return <img src={cannonMap[cannon]} alt={cannon} width='18px' draggable='false' />
+    return <img
+        src={cannonMap[cannon]}
+        alt={cannon}
+        width='18px'
+        draggable='false'
+        {...imageProps}
+    />
 }
 

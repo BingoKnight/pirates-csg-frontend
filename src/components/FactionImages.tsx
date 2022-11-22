@@ -11,47 +11,113 @@ import spainIcon from '../images/faction-icons/spain.png'
 import vikingIcon from '../images/faction-icons/viking.png'
 import whiteBeardRaidersIcon from '../images/faction-icons/whitebeardraiders.png'
 
-export function AmericaImage() {
-    return <img className='faction-image' src={americaIcon} draggable='false'/>
+export function AmericaImage(props) {
+    return <img
+        className='faction-image'
+        src={americaIcon}
+        draggable='false'
+        alt='American'
+        {...props}
+    />
 }
 
-export function CorsairImage() {
-    return <img className='faction-image' src={corsairsIcon} draggable='false'/>
+export function CorsairImage(props) {
+    return <img
+        className='faction-image'
+        src={corsairsIcon}
+        draggable='false'
+        alt='Barbary Corsair'
+        {...props}
+    />
 }
 
-export function CursedImage() {
-    return <img className='faction-image' src={cursedIcon} draggable='false'/>
+export function CursedImage(props) {
+    return <img
+        className='faction-image'
+        src={cursedIcon}
+        draggable='false'
+        alt='Cursed'
+        {...props}
+    />
 }
 
-export function EnglandImage() {
-    return <img className='faction-image' src={englandIcon} draggable='false'/>
+export function EnglandImage(props) {
+    return <img
+        className='faction-image'
+        src={englandIcon}
+        draggable='false'
+        alt='English'
+        {...props}
+    />
 }
 
-export function FranceImage() {
-    return <img className='faction-image' src={franceIcon} draggable='false'/>
+export function FranceImage(props) {
+    return <img
+        className='faction-image'
+        src={franceIcon}
+        draggable='false'
+        alt='French'
+        {...props}
+    />
 }
 
-export function JadeImage() {
-    return <img className='faction-image' src={jadeIcon} draggable='false'/>
+export function JadeImage(props) {
+    return <img
+        className='faction-image'
+        src={jadeIcon}
+        draggable='false'
+        alt='Jade Rebellion'
+        {...props}
+    />
 }
 
-export function MercenaryImage() {
-    return <img className='faction-image' src={mercenaryIcon} draggable='false'/>
+export function MercenaryImage(props) {
+    return <img
+        className='faction-image'
+        src={mercenaryIcon}
+        draggable='false'
+        alt='Mercenary'
+        {...props}
+    />
 }
 
-export function PirateImage() {
-    return <img className='faction-image' src={pirateIcon} draggable='false'/>
+export function PirateImage(props) {
+    return <img
+        className='faction-image'
+        src={pirateIcon}
+        draggable='false'
+        alt='Pirate'
+        {...props}
+    />
 }
 
-export function SpainImage() {
-    return <img className='faction-image' src={spainIcon} draggable='false'/>
+export function SpainImage(props) {
+    return <img
+        className='faction-image'
+        src={spainIcon}
+        draggable='false'
+        alt='Spanish'
+        {...props}
+    />
 }
 
-export function VikingImage() {
-    return <img className='faction-image' src={vikingIcon} draggable='false'/>
+export function VikingImage(props) {
+    return <img
+        className='faction-image'
+        src={vikingIcon}
+        draggable='false'
+        alt='Viking'
+        {...props}
+    />
 }
 
-export function WhiteBeardRaidersImage() {
-    return <img className='faction-image' src={whiteBeardRaidersIcon} draggable='false'/>
+export function WhiteBeardRaidersImage(props) {
+    return <img
+        className='faction-image'
+        src={whiteBeardRaidersIcon}
+        draggable='false'
+        alt="Whitebeard's Raiders"
+        {...props}
+    />
 }
 
