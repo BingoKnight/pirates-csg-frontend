@@ -110,7 +110,7 @@ function CsgStats({ csgItem }) {
                 <div className="col" id="faction">
                     {console.log(csgItem.faction)}
                     {
-                        ['ut', 'none'].includes(csgItem.faction)
+                        !['ut', 'none'].includes(csgItem.faction.toLowerCase())
                         && factionImageMapper[csgItem.faction.toLowerCase()]({height: '35px'})
                     }
                 </div>
@@ -149,10 +149,6 @@ function CsgItemDetails({ csgItem }){
                 <Ability ability={csgItem.ability} keywords={csgItem.keywords} />
             </div>
             <div className="row">
-                <div className="col">ID</div>
-                <div className="col">{csgItem.id}</div>
-                <div className="col">Rarity</div>
-                <div className="col">{csgItem.rarity}</div>
                 {
                     csgItem.link &&
                     <>

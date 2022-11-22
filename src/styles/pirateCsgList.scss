@@ -171,7 +171,6 @@ $faction-icons: (
 //     white-space: nowrap;
 // }
 
-    // "uncommon": linear-gradient(90deg, rgba(170,169,173,1) 0%, rgba(92,92,92,1) 40%, rgba(92,92,92,1) 60%, rgba(170,169,173,1) 100%),
 @each $rarity, $color in $raritiesColors {
     .#{$rarity}-col {
         display: flex;

@@ -221,7 +221,11 @@ $raritiesColors: (
 
     @each $rarity, $color in $raritiesColors {
         .#{$rarity} {
-            background-image: $color;
+            @if $rarity == common or $rarity == super-rare or $rarity == special or $rarity == one-of-one {
+                background-color: $color;
+            } @else {
+                background-image: $color;
+            }
             border: 1px solid #000;
         }
     }
