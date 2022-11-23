@@ -9,6 +9,7 @@ import fieldIconMapper from '../utils/fieldIconMapper.tsx'
 import setIconMapper from '../utils/setIconMapper.tsx'
 
 import '../styles/csgModal.scss'
+import {useSearchParams} from 'react-router-dom'
 
 function ModalOverlay({ closeModal }) {
     return <>
@@ -115,8 +116,7 @@ function CsgShipStats({ csgItem }) {
 
 function CopyButton({ csgItemId }) {
     function handleClick() {
-        console.dir(csgItemId)
-        navigator.clipboard.writeText(`${process.env.REACT_APP_PIRATE_CSG_API_BASE_URL}?_id=${csgItemId}`)
+        navigator.clipboard.writeText(`${process.env.REACT_APP_PIRATE_CSG_FE_BASE_URL}?_id=${csgItemId}`)
     }
 
     return <div className="copy-button"><Copy onClick={handleClick} /></div>
@@ -127,7 +127,6 @@ function CsgStats({ csgItem }) {
         <div className="col" id="stats-col">
             <div className="row">
                 <div className="col" id="faction">
-                    {console.log(csgItem.faction)}
                     {
                         !['ut', 'none'].includes(csgItem.faction.toLowerCase())
                         && factionImageMapper[csgItem.faction.toLowerCase()]({height: '35px'})
@@ -200,29 +199,42 @@ function CsgItemDetails({ csgItem, closeModal }){
 }
 
 function CsgModal({ csgItem, closeModal }) {
+    const [ searchParams, setSearchParams ] = useSearchParams()
+
+    function closeModalHandler() {
+        closeModal()
+
+        if (searchParams.has('_id')) {
+            searchParams.delete('_id')
+            setSearchParams(searchParams)
+        }
+    }
+
     if (!csgItem)
         return null
 
     return (
         <>
-            <ModalOverlay closeModal={closeModal} />
-            <div className="csg-modal">
-                <div className="row modal-content">
-                    <div className="col" id="csg-image-col">
-                        <CsgItemImage csgItem={csgItem} />
-                        <div className="row">
-                            <div className="col" id="set-text">
-                                {setIconMapper[csgItem.set]({height: '40px'})}
-                                <span> </span>
-                                {csgItem.set}
+            <ModalOverlay closeModal={closeModalHandler} />
+            {/*<div className="modal-container">*/}
+                <div className="csg-modal">
+                    <div className="row modal-content">
+                        <div className="col" id="csg-image-col">
+                            <CsgItemImage csgItem={csgItem} />
+                            <div className="row">
+                                <div className="col" id="set-text">
+                                    {setIconMapper[csgItem.set]({height: '40px'})}
+                                    <span> </span>
+                                    {csgItem.set}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div className="col" id="csg-details-col">
-                        <CsgItemDetails csgItem={csgItem} closeModal={closeModal}/>
+                        <div className="col" id="csg-details-col">
+                            <CsgItemDetails csgItem={csgItem} closeModal={closeModalHandler}/>
+                        </div>
                     </div>
                 </div>
-            </div>
+                {/*</div>*/}
         </>
     )
 }

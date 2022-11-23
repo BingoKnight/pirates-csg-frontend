@@ -301,13 +301,14 @@ function Content({ setActiveCsgItem }) {
             const filteredCsgList = csgList.filter(
                 csgItem => csgItem.ability || !csgItem.set.toLowerCase() === 'unreleased'
             )
-            setPirateCsgList(csgList)
-            setFilteredCsgList(csgList)
+            setPirateCsgList(filteredCsgList)
+            setFilteredCsgList(filteredCsgList)
         }
 
         async function fetchData() {
             updateCsgLists(await getPirateCsgList())
         }
+
         fetchData()
     }, [])
 

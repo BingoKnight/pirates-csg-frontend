@@ -6,7 +6,7 @@ $raritiesColors: (
     "rare": linear-gradient(90deg, rgba(228,197,31,1) 15%, rgba(133,116,27,1) 50%, rgba(228,197,31,1) 85%),
     "super-rare": black,
     "promo": linear-gradient(90deg, rgba(61,185,22,1) 15%, rgba(173,218,160,1) 50%, rgba(61,185,22,1) 85%),
-    "le": linear-gradient(90deg, rgba(114,66,40,1) 15%, rgba(201,164,144,1) 50%, rgba(114,66,40,1) 85%),
+    "le": linear-gradient(90deg, rgba(114,66,40,1) 20%, rgba(171,133,112,1) 40%, rgba(236,193,170,1) 50%,rgba(171,133,112,1) 60%,rgba(114,66,40,1) 80%),
     "pr": linear-gradient(90deg, rgba(61,185,22,1) 15%, rgba(173,218,160,1) 50%, rgba(61,185,22,1) 85%),
     "se": linear-gradient(90deg, rgba(61,185,22,1) 15%, rgba(173,218,160,1) 50%, rgba(61,185,22,1) 85%),
     "special": blue,
@@ -33,9 +33,10 @@ $raritiesColors: (
 
     display: block;
     border-radius: $modal-border-radius;
-    border: 3px solid #111;
+    border: 1px solid #333;
 
-    background-color: #333;
+    // background-color: #333;
+    backdrop-filter: blur(25px);
     color: #FFF;
     font-size: 1rem;
 
@@ -48,12 +49,6 @@ $raritiesColors: (
         display: flex;
         align-items: stretch;
         justify-content: center;
-    }
-
-    #csg-item-image {
-        width: 400px;
-        height: 400px;
-        border-radius: $image-border-radius;
     }
 
     #csg-image-col {
@@ -230,24 +225,23 @@ $raritiesColors: (
     display: block;
     overflow: hidden;
     height: 400px;
-    width: 400px;
     margin: 0 10px;
     border-radius: $image-border-radius;
 
-    img {
+    #csg-item-image {
         display:block;
         padding: 0;
+        height: 400px;
+        border-radius: $image-border-radius;
     }
 
-    img:before {
+    #csg-item-image:before {
         content: '';
         display: block;
         height: 400px;
-        width: 400px;
         background-image: url('../images/no-image.jpg');
         background-size: cover;
     }
-
 
     #rarity-tab {
         position: relative;

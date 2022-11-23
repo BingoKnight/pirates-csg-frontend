@@ -1,5 +1,4 @@
 export async function getPirateCsgList() {
-    console.dir(process.env)
     if (sessionStorage.getItem('pirateCsgList'))
         return JSON.parse(sessionStorage.getItem('pirateCsgList'))
 

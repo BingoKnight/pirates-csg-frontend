@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { ReactComponent as DownArrow } from '../images/angle-down-solid.svg'
 import { ReactComponent as Checkmark } from '../images/check-solid.svg'
 
@@ -23,7 +23,21 @@ function Dropdown(props: DropdownProps) {
         onChange(item)
     }
 
-    useEffect(() => { console.log(isActive) }, [isActive])
+    const dropDownRef = useRef(null)
+
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (dropDownRef.current && !dropDownRef.current.contains(event.target)) {
+                setIsActive(false)
+            }
+        }
+
+        document.addEventListener('mouseup', handleClickOutside)
+
+        return () => {
+            document.removeEventListener('mouseup', handleClickOutside)
+        }
+    }, [dropDownRef])
 
     return (
         <div className="row">
@@ -31,7 +45,7 @@ function Dropdown(props: DropdownProps) {
                 <span className="dropdown-label">{label}</span>
             </div>
             <div className="col">
-                <div className={'dropdown noselect' + (isActive ? ' active': '')}>
+                <div ref={dropDownRef} className={'dropdown noselect' + (isActive ? ' active': '')}>
                     <button className="dropdown-button" onClick={() => setIsActive(!isActive)}>
                         <div className="dropdown-selected">{activeItem}<DownArrow /></div>
                     </button>
