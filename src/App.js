@@ -202,11 +202,6 @@ function PageSizeSelect({ setPageSize }) {
     if (!setPageSize)
         return null
 
-                    // <select className='page-size-select' onChange={(e) => setPageSize(e.target.value)}>
-                    //     <option value="10">10</option>
-                    //     <option value="25" selected>25</option>
-                    //     <option value="50">50</option>
-                    // </select>
     const pageSizeOptions = [10, 25, 50]
     return (
         <div className="col page-size-select-col">
@@ -232,26 +227,28 @@ function PageControl(props) {
         setPageNumber(pageNumber - 1)
     }
 
-    const pageControlClass = `row page-control ${className}`
+    const pageControlClass = 'page-control-container' + (className ? ` ${className}` : '')
 
-        return (
+    return (
         <div className={pageControlClass}>
-            <PageSizeSelect setPageSize={setPageSize} />
-            <div className="col">
-                <PrevPageButton pageNumber={pageNumber} decrementPage={decrementPage} />
-            </div>
-            <div className="col" id="page-numbers"  style={{width: `${totalPageNumbers * 50}px`}}>
-                <div className="row">
-                    <PageNumbers
-                        currentPageNumber={pageNumber}
-                        setPageNumber={setPageNumber}
-                        maxPages={maxPages}
-                        lenPageNumbers={totalPageNumbers}
-                    />
+            <div className="row page-control">
+                <PageSizeSelect setPageSize={setPageSize} />
+                <div className="col">
+                    <PrevPageButton pageNumber={pageNumber} decrementPage={decrementPage} />
                 </div>
-            </div>
-            <div className="col">
-                <NextPageButton pageNumber={pageNumber} maxPages={maxPages} incrementPage={incrementPage} />
+                <div className="col" id="page-number-list">
+                    <div className="row">
+                        <PageNumbers
+                            currentPageNumber={pageNumber}
+                            setPageNumber={setPageNumber}
+                            maxPages={maxPages}
+                            lenPageNumbers={totalPageNumbers}
+                        />
+                    </div>
+                </div>
+                <div className="col">
+                    <NextPageButton pageNumber={pageNumber} maxPages={maxPages} incrementPage={incrementPage} />
+                </div>
             </div>
         </div>
     )
@@ -325,50 +322,48 @@ function Content({ setActiveCsgItem }) {
     }, [pageSize])
 
     return (
-        <div id='content'>
-            <div className='page-content'>
-                <PageControl
-                    className="upper"
-                    pageNumber={pageNumber}
-                    maxPages={maxPages}
-                    setPageNumber={setPageNumber}
-                    lenPageNumbers={5}
-                    setPageSize={setPageSize}
-                />
-                <div className="query-content">
-                    <div className="row">
-                        <div className="col" />
-                        <div className="col">
-                            <div className="row">
-                                <TextInput
-                                    label={'Search'}
-                                    id={'search-text-box'}
-                                    ref={searchRef}
-                                    onChange={executeSearch}
-                                    defaultValue={query.search || ''}
-                                    disableSpellCheck
-                                />
-                            </div>
-                            <div className="row">
-                                <FactionCheckboxes factionList={factionList} filterFactions={filterFactions} />
-                            </div>
+        <>
+            <div className="query-content">
+                <div className="row">
+                    <div className="col" />
+                    <div className="col">
+                        <div className="row">
+                            <TextInput
+                                label={'Search'}
+                                id={'search-text-box'}
+                                ref={searchRef}
+                                onChange={executeSearch}
+                                defaultValue={query.search || ''}
+                                disableSpellCheck
+                            />
                         </div>
-                        
+                        <div className="row">
+                            <FactionCheckboxes factionList={factionList} filterFactions={filterFactions} />
+                        </div>
                     </div>
                 </div>
-                <div className='result-content'>
-                    <PirateCsgList
-                        pirateCsgList={filteredCsgList.slice(pageSize * (pageNumber - 1), pageSize * pageNumber)}
-                        setActiveCsgItem={setActiveCsgItem}
-                    />
-                </div>
-                <PageControl
-                    pageNumber={pageNumber}
-                    maxPages={maxPages}
-                    setPageNumber={setPageNumber}
+            </div>
+            <PageControl
+                className="upper"
+                pageNumber={pageNumber}
+                maxPages={maxPages}
+                setPageNumber={setPageNumber}
+                lenPageNumbers={5}
+                setPageSize={setPageSize}
+            />
+            <div className='result-content'>
+                <PirateCsgList
+                    pirateCsgList={filteredCsgList.slice(pageSize * (pageNumber - 1), pageSize * pageNumber)}
+                    setActiveCsgItem={setActiveCsgItem}
                 />
             </div>
-        </div>
+            <PageControl
+                className="lower"
+                pageNumber={pageNumber}
+                maxPages={maxPages}
+                setPageNumber={setPageNumber}
+            />
+        </>
     )
 }
 

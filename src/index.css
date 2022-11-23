@@ -35,10 +35,6 @@ code {
     flex: 1;
 }
 
-#next-page-button, #prev-page-button {
-    margin: 0 10px;
-}
-
 #search-text-box {
     width: 50vw;
 }

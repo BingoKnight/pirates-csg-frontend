@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { ReactComponent as DownArrow } from '../images/angle-down-solid.svg'
 import { ReactComponent as Checkmark } from '../images/check-solid.svg'
 
@@ -15,11 +15,15 @@ function Dropdown(props: DropdownProps) {
     const { label, content, onChange, selected = null } = props
 
     const [activeItem, setActiveItem] = useState(selected || content[0])
+    const [isActive, setIsActive] = useState(false)
 
     function handleChange(item: any) {
+        setIsActive(false)
         setActiveItem(item)
         onChange(item)
     }
+
+    useEffect(() => { console.log(isActive) }, [isActive])
 
     return (
         <div className="row">
@@ -27,8 +31,8 @@ function Dropdown(props: DropdownProps) {
                 <span className="dropdown-label">{label}</span>
             </div>
             <div className="col">
-                <div className="dropdown noselect">
-                    <button className="dropdown-button">
+                <div className={'dropdown noselect' + (isActive ? ' active': '')}>
+                    <button className="dropdown-button" onClick={() => setIsActive(!isActive)}>
                         <div className="dropdown-selected">{activeItem}<DownArrow /></div>
                     </button>
                     <ul className="content">

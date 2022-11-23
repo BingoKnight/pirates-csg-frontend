@@ -26,7 +26,7 @@
     }
     
     .content {
-        backdrop-filter: blur(4px);
+        backdrop-filter: blur(10px);
         display: none;
         margin: 0;
         padding: 0;
@@ -58,7 +58,7 @@
         }
     }
 
-    &:hover {
+    &.active {
         .content {
             display: block;
         }

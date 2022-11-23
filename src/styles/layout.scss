@@ -1,5 +1,6 @@
 $page-content-width: 70%;
-$min-content-width: 1200px;
+$min-content-width: 1400px;
+$max-content-width: 2400px;
 
 @font-face {
     font-family: 'windlass';
@@ -18,26 +19,24 @@ $min-content-width: 1200px;
 
 .container {
     display: flex;
-    flex: 1;
     align-items: center;
     justify-content: center;
-    width: 100%;
-    min-width: $min-content-width;
 
     .page-content {
         display: flex;
-        flex: 1;
+        flex: 0 1 70%;
         flex-direction: column;
         align-items: center;
         justify-content: center;
 
         margin-bottom: 40px;
-        width: $page-content-width;
+        width: 70%;
+        max-width: $max-content-width;
         min-width: $min-content-width;
 
         .result-content {
-            width: inherit;
-            min-width: inherit;
+            flex: 1 1 auto;
+            width: 100%;
         }
     }
     
@@ -68,7 +67,8 @@ $min-content-width: 1200px;
         background-color: #000;
         filter: blur(6px);
     
-        width: $page-content-width + 5%;
+        width: $page-content-width;
+        max-width: $max-content-width;
         min-width: $min-content-width;
         height: 110%;
     
