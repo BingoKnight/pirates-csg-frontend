@@ -27,7 +27,7 @@ $raritiesColors: (
 }
 
 .csg-modal {
-    width: 1000px;
+    max-width: 1190px;
     min-width: 950px;
     padding: 20px;
 
@@ -52,7 +52,7 @@ $raritiesColors: (
     }
 
     #csg-image-col {
-        flex: 3;
+        flex: 1;
     }
 
     #csg-details-col {
@@ -86,7 +86,7 @@ $raritiesColors: (
         .csg-details-container {
             display: flex;
             flex-direction: column;
-            align-items: stretch;
+            align-items: start;
             height: 100%;
 
             .link-row {
@@ -94,7 +94,6 @@ $raritiesColors: (
                 justify-content: flex-start;
                 align-items: center;
                 .col {
-                    // flex: 0 1 auto;
                     display: flex;
                     text-align: left;
                     align-items: center;
@@ -107,8 +106,8 @@ $raritiesColors: (
                 #stats-col {
                     padding-top: 5px;
                     #faction {
-                        flex: 0 0 15%;
-                        margin-left: -15px;
+                        flex: 0 0;
+                        margin-left: -8px;
                     }
 
                     #name {
@@ -117,14 +116,12 @@ $raritiesColors: (
                         text-align: left;
                         padding-left: 15px;
                         line-height: 2.1rem;
+                        flex: 100;
                     }
 
                     .stats-row {
                         font-family: minister, serif;
                         font-size: 1.4rem;
-
-                        justify-content: center;
-                        align-items: stretch;
 
                         .col {
                             background-color: black;
@@ -141,16 +138,20 @@ $raritiesColors: (
                         #base-move-col,
                         #cannons-col {
                             display: flex;
-                            flex: 1 1 auto;
+                            flex-wrap: nowrap;
+                            flex: 1 0 auto;
                         }
 
                         #masts-col {
+                            padding-left: 70px;
+                            margin-left: -50px;
                             .icon {
                                 flex: 3;
                             }
                             .value {
                                 flex: 2;
                             }
+                            z-index: -1;
                         }
 
                         #cargo-col {
@@ -166,8 +167,11 @@ $raritiesColors: (
                         }
 
                         #cannons-col {
+                            .icon {
+                                flex: 1;
+                            }
                             .value {
-                                flex: 4;
+                                flex: 10;
                             }
                         }
                     }
@@ -238,6 +242,7 @@ $raritiesColors: (
     #csg-item-image:before {
         content: '';
         display: block;
+        width: 400px;
         height: 400px;
         background-image: url('../images/no-image.jpg');
         background-size: cover;
@@ -293,4 +298,5 @@ $raritiesColors: (
 
 .copy-button {
     cursor: pointer;
+    flex: 1;
 }
