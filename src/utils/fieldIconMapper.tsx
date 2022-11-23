@@ -19,3 +19,4 @@ const fieldIconMapper = {
 }
 
 export default fieldIconMapper
+

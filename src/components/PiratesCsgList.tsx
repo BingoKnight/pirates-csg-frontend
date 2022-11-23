@@ -118,6 +118,11 @@ function CsgItemColumns({ csgItem }) {
 }
 
 function CsgItemRows({ pirateCsgList, setActive }) {
+    if (pirateCsgList.length === 0)
+        return <div className="row csg-row no-items">
+            No results found
+        </ div>
+
     return pirateCsgList.map((csgItem: CsgItem) => (
         <div className={`row csg-row csg-item-row noselect`} onClick={() => setActive(csgItem)}>
             <CsgItemColumns csgItem={csgItem} />

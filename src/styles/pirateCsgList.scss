@@ -52,6 +52,12 @@ $faction-icons: (
     padding: 0;
     margin: 5px;
     height: 50px;
+
+    &.no-items {
+        font-family: windlass, serif;
+        font-size: 1.3rem;
+        border: 2px solid transparent;
+    }
 }
 
 .csg-item-row {

@@ -66,7 +66,7 @@ $raritiesColors: (
 
         #points-col {
             display: flex;
-            flex: 0 0 15%;
+            flex: 0 0 70px;
             flex-direction: column;
             justify-content: space-evenly;
 
@@ -95,7 +95,15 @@ $raritiesColors: (
             height: 100%;
 
             .link-row {
-                // flex: 1;
+                margin-top: 15px;
+                justify-content: flex-start;
+                align-items: center;
+                .col {
+                    // flex: 0 1 auto;
+                    display: flex;
+                    text-align: left;
+                    align-items: center;
+                }
             }
 
             .row {
@@ -209,6 +217,13 @@ $raritiesColors: (
     margin-top: 10px;
     font-family: windlass, serif;
     font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    span {
+        padding: 0 4px;
+    }
 }
 
 #image-container {
@@ -236,12 +251,12 @@ $raritiesColors: (
 
     #rarity-tab {
         position: relative;
-        top: -48px;
-        left: -43px;
+        top: -50px;
+        left: -45px;
 
         padding-top: 2px;
 
-        width: 100px;
+        width: 110px;
         height: 75px;
 
         rotate: 45deg;
@@ -253,6 +268,12 @@ $raritiesColors: (
         font-weight: bold;
         letter-spacing: 1.5px;
         -webkit-text-stroke: 1px black;
+
+        .icon {
+            display: flex;
+            justify-content: center;
+            margin-top: -6px;
+        }
     }
 
     @each $rarity, $color in $raritiesColors {
@@ -268,6 +289,7 @@ $raritiesColors: (
 }
 
 .close-button-row {
+    margin-top: 10px;
     flex: 1;
     .col:first-child {
         align-self: flex-end;
