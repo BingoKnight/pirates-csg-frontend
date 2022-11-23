@@ -152,7 +152,7 @@ function NextPageButton({ pageNumber, maxPages, incrementPage }) {
     )
 }
 
-function getPageNumbers(pageNumber, maxPages, currentPageNumber, lenPageNumbers) {
+function getPageNumbers(currentPageNumber, maxPages, lenPageNumbers) {
     if (maxPages === 0)
         return [1]
 
@@ -183,7 +183,7 @@ function getPageNumbers(pageNumber, maxPages, currentPageNumber, lenPageNumbers)
 }
 
 function PageNumbers({ currentPageNumber, setPageNumber, maxPages, lenPageNumbers }) {
-    let pageNumbers = getPageNumbers(currentPageNumber, maxPages, currentPageNumber, lenPageNumbers)
+    let pageNumbers = getPageNumbers(currentPageNumber, maxPages, lenPageNumbers)
 
     return pageNumbers.map(num => {
         if (isNaN(num)) {  // then it is an ellipsis

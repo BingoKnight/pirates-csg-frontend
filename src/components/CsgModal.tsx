@@ -3,11 +3,12 @@ import { ReactComponent as XIcon } from '../images/times.svg'
 
 import Button from './Button.tsx'
 import CannonImage from './CannonImages.tsx'
+import { ReactComponent as Copy } from '../images/copy-regular.svg'
 import factionImageMapper from '../utils/factionImageMapper.tsx'
 import fieldIconMapper from '../utils/fieldIconMapper.tsx'
+import setIconMapper from '../utils/setIconMapper.tsx'
 
 import '../styles/csgModal.scss'
-import setIconMapper from '../utils/setIconMapper.tsx'
 
 function ModalOverlay({ closeModal }) {
     return <>
@@ -112,6 +113,15 @@ function CsgShipStats({ csgItem }) {
     )
 }
 
+function CopyButton({ csgItemId }) {
+    function handleClick() {
+        console.dir(csgItemId)
+        navigator.clipboard.writeText(`${process.env.REACT_APP_PIRATE_CSG_API_BASE_URL}?_id=${csgItemId}`)
+    }
+
+    return <div className="copy-button"><Copy onClick={handleClick} /></div>
+}
+
 function CsgStats({ csgItem }) {
     return (
         <div className="col" id="stats-col">
@@ -124,6 +134,7 @@ function CsgStats({ csgItem }) {
                     }
                 </div>
                 <div className="col" id="name">{csgItem.name}</div>
+                <CopyButton csgItemId={csgItem._id} />
             </div>
             { csgItem.type.toLowerCase() === 'ship' && <CsgShipStats csgItem={csgItem} /> }
         </div>
