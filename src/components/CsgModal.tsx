@@ -1,8 +1,8 @@
 import React from 'react'
 import { ReactComponent as XIcon } from '../images/times.svg'
 
+import Button from './Button.tsx'
 import CannonImage from './CannonImages.tsx'
-import Button from '../components/Button.tsx'
 import factionImageMapper from '../utils/factionImageMapper.tsx'
 import fieldIconMapper from '../utils/fieldIconMapper.tsx'
 
@@ -125,53 +125,58 @@ function CsgStats({ csgItem }) {
 function Ability({ ability, keywords }) {
     keywords.forEach(keyword => {
         if (ability.toLowerCase().includes(keyword.toLowerCase())) {
-            ability = ability.replace(keyword, `<b>${keyword}</b>`)
+            ability = ability.replace(keyword, `<span class='keyword'>${keyword}</span>`)
             return
         }
 
         const keywordStrippedSpaces = keyword.replaceAll(' ', '')
         if (ability.toLowerCase().includes(keywordStrippedSpaces.toLowerCase())) {
-            ability = ability.replace(keywordStrippedSpaces, `<b>${keywordStrippedSpaces}</b>`)
+            ability = ability.replace(keywordStrippedSpaces, `<span class='keyword'>${keywordStrippedSpaces}</span>`)
             return
         }
     })
     return <div className="col" id="ability-col" dangerouslySetInnerHTML={{__html: ability}} />
 }
 
-function CsgItemDetails({ csgItem }){
+function CsgItemDetails({ csgItem, closeModal }){
     return (
-        <>
+        <div className="csg-details-container">
             <div className="row">
                 {csgItem.pointCost && <CsgPoints pointCost={csgItem.pointCost} />}
                 <CsgStats csgItem={csgItem} />
             </div>
- 
-            <div className="row">
-                <Ability ability={csgItem.ability} keywords={csgItem.keywords} />
-            </div>
-            <div className="row">
+            <div className="row link-row">
                 {
                     csgItem.link &&
                     <>
-                        <div className="col">Linked to</div>
+                        <div className="col"><LinkImage /></div>
                         <div className="col">{csgItem.link}</div>
                     </>
                 }
             </div>
             <div className="row">
-                <div className="col" id="flavor-text">{csgItem.flavorText}</div>
+                <Ability ability={csgItem.ability} keywords={csgItem.keywords} />
             </div>
             <div className="row">
-                <div className="col">Keywords</div>
+                <div className="col" id="flavor-text">{csgItem.flavorText}</div>
             </div>
-            {
-                csgItem.keywords.map(keyword => (
-                    <div className="row">
-                        <div className="col">{keyword}</div>
-                    </div>
-                ))
-            }
-        </>
+            <div className="row close-button-row">
+                <div className="col">
+                    <Button label="Close" onClick={closeModal} />
+                </div>
+            </div>
+            {/*<div className="row keywords-row">
+                <div className="col">
+                    {
+                        csgItem.keywords.map(keyword => (
+                            <div className="row keyword">
+                                <div className="col">{keyword}</div>
+                            </div>
+                        ))
+                    }
+                </div>
+            </div>*/}
+        </div>
     )
 }
 
@@ -186,14 +191,12 @@ function CsgModal({ csgItem, closeModal }) {
                 <div className="row modal-content">
                     <div className="col" id="csg-image-col">
                         <CsgItemImage csgItem={csgItem} />
+                        <div className="row">
+                            <div className="col" id="set-text">{csgItem.set}</div>
+                        </div>
                     </div>
                     <div className="col" id="csg-details-col">
-                        <CsgItemDetails csgItem={csgItem} />
-                    </div>
-                </div>
-                <div className="row">
-                    <div className="col close-button-col">
-                        <Button label="Close" onClick={closeModal} />
+                        <CsgItemDetails csgItem={csgItem} closeModal={closeModal}/>
                     </div>
                 </div>
             </div>

@@ -6,7 +6,7 @@ $raritiesColors: (
     "rare": linear-gradient(90deg, rgba(228,197,31,1) 15%, rgba(133,116,27,1) 50%, rgba(228,197,31,1) 85%),
     "super-rare": black,
     "promo": linear-gradient(90deg, rgba(61,185,22,1) 15%, rgba(173,218,160,1) 50%, rgba(61,185,22,1) 85%),
-    "le": linear-gradient(90deg, rgba(61,185,22,1) 15%, rgba(173,218,160,1) 50%, rgba(61,185,22,1) 85%),
+    "le": linear-gradient(90deg, rgba(114,66,40,1) 15%, rgba(201,164,144,1) 50%, rgba(114,66,40,1) 85%),
     "pr": linear-gradient(90deg, rgba(61,185,22,1) 15%, rgba(173,218,160,1) 50%, rgba(61,185,22,1) 85%),
     "se": linear-gradient(90deg, rgba(61,185,22,1) 15%, rgba(173,218,160,1) 50%, rgba(61,185,22,1) 85%),
     "special": blue,
@@ -27,7 +27,7 @@ $raritiesColors: (
 }
 
 .csg-modal {
-    width: 950px;
+    width: 1000px;
     min-width: 950px;
     padding: 20px;
 
@@ -62,7 +62,7 @@ $raritiesColors: (
 
     #csg-details-col {
         flex: 4;
-        height: 100%;
+        height: inherit;
 
         #points-col {
             display: flex;
@@ -88,92 +88,127 @@ $raritiesColors: (
             }
         }
 
-        .row {
+        .csg-details-container {
+            display: flex;
+            flex-direction: column;
             align-items: stretch;
+            height: 100%;
 
-            #stats-col {
-                padding-top: 5px;
-                #faction {
-                    flex: 0 0 15%;
-                    margin-left: -15px;
-                }
+            .link-row {
+                // flex: 1;
+            }
 
-                #name {
-                    font-family: windlass, serif;
-                    font-size: 2rem;
-                    text-align: left;
-                    padding-left: 15px;
-                    line-height: 2.1rem;
-                }
+            .row {
+                align-items: stretch;
 
-                .stats-row {
-                    font-family: minister, serif;
-                    font-size: 1.4rem;
-
-                    justify-content: center;
-                    align-items: stretch;
-
-                    .col {
-                        background-color: black;
-                        margin: 0 1px;
-                        padding: 2px 4px;
+                #stats-col {
+                    padding-top: 5px;
+                    #faction {
+                        flex: 0 0 15%;
+                        margin-left: -15px;
                     }
 
-                    .icon {
-                        display: flex;
+                    #name {
+                        font-family: windlass, serif;
+                        font-size: 2rem;
+                        text-align: left;
+                        padding-left: 15px;
+                        line-height: 2.1rem;
                     }
 
-                    #masts-col,
-                    #cargo-col,
-                    #base-move-col,
-                    #cannons-col {
-                        display: flex;
-                        flex: 1 1 auto;
-                    }
+                    .stats-row {
+                        font-family: minister, serif;
+                        font-size: 1.4rem;
 
-                    #masts-col {
+                        justify-content: center;
+                        align-items: stretch;
+
+                        .col {
+                            background-color: black;
+                            margin: 0 1px;
+                            padding: 2px 4px;
+                        }
+
                         .icon {
-                            flex: 3;
+                            display: flex;
                         }
-                        .value {
-                            flex: 2;
-                        }
-                    }
 
-                    #cargo-col {
-                        .icon {
-                            flex: 2;
+                        #masts-col,
+                        #cargo-col,
+                        #base-move-col,
+                        #cannons-col {
+                            display: flex;
+                            flex: 1 1 auto;
                         }
-                    }
 
-                    #base-move-col {
-                        .value {
-                            flex: 2;
+                        #masts-col {
+                            .icon {
+                                flex: 3;
+                            }
+                            .value {
+                                flex: 2;
+                            }
                         }
-                    }
 
-                    #cannons-col {
-                        .value {
-                            flex: 4;
+                        #cargo-col {
+                            .icon {
+                                flex: 2;
+                            }
+                        }
+
+                        #base-move-col {
+                            .value {
+                                flex: 2;
+                            }
+                        }
+
+                        #cannons-col {
+                            .value {
+                                flex: 4;
+                            }
                         }
                     }
                 }
             }
-        }
  
-        #ability-col {
-            margin-top: 15px;
-            padding: 10px 5px;
-            border: 2px solid #000;
-            line-height: 1.5rem;
-            font-size: 1.1rem;
-        }
+            #ability-col {
+                margin-top: 15px;
+                padding: 10px 5px;
+                border: 2px solid #000;
+                line-height: 1.5rem;
+                font-size: 1.1rem;
+            }
 
-        #flavor-text {
-            font-style: italic;
-            margin-top: 15px;
+            #flavor-text {
+                font-style: italic;
+                margin-top: 15px;
+            }
+
+            .keyword {
+                font-weight: 700;
+            }
+
+            // .keywords-row {
+            //     margin-top: 15px;
+            //     font-family: windlass, serif;
+            //     font-size: 1.2rem;
+            //
+            //     .keyword {
+            //         margin: 10px 0;
+            //         justify-content: start;
+            //
+            //         .col {
+            //         }
+            //     }
+            // }
         }
     }
+}
+
+#set-text {
+    margin-top: 10px;
+    font-family: windlass, serif;
+    font-size: 1.5rem;
 }
 
 #image-container {
@@ -232,8 +267,10 @@ $raritiesColors: (
     }
 }
 
-// .close-button-col {
-//         float: right;
-//     .form-button {
-//     }
-// }
+.close-button-row {
+    flex: 1;
+    .col:first-child {
+        align-self: flex-end;
+        flex: 0 0;
+    }
+}

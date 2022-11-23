@@ -289,6 +289,9 @@ function Content({ setActiveCsgItem }) {
 
     useEffect(() => {
         function updateCsgLists(csgList) {
+            const filteredCsgList = csgList.filter(
+                csgItem => csgItem.ability || !csgItem.set.toLowerCase() === 'unreleased'
+            )
             setPirateCsgList(csgList)
             setFilteredCsgList(csgList)
         }
