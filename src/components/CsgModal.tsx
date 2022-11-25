@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useState} from 'react'
 import { ReactComponent as XIcon } from '../images/times.svg'
 
 import Button from './Button.tsx'
@@ -18,7 +18,6 @@ function ModalOverlay({ closeModal }) {
     </>
 }
 
-// TODO: show default image if image doesn't exist
 function CsgItemImage({ csgItem }) {
     const csgItemImageUrl = csgItem.image?.replace(
         '/home/nathan/Projects/pirates-csg-api/public',
@@ -69,12 +68,10 @@ function BaseMoveCol({ baseMove }) {
         }).reduce((prev, curr) => [prev, ' + ', curr])
 
     return (
-        <div className="col" id="base-move-col">
-            <div className="row stat">
+            <div className="row stat base-move-stat">
                 <div className="col icon">{fieldIconMapper.baseMove({height: '20px'})}</div>
                 <div className="col value">{baseMoveText}</div>
             </div>
-        </div>
     )
 }
 
@@ -84,32 +81,30 @@ function CannonsCol({ cannons }) {
         .map(cannon => <CannonImage cannon={cannon} height="15px"/>)
         .reduce((prev, curr) => [prev, ' ', curr])
     return (
-        <div className="col" id="cannons-col">
-            <div className="row stat">
+            <div className="row stat cannons-stat">
                 <div className="col icon">{fieldIconMapper.cannons({height: '20px'})}</div>
                 <div className="col value">{cannonsList}</div>
             </div>
-        </div>
     )
 }
 
 function CsgShipStats({ csgItem }) {
     return (
         <div className="row stats-row">
-            <div className="col" id="masts-col">
-                <div className="row stat">
-                    <div className="col icon">{fieldIconMapper.masts({height: '23px'})}</div>
-                    <div className="col value">{csgItem.masts}</div>
+            <div className="col">
+                <div className="row">
+                    <div className="row stat">
+                        <div className="col icon">{fieldIconMapper.masts({height: '23px'})}</div>
+                        <div className="col value">{csgItem.masts}</div>
+                    </div>
+                    <div className="row stat">
+                        <div className="col icon">{fieldIconMapper.cargo({height: '23px'})}</div>
+                        <div className="col value">{csgItem.cargo}</div>
+                    </div>
+                    <BaseMoveCol baseMove={csgItem.baseMove} />
+                    <CannonsCol cannons={csgItem.cannons} />
                 </div>
             </div>
-            <div className="col" id="cargo-col">
-                <div className="row stat">
-                    <div className="col icon">{fieldIconMapper.cargo({height: '23px'})}</div>
-                    <div className="col value">{csgItem.cargo}</div>
-                </div>
-            </div>
-            <BaseMoveCol baseMove={csgItem.baseMove} />
-            <CannonsCol cannons={csgItem.cannons} />
         </div>
     )
 }
@@ -122,6 +117,19 @@ function CopyButton({ csgItemId }) {
     return <div className="copy-button"><Copy onClick={handleClick} /></div>
 }
 
+function LinkIcon({ link }) {
+    return (
+        <div className="link-dropdown">
+            <div className="hover-helper">
+                <div className="link-tooltip">{link}</div>
+            </div>
+            <span className="link-icon noselect">
+                {fieldIconMapper.link()}
+            </span>
+        </div>
+    )
+}
+
 function CsgStats({ csgItem }) {
     return (
         <div className="col" id="stats-col">
@@ -132,9 +140,13 @@ function CsgStats({ csgItem }) {
                         && factionImageMapper[csgItem.faction.toLowerCase()]({height: '35px'})
                     }
                 </div>
-                <div className="col" id="name">{csgItem.name}</div>
+                <div className="col" id="name-col">
+                    <span id="name">{csgItem.name}</span>
+                    { csgItem.link && <LinkIcon link={csgItem.link} /> }
+                </div>
                 <CopyButton csgItemId={csgItem._id} />
             </div>
+
             { csgItem.type.toLowerCase() === 'ship' && <CsgShipStats csgItem={csgItem} /> }
         </div>
     )
@@ -158,17 +170,11 @@ function Ability({ ability, keywords }) {
 
 function CsgItemDetails({ csgItem, closeModal }){
     return (
-        <div className="csg-details-container">
-            <div className="row">
+        <>
+            <div className="row title-and-stats-row">
                 {csgItem.pointCost && <CsgPoints pointCost={csgItem.pointCost} />}
                 <CsgStats csgItem={csgItem} />
             </div>
-            {
-                csgItem.link &&
-                <div className="row link-row">
-                    <div className="col">{fieldIconMapper.link()} Link {csgItem.link}</div>
-                </div>
-            }
             <div className="row">
                 {
                     csgItem.type.toLowerCase() !== 'story'
@@ -178,23 +184,10 @@ function CsgItemDetails({ csgItem, closeModal }){
             <div className="row">
                 <div className="col" id="flavor-text">{csgItem.flavorText}</div>
             </div>
-            <div className="row close-button-row">
-                <div className="col">
-                    <Button label="Close" onClick={closeModal} />
-                </div>
+            <div className="close-button-row">
+                <Button label="Close" className="close-button" onClick={closeModal} />
             </div>
-            {/*<div className="row keywords-row">
-                <div className="col">
-                    {
-                        csgItem.keywords.map(keyword => (
-                            <div className="row keyword">
-                                <div className="col">{keyword}</div>
-                            </div>
-                        ))
-                    }
-                </div>
-            </div>*/}
-        </div>
+        </>
     )
 }
 
@@ -216,25 +209,23 @@ function CsgModal({ csgItem, closeModal }) {
     return (
         <>
             <ModalOverlay closeModal={closeModalHandler} />
-            {/*<div className="modal-container">*/}
-                <div className="csg-modal">
-                    <div className="row modal-content">
-                        <div className="col" id="csg-image-col">
-                            <CsgItemImage csgItem={csgItem} />
-                            <div className="row">
-                                <div className="col" id="set-text">
-                                    {setIconMapper[csgItem.set]({height: '40px'})}
-                                    <span> </span>
-                                    {csgItem.set}
-                                </div>
+            <div className="csg-modal">
+                <div className="row modal-content">
+                    <div className="col" id="csg-image-col">
+                        <CsgItemImage csgItem={csgItem} />
+                        <div className="row">
+                            <div className="col" id="set-text">
+                                {setIconMapper[csgItem.set]({height: '40px'})}
+                                <span> </span>
+                                {csgItem.set}
                             </div>
                         </div>
-                        <div className="col" id="csg-details-col">
-                            <CsgItemDetails csgItem={csgItem} closeModal={closeModalHandler}/>
-                        </div>
+                    </div>
+                    <div className="col" id="csg-details-col">
+                        <CsgItemDetails csgItem={csgItem} closeModal={closeModalHandler}/>
                     </div>
                 </div>
-                {/*</div>*/}
+            </div>
         </>
     )
 }
