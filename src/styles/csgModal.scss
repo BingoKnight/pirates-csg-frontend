@@ -27,9 +27,12 @@ $raritiesColors: (
 }
 
 .csg-modal {
-    max-width: 1190px;
+    // max-width: 1190px;
     min-width: 999px;
     padding: 20px;
+
+    max-height: 702px;
+    overflow: auto;
 
     display: block;
     border-radius: $modal-border-radius;
@@ -40,7 +43,8 @@ $raritiesColors: (
     font-size: 1rem;
 
     position: fixed;
-    top: 25%;
+    top: 20%;
+    bottom: 20%;
 
     z-index: 11;
 
@@ -152,6 +156,22 @@ $raritiesColors: (
     }
 }
 
+.windlass-white {
+    font-family: windlass, serif;
+    color: #fff;
+    font-size: 1.4rem;
+    padding-left: 1px;
+    padding-right: 1px;
+}
+
+.windlass-red {
+    font-family: windlass, serif;
+    color: red;
+    font-size: 1.4rem;
+    padding-left: 1px;
+    padding-right: 1px;
+}
+
 .link-dropdown {
     display: inline-block;
 
@@ -233,6 +253,7 @@ $raritiesColors: (
 }
 
 #ability-col {
+    width: 619px;
     margin: 15px 45px 15px 45px;
     padding: 20px 5px;
     border: 2px solid #000;
@@ -243,9 +264,11 @@ $raritiesColors: (
 #flavor-text {
     font-style: italic;
     margin-top: 15px;
+    max-width: 723px;
+    line-height: 1.3rem;
 }
 
-.keyword {
+.ability-keyword-text {
     font-weight: 700;
 }
 
@@ -362,6 +385,58 @@ $raritiesColors: (
     .row{
         .col {
             padding: 0 3px;
+        }
+    }
+}
+
+// .overflow-scroll {
+//     max-height: 400px;
+//     overflow: auto;
+// }
+
+.keywords-row {
+    margin: 30px 0 0 45px;
+    align-items: start;
+    justify-content: flex-start;
+    flex-direction: column
+}
+
+.keywords-title {
+    font-family: windlass, serif;
+    font-size: 1.6rem;
+    margin-bottom: 10px;
+}
+
+.keyword-item {
+    margin: 5px 0;
+    border: 1px solid #333;
+    width: 645px;
+
+    .title {
+        padding: 15px;
+        font-family: windlass, serif;
+        font-size: 1.2rem;
+        cursor: pointer;
+
+        .col {
+            text-align: left;
+        }
+    }
+
+    .caret {
+        text-align: right !important;
+        .active {
+            rotate: 180deg;
+        }
+    }
+
+    .definition {
+        border-top: 1px solid #333;
+        padding: 15px 0;
+        margin: 0 15px;
+        .col{
+            text-align: left;
+            line-height: 1.5rem;
         }
     }
 }

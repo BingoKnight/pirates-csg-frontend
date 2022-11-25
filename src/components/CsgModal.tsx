@@ -3,6 +3,7 @@ import { ReactComponent as XIcon } from '../images/times.svg'
 
 import Button from './Button.tsx'
 import CannonImage from './CannonImages.tsx'
+import { ReactComponent as DownArrow } from '../images/angle-down-solid.svg'
 import { ReactComponent as Copy } from '../images/copy-regular.svg'
 import { ReactComponent as CircleCheck } from '../images/circle-check-regular.svg'
 import factionImageMapper from '../utils/factionImageMapper.tsx'
@@ -11,6 +12,8 @@ import setIconMapper from '../utils/setIconMapper.tsx'
 
 import '../styles/csgModal.scss'
 import {useSearchParams} from 'react-router-dom'
+
+// TODO: some images are too big like Shaihulud
 
 function ModalOverlay({ closeModal }) {
     return <>
@@ -178,20 +181,94 @@ function CsgStats({ csgItem }) {
     )
 }
 
-function Ability({ ability, keywords }) {
-    keywords.forEach(keyword => {
-        if (ability.toLowerCase().includes(keyword.toLowerCase())) {
-            ability = ability.replace(keyword, `<span class='keyword'>${keyword}</span>`)
-            return
-        }
+function getKeywordsDictionary() {
+    const sessionKeywordsDictionary = sessionStorage.getItem('keywordsDictionary')
+    if (!sessionKeywordsDictionary) {
+        return {}
+    }
 
-        const keywordStrippedSpaces = keyword.replaceAll(' ', '')
-        if (ability.toLowerCase().includes(keywordStrippedSpaces.toLowerCase())) {
-            ability = ability.replace(keywordStrippedSpaces, `<span class='keyword'>${keywordStrippedSpaces}</span>`)
-            return
-        }
+    return JSON.parse(sessionKeywordsDictionary)
+        .reduce((prev, curr) => ({...prev, [curr.name]: curr.definition}), {})
+}
+
+function formatKeywords(str: string) {
+    let updatedStr = str
+    const keywordsDictionary = getKeywordsDictionary()
+
+    Object.keys(keywordsDictionary).forEach(keyword => {
+        keyword = str.toLowerCase().includes(keyword.toLowerCase()) ? keyword : keyword.replaceAll(' ', '')
+        updatedStr = updatedStr.replaceAll(keyword, `<span class='ability-keyword-text'>${keyword}</span>`)
     })
-    return <div className="col" id="ability-col" dangerouslySetInnerHTML={{__html: ability}} />
+    
+    return updatedStr
+}
+
+function formatMovement(str: string) {
+    return str
+        .replaceAll('+S', '<span class="windlass-white">+S</span>')
+        .replaceAll(' S ', ' <span class="windlass-white">S</span> ')
+        .replaceAll('+L', '<span class="windlass-white">+</span><span class="windlass-red">L</span>')
+        .replaceAll(' L ', ' <span class="windlass-red">L</span> ')
+
+}
+
+function Ability({ ability }) {
+    const formattedAbility = formatMovement(formatKeywords(ability))
+
+    return <div className="col" id="ability-col" dangerouslySetInnerHTML={{__html: formattedAbility}} />
+}
+
+function KeywordItem({ keyword, definition }) {
+    const [ isExpanded, setExpanded ] = useState(false)
+
+    const formattedDefinition = formatMovement(formatKeywords(definition))
+
+    return (
+        <div className="keyword-item">
+            <div className="row title" onClick={() => setExpanded(!isExpanded)}>
+                <div className="col">
+                    {keyword}
+                </div>
+                <div className="col caret">
+                    <DownArrow className={isExpanded ? "active" : ""} />
+                </div>
+            </div>
+            {
+                isExpanded && <div className="row definition">
+                    <div className="col" dangerouslySetInnerHTML={{__html: formattedDefinition}} />
+                </div>
+            }
+        </div>
+    )
+}
+
+function KeywordsList({ keywords, ability }) {
+    const keywordsDictionary = getKeywordsDictionary()
+
+    const uniqueKeywords = keywords
+        .filter((keyword: string) => keyword !== 'Hoard')
+        .filter((keyword: string)=> !['Octopus', 'Kraken'].includes(keyword) || ability.includes(keyword))
+
+
+    return uniqueKeywords.map((keyword: string) => {
+        return <KeywordItem
+            keyword={keyword}
+            definition={keywordsDictionary[keyword]}
+        />
+    })
+}
+
+function KeywordsSection({ keywords, ability }) {
+    return (
+        <>
+            <div className="row">
+                <div className="col keywords-title">Keywords</div>
+            </div>
+            <div className="overflow-scroll">
+                <KeywordsList keywords={keywords} ability={ability} />
+            </div>
+        </>
+    )
 }
 
 function CsgItemDetails({ csgItem, closeModal }){
@@ -204,12 +281,17 @@ function CsgItemDetails({ csgItem, closeModal }){
             <div className="row">
                 {
                     csgItem.type.toLowerCase() !== 'story'
-                    && <Ability ability={csgItem.ability} keywords={csgItem.keywords} />
+                    && <Ability ability={csgItem.ability} />
                 }
             </div>
             <div className="row">
                 <div className="col" id="flavor-text">{csgItem.flavorText}</div>
             </div>
+            {
+                csgItem.keywords.length > 0 && <div className="row keywords-row">
+                    <KeywordsSection keywords={csgItem.keywords} ability={csgItem.ability} />
+                </div>
+            }
             <div className="close-button-row">
                 <Button label="Close" className="close-button" onClick={closeModal} />
             </div>

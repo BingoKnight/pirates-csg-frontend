@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
-import { getPirateCsgList } from './api.js'
+import { getKeywordsDictionary, getPirateCsgList } from './api.js'
 import Button from './components/Button.tsx'
 import CsgModal from './components/CsgModal.tsx'
 import Dropdown from './components/Dropdown.tsx'
@@ -24,9 +24,6 @@ import PirateCsgList from './components/PiratesCsgList.tsx';
 import TextInput from './components/TextInput.tsx'
 
 import './App.scss';
-
-// Bugs:
-// TODO: on initial page load (not refresh) max pages is 0
 
 function FactionCheckboxes({ factionList, filterFactions }) {
     const [filteredFactions, setFilteredFactions] = useState(new Set())
@@ -306,13 +303,10 @@ function Content({ setActiveCsgItem }) {
             setPirateCsgList(filtered)
             setFilteredCsgList(filtered)
 
-            console.log('Lets get started')
             if (searchParams.has('_id')) {
-                console.log('Has ID')
                 const match = filtered.find(item => item._id === searchParams.get('_id'))
 
                 if (match) {
-                    console.log('Setting match')
                     setActiveCsgItem(match)
                 }
             }
@@ -320,6 +314,7 @@ function Content({ setActiveCsgItem }) {
 
         async function fetchData() {
             updateCsgLists(await getPirateCsgList())
+            await getKeywordsDictionary()
         }
 
         fetchData()

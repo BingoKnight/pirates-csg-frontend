@@ -32,6 +32,7 @@ const setIconMapper = {
     'South China Seas': (props: any) => <SouthChinaSeasIcon {...props} />,
     'Spanish Main First Edition': (props: any) => <SpanishMainIcon {...props} />,
     'Spanish Main Unlimited': (props: any) => <SpanishMainIcon {...props} />,
+    'Unreleased': (props: any) => null
 }
 
 export default setIconMapper
