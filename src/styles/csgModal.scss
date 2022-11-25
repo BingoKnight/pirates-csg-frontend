@@ -342,3 +342,27 @@ $raritiesColors: (
     flex: 1;
 }
 
+.copy-tooltip {
+    position: absolute;
+    margin-left: -26px;
+    margin-top: 10px;
+    padding: 4px;
+
+    border-radius: $modal-border-radius;
+
+    background-color: #fff;
+    color: #000;
+
+    font-size: 0.9rem;
+
+    .circle-check-col {
+        margin-bottom: -3px;
+    }
+
+    .row{
+        .col {
+            padding: 0 3px;
+        }
+    }
+}
+

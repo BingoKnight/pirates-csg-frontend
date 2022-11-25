@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 
 import { getPirateCsgList } from './api.js'
 import Button from './components/Button.tsx'
@@ -265,8 +266,9 @@ function PageControl(props) {
 
 function Content({ setActiveCsgItem }) {
     const [pirateCsgList, setPirateCsgList] = useState(JSON.parse(sessionStorage.getItem('pirateCsgList')) || [])
-
     const [filteredCsgList, setFilteredCsgList] = useState(pirateCsgList)
+
+    const [ searchParams ] = useSearchParams()
 
     const [pageSize, setPageSize] = useState(25)
     const [maxPages, setMaxPages] = useState(calculateMaxPages(filteredCsgList.length, pageSize))
@@ -298,11 +300,22 @@ function Content({ setActiveCsgItem }) {
 
     useEffect(() => {
         function updateCsgLists(csgList) {
-            const filteredCsgList = csgList.filter(
+            const filtered = csgList.filter(
                 csgItem => csgItem.ability || !csgItem.set.toLowerCase() === 'unreleased'
             )
-            setPirateCsgList(filteredCsgList)
-            setFilteredCsgList(filteredCsgList)
+            setPirateCsgList(filtered)
+            setFilteredCsgList(filtered)
+
+            console.log('Lets get started')
+            if (searchParams.has('_id')) {
+                console.log('Has ID')
+                const match = filtered.find(item => item._id === searchParams.get('_id'))
+
+                if (match) {
+                    console.log('Setting match')
+                    setActiveCsgItem(match)
+                }
+            }
         }
 
         async function fetchData() {
@@ -313,7 +326,7 @@ function Content({ setActiveCsgItem }) {
     }, [])
 
     useEffect(() => {
-        const filteredCsgListSize = updateQuery(query, pirateCsgList, setFilteredCsgList)
+        updateQuery(query, pirateCsgList, setFilteredCsgList)
         sessionStorage.setItem('query', JSON.stringify(query))
         setPageNumber(1)
     }, [query])

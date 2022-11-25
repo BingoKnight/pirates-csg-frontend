@@ -1,9 +1,10 @@
-import React, {useState} from 'react'
+import React, {useEffect, useState} from 'react'
 import { ReactComponent as XIcon } from '../images/times.svg'
 
 import Button from './Button.tsx'
 import CannonImage from './CannonImages.tsx'
 import { ReactComponent as Copy } from '../images/copy-regular.svg'
+import { ReactComponent as CircleCheck } from '../images/circle-check-regular.svg'
 import factionImageMapper from '../utils/factionImageMapper.tsx'
 import fieldIconMapper from '../utils/fieldIconMapper.tsx'
 import setIconMapper from '../utils/setIconMapper.tsx'
@@ -110,11 +111,36 @@ function CsgShipStats({ csgItem }) {
 }
 
 function CopyButton({ csgItemId }) {
+    const [ showTooltip, setShowTooltip] = useState(false)
+
     function handleClick() {
         navigator.clipboard.writeText(`${process.env.REACT_APP_PIRATE_CSG_FE_BASE_URL}?_id=${csgItemId}`)
+        setShowTooltip(true)
     }
 
-    return <div className="copy-button"><Copy onClick={handleClick} /></div>
+    useEffect(() => {
+        if (showTooltip) {
+            const intervalId = setInterval(() => setShowTooltip(false), 7000)
+            return () => clearInterval(intervalId)
+        }
+    }, [showTooltip])
+
+    return (
+        <div className="copy-button">
+            <Copy onClick={handleClick} />
+            {
+                showTooltip
+                && <div className="copy-tooltip">
+                    <div className="row">
+                        <div className="col circle-check-col">
+                            <CircleCheck />
+                        </div>
+                        <div className="col">Copied</div>
+                    </div>
+                </div>
+            }
+        </div>
+    )
 }
 
 function LinkIcon({ link }) {
