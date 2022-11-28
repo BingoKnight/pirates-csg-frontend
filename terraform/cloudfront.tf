@@ -58,6 +58,7 @@ resource "aws_cloudfront_distribution" "pirates_csg_frontend_distribution" {
   viewer_certificate {
     cloudfront_default_certificate = true
     acm_certificate_arn            = data.aws_acm_certificate.pirates_csg_certificate.arn
+    ssl_support_method             = "sni-only"
   }
 }
 
