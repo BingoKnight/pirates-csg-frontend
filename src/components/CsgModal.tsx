@@ -1,5 +1,4 @@
 import React, {useEffect, useState} from 'react'
-import { ReactComponent as XIcon } from '../images/times.svg'
 
 import Button from './Button.tsx'
 import CannonImage from './CannonImages.tsx'
@@ -13,11 +12,12 @@ import setIconMapper from '../utils/setIconMapper.tsx'
 import '../styles/csgModal.scss'
 import {useSearchParams} from 'react-router-dom'
 
-function ModalOverlay({ closeModal }) {
-    return <>
+function ModalOverlay({ closeModal, children }) {
+    return (
         <div className='fixed-overlay' onClick={closeModal}>
+            {children}
         </div>
-    </>
+    )
 }
 
 function CsgItemImage({ csgItem }) {
@@ -313,8 +313,7 @@ function CsgModal({ csgItem, closeModal }) {
         return null
 
     return (
-        <>
-            <ModalOverlay closeModal={closeModalHandler} />
+        <ModalOverlay closeModal={closeModalHandler}>
             <div className="csg-modal">
                 <div className="row modal-content">
                     <div className="col" id="csg-image-col">
@@ -332,7 +331,7 @@ function CsgModal({ csgItem, closeModal }) {
                     </div>
                 </div>
             </div>
-        </>
+        </ModalOverlay>
     )
 }
 
