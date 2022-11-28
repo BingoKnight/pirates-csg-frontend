@@ -13,8 +13,6 @@ import setIconMapper from '../utils/setIconMapper.tsx'
 import '../styles/csgModal.scss'
 import {useSearchParams} from 'react-router-dom'
 
-// TODO: some images are too big like Shaihulud
-
 function ModalOverlay({ closeModal }) {
     return <>
         <div className='fixed-overlay' onClick={closeModal}>
