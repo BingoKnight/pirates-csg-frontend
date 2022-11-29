@@ -22,8 +22,11 @@ import {
 } from '../components/FactionImages.tsx'
 import PirateCsgList from '../components/PiratesCsgList.tsx';
 import TextInput from '../components/TextInput.tsx'
+import { ReactComponent as ShipWheel } from '../images/ship-wheel.svg'
 
 import '../styles/home.scss';
+
+const pageSizeOptions = [10, 25, 50]
 
 function FactionCheckboxes({ factionList, filterFactions }) {
     const [filteredFactions, setFilteredFactions] = useState(new Set())
@@ -202,25 +205,24 @@ function PageNumbers({ currentPageNumber, setPageNumber, maxPages, lenPageNumber
     })
 }
 
-function PageSizeSelect({ setPageSize }) {
-    if (!setPageSize)
+function PageSizeSelect({ pageSize, setPageSize }) {
+    if (!(pageSize && setPageSize))
         return null
 
-    const pageSizeOptions = [10, 25, 50]
     return (
         <div className="col page-size-select-col">
             <Dropdown
                 label="Rows"
                 content={pageSizeOptions}
                 onChange={setPageSize}
-                selected={25}
+                selected={pageSize}
             />
         </div>
     )
 }
 
 function PageControl(props) {
-    const { pageNumber, maxPages, className, setPageNumber, setPageSize, lenPageNumbers = 9 } = props
+    const { pageNumber, maxPages, className, setPageNumber, pageSize, setPageSize, lenPageNumbers = 9 } = props
     const totalPageNumbers = Math.min(lenPageNumbers, maxPages)
 
     function incrementPage() {
@@ -236,7 +238,7 @@ function PageControl(props) {
     return (
         <div className={pageControlClass}>
             <div className="row page-control">
-                <PageSizeSelect setPageSize={setPageSize} />
+                <PageSizeSelect pageSize={pageSize} setPageSize={setPageSize} />
                 <div className="col">
                     <PrevPageButton pageNumber={pageNumber} decrementPage={decrementPage} />
                 </div>
@@ -264,9 +266,13 @@ function Content({ setActiveCsgItem }) {
 
     const [ searchParams ] = useSearchParams()
 
-    const [pageSize, setPageSize] = useState(25)
+    const localStoragePageSize = parseInt(localStorage.getItem('pageSize'))
+    const defaultPageSize = pageSizeOptions.includes(localStoragePageSize) ? localStoragePageSize : 25
+    const [pageSize, setPageSize] = useState(defaultPageSize || 25)
     const [maxPages, setMaxPages] = useState(calculateMaxPages(filteredCsgList.length, pageSize))
     const [pageNumber, setPageNumber] = useState(parseInt(sessionStorage.getItem('page')) || 1)
+
+    const [apiFetchComplete, setApiFetchComplete] = useState(false)
 
     const sessionStorageQuery = JSON.parse(sessionStorage.getItem('query'))
 
@@ -283,6 +289,11 @@ function Content({ setActiveCsgItem }) {
                 .filter(faction => !['ut', 'none'].includes(faction.toLowerCase()))
         )
     ]
+
+    function updatePageSize(value) {
+        localStorage.setItem('pageSize', value)
+        setPageSize(value)
+    }
 
     function executeSearch() {
         setQuery({...query, search: searchRef.current.value})
@@ -312,6 +323,7 @@ function Content({ setActiveCsgItem }) {
         async function fetchData() {
             updateCsgLists(await getPirateCsgList())
             await getKeywordsDictionary()
+            // setApiFetchComplete(true)
         }
 
         fetchData()
@@ -338,6 +350,15 @@ function Content({ setActiveCsgItem }) {
             setPageNumber(newMaxPages)
         }
     }, [pageSize])
+
+    let piratesList = <ShipWheel />
+
+    if (apiFetchComplete) {
+        piratesList = <PirateCsgList
+            pirateCsgList={filteredCsgList.slice(pageSize * (pageNumber - 1), pageSize * pageNumber)}
+            setActiveCsgItem={setActiveCsgItem}
+        />
+    }
 
     return (
         <>
@@ -367,13 +388,11 @@ function Content({ setActiveCsgItem }) {
                 maxPages={maxPages}
                 setPageNumber={setPageNumber}
                 lenPageNumbers={5}
-                setPageSize={setPageSize}
+                pageSize={pageSize}
+                setPageSize={updatePageSize}
             />
             <div className='result-content'>
-                <PirateCsgList
-                    pirateCsgList={filteredCsgList.slice(pageSize * (pageNumber - 1), pageSize * pageNumber)}
-                    setActiveCsgItem={setActiveCsgItem}
-                />
+                {piratesList}
             </div>
             <PageControl
                 className="lower"
