@@ -1,12 +1,30 @@
 .header-row {
     height: 100px;
-}
 
-.header-title {
-    font-family: windlass, serif;
-    font-size: 2rem;
-    text-decoration: italic;
-    text-align: right;
+    .header-title {
+        display: flex;
+        justify-content: center;
+
+        font-family: windlass, serif;
+        font-size: 2rem;
+        border: none;
+
+        &:hover {
+            box-shadow: none;
+            border: none;
+        }
+
+        .title-link {
+            color: #fff;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+
+            img {
+                padding-left: 20px;
+            }
+        }
+    }
 }
 
 .header-logo {
@@ -17,3 +35,4 @@
 #empty-col {
     flex: 1;
 }
+

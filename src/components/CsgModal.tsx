@@ -291,7 +291,7 @@ function CsgItemDetails({ csgItem, closeModal }){
                 </div>
             }
             <div className="close-button-row">
-                <Button label="Close" className="close-button" onClick={closeModal} />
+                <Button className="close-button" onClick={closeModal}>Close</Button>
             </div>
         </>
     )

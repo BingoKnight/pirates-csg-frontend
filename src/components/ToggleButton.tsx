@@ -10,7 +10,7 @@ interface ButtonProps {
     height?: string
 }
 
-export default function Button(props: ButtonProps) {
+export default function ToggleButton(props: ButtonProps) {
     const { id, label, onClick, className, ...buttonProps } = props
     const [isToggled, setIsToggled] = useState(false)
 

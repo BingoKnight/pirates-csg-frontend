@@ -11,11 +11,11 @@ interface ButtonProps {
 }
 
 export default function Button(props: ButtonProps) {
-    const { id, label, onClick, width = '125px', height = '40px', ...buttonProps } = props
+    const { id, onClick, children, ...buttonProps } = props
 
     return (
         <div className="form-button">
-            <button id={id} style={{ width, height }} onClick={onClick} {...buttonProps}>{label}</button>
+            <button id={id} onClick={onClick} {...buttonProps}>{children}</button>
         </div>
     )
 }
