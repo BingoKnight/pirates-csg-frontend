@@ -314,7 +314,7 @@ function CsgModal({ csgItem, closeModal }) {
 
     return (
         <ModalOverlay closeModal={closeModalHandler}>
-            <div className="csg-modal">
+            <div className="csg-modal" onClick={e => e.stopPropagation()}>
                 <div className="row modal-content">
                     <div className="col" id="csg-image-col">
                         <CsgItemImage csgItem={csgItem} />
