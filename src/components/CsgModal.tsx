@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from 'react'
+import { useSearchParams } from 'react-router-dom'
 
 import Button from './Button.tsx'
 import CannonImage from './CannonImages.tsx'
@@ -10,7 +11,6 @@ import fieldIconMapper from '../utils/fieldIconMapper.tsx'
 import setIconMapper from '../utils/setIconMapper.tsx'
 
 import '../styles/csgModal.scss'
-import {useSearchParams} from 'react-router-dom'
 
 function ModalOverlay({ closeModal, children }) {
     return (
@@ -21,15 +21,10 @@ function ModalOverlay({ closeModal, children }) {
 }
 
 function CsgItemImage({ csgItem }) {
-    const csgItemImageUrl = csgItem.image?.replace(
-        '/home/nathan/Projects/pirates-csg-api/public',
-        'http://localhost:8080'
-    )
-
     return (
         <div id="image-container">
             <img
-                src={csgItemImageUrl}
+                src={csgItem.image}
                 className="noselect"
                 id="csg-item-image"
                 alt={csgItem.name}

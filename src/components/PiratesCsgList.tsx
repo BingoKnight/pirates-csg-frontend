@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 
 import CannonImage from './CannonImages.tsx'
 
@@ -57,12 +57,8 @@ function CsgItemColumns({ csgItem }) {
             return <div className={`col csg-col ${fieldName}-col`}>{abilityText}</div>
         }
         if (fieldName === 'image') {
-            const updateImageUrl = csgItem[fieldName]?.replace(
-                '/home/nathan/Projects/pirates-csg-api/public',
-                'http://localhost:8080'
-            )
             return <div className="col csg-col">
-                <img src={updateImageUrl} height="100px" alt={csgItem.name}/>
+                <img src={csgItem.image} height="100px" alt={csgItem.name}/>
             </div>
         }
 

@@ -22,6 +22,7 @@ import {
 } from '../components/FactionImages.tsx'
 import PirateCsgList from '../components/PiratesCsgList.tsx';
 import TextInput from '../components/TextInput.tsx'
+import noImage from '../images/no-image.jpg'
 import { ReactComponent as ShipWheel } from '../images/ship-wheel.svg'
 
 import '../styles/home.scss';
@@ -260,6 +261,10 @@ function PageControl(props) {
     )
 }
 
+function getPiratesListPage(piratesList, pageSize, pageNumber) {
+    return piratesList.slice(pageSize * (pageNumber - 1), pageSize * pageNumber)
+}
+
 function Content({ setActiveCsgItem }) {
     const [pirateCsgList, setPirateCsgList] = useState(JSON.parse(sessionStorage.getItem('pirateCsgList')) || [])
     const [filteredCsgList, setFilteredCsgList] = useState(pirateCsgList)
@@ -272,7 +277,7 @@ function Content({ setActiveCsgItem }) {
     const [maxPages, setMaxPages] = useState(calculateMaxPages(filteredCsgList.length, pageSize))
     const [pageNumber, setPageNumber] = useState(parseInt(sessionStorage.getItem('page')) || 1)
 
-    const [apiFetchComplete, setApiFetchComplete] = useState(false)
+    const [apiFetchComplete, setApiFetchComplete] = useState(sessionStorage.getItem('pirateCsgList') !== null)
 
     const sessionStorageQuery = JSON.parse(sessionStorage.getItem('query'))
 
@@ -303,6 +308,30 @@ function Content({ setActiveCsgItem }) {
         setQuery({...query, factions: [...factionSet]})
     }
 
+    function promisePreload(src) {
+        return new Promise((resolve, reject) => {
+            const img = new Image()
+            img.onload = function() {
+                resolve(img)
+            }
+            img.onerror = img.onabort = function() {
+                img.src = noImage
+                resolve(img)
+            }
+            img.src = src
+        })
+    }
+
+    async function preloadImages() {
+        const imagePromiseList = getPiratesListPage(
+            filteredCsgList,
+            pageSize,
+            pageNumber
+        ).map(csgItem => promisePreload(csgItem.image))
+
+        console.log(await Promise.all(imagePromiseList))
+    }
+
     useEffect(() => {
         function updateCsgLists(csgList) {
             const filtered = csgList.filter(
@@ -323,7 +352,7 @@ function Content({ setActiveCsgItem }) {
         async function fetchData() {
             updateCsgLists(await getPirateCsgList())
             await getKeywordsDictionary()
-            // setApiFetchComplete(true)
+            setApiFetchComplete(true)
         }
 
         fetchData()
@@ -333,6 +362,12 @@ function Content({ setActiveCsgItem }) {
         updateQuery(query, pirateCsgList, setFilteredCsgList)
         sessionStorage.setItem('query', JSON.stringify(query))
         setPageNumber(1)
+
+        const timer = setTimeout(() => {
+            preloadImages()
+        }, 500)
+
+        return () => { clearTimeout(timer) }
     }, [query])
 
     useEffect(() => {
@@ -351,11 +386,17 @@ function Content({ setActiveCsgItem }) {
         }
     }, [pageSize])
 
-    let piratesList = <ShipWheel />
+    useEffect(() => {
+        preloadImages()
+    }, [pageNumber, pirateCsgList])
+
+    let piratesList = <div className="loading-container">
+        <ShipWheel className='loading-icon'/>
+    </div>
 
     if (apiFetchComplete) {
         piratesList = <PirateCsgList
-            pirateCsgList={filteredCsgList.slice(pageSize * (pageNumber - 1), pageSize * pageNumber)}
+            pirateCsgList={getPiratesListPage(filteredCsgList, pageSize, pageNumber)}
             setActiveCsgItem={setActiveCsgItem}
         />
     }
