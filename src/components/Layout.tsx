@@ -8,6 +8,8 @@ function Layout({ children }) {
     const [windowWidth, setWindowWidth] = useState(window.innerWidth)
 
     function updateWindowWidth() {
+        const width = window.innerWidth
+        setWindowWidth(width)
     }
 
     useEffect(() => {

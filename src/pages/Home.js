@@ -22,6 +22,7 @@ import {
 } from '../components/FactionImages.tsx'
 import PirateCsgList from '../components/PiratesCsgList.tsx';
 import TextInput from '../components/TextInput.tsx'
+import { TABLET_VIEW } from '../constants.js'
 import noImage from '../images/no-image.jpg'
 import { ReactComponent as ShipWheel } from '../images/ship-wheel.svg'
 
@@ -265,7 +266,7 @@ function getPiratesListPage(piratesList, pageSize, pageNumber) {
     return piratesList.slice(pageSize * (pageNumber - 1), pageSize * pageNumber)
 }
 
-function Content({ setActiveCsgItem }) {
+function Content({ setActiveCsgItem, windowWidth }) {
     const [pirateCsgList, setPirateCsgList] = useState(JSON.parse(sessionStorage.getItem('pirateCsgList')) || [])
     const [filteredCsgList, setFilteredCsgList] = useState(pirateCsgList)
 
@@ -403,32 +404,27 @@ function Content({ setActiveCsgItem }) {
 
     return (
         <>
-            <div className="query-content">
-                <div className="row">
-                    <div className="col" />
-                    <div className="col">
-                        <div className="row">
-                            <TextInput
-                                label={'Search'}
-                                id={'search-text-box'}
-                                ref={searchRef}
-                                onChange={executeSearch}
-                                defaultValue={query.search || ''}
-                                disableSpellCheck
-                            />
-                        </div>
-                        <div className="row">
-                            <FactionCheckboxes factionList={factionList} filterFactions={filterFactions} />
-                        </div>
+            <div className="row query-content">
+                    <div className="row search-row">
+                        <TextInput
+                            label={'Search'}
+                            id={'search-text-box'}
+                            ref={searchRef}
+                            onChange={executeSearch}
+                            defaultValue={query.search || ''}
+                            disableSpellCheck
+                        />
                     </div>
-                </div>
+                    <div className="row faction-row">
+                        <FactionCheckboxes factionList={factionList} filterFactions={filterFactions} />
+                    </div>
             </div>
             <PageControl
                 className="upper"
                 pageNumber={pageNumber}
                 maxPages={maxPages}
                 setPageNumber={setPageNumber}
-                lenPageNumbers={5}
+                lenPageNumbers={windowWidth <= TABLET_VIEW ? 3 : 5}
                 pageSize={pageSize}
                 setPageSize={updatePageSize}
             />
@@ -440,6 +436,7 @@ function Content({ setActiveCsgItem }) {
                 pageNumber={pageNumber}
                 maxPages={maxPages}
                 setPageNumber={setPageNumber}
+                lenPageNumbers={windowWidth <= TABLET_VIEW ? 5 : null}
             />
         </>
     )
@@ -447,11 +444,23 @@ function Content({ setActiveCsgItem }) {
 
 function Home() {
     const [ activeCsgItem, setActiveCsgItem ] = useState(null)
+    const [windowWidth, setWindowWidth] = useState(window.innerWidth)
+
+    function updateWindowWidth() {
+        const width = window.innerWidth
+        setWindowWidth(width)
+    }
+
+    useEffect(() => {
+        updateWindowWidth()
+        window.addEventListener('resize', updateWindowWidth)
+        return () => window.removeEventListener('resize', updateWindowWidth)
+    })
 
     return (
-        <Layout>
+       <Layout>
             <CsgModal csgItem={activeCsgItem} closeModal={() => setActiveCsgItem(null)} />
-            <Content setActiveCsgItem={setActiveCsgItem} />
+            <Content setActiveCsgItem={setActiveCsgItem} windowWidth={windowWidth} />
         </Layout>
     ) 
 }

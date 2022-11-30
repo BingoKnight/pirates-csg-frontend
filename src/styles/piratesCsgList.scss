@@ -1,5 +1,7 @@
 @use "sass:map";
 
+@import 'screen';
+
 $row-border-color: #555;
 $row-border-hover-color: #eee;
 
@@ -8,10 +10,10 @@ $raritiesColors: (
     "uncommon": linear-gradient(rgba(170,169,173,1) 15%, rgba(85,85,85,1) 50%, rgba(170,169,173,1) 85%),
     "rare": linear-gradient(rgba(228,197,31,1) 15%, rgba(133,116,27,1) 50%, rgba(228,197,31,1) 85%),
     "super-rare": black,
-    "promo": linear-gradient(rgba(61,185,22,1) 15%, rgba(173,218,160,1) 50%, rgba(61,185,22,1) 85%),
+    "promo": linear-gradient(rgba(20,74,3,1) 0%, rgba(76,166,48,1) 40%, rgba(142,199,126,1) 50%, rgba(76,166,48,1) 60%, rgba(20,74,3,1) 100%),
     "le": linear-gradient(rgba(114,66,40,1) 20%, rgba(171,133,112,1) 40%, rgba(236,193,170,1) 50%,rgba(171,133,112,1) 60%,rgba(114,66,40,1) 80%),
-    "pr": linear-gradient(rgba(61,185,22,1) 15%, rgba(173,218,160,1) 50%, rgba(61,185,22,1) 85%),
-    "se": linear-gradient(rgba(61,185,22,1) 15%, rgba(173,218,160,1) 50%, rgba(61,185,22,1) 85%),
+    "pr": linear-gradient(rgba(20,74,3,1) 0%, rgba(76,166,48,1) 40%, rgba(142,199,126,1) 50%, rgba(76,166,48,1) 60%, rgba(20,74,3,1) 100%),
+    "se": linear-gradient(rgba(20,74,3,1) 0%, rgba(76,166,48,1) 40%, rgba(142,199,126,1) 50%, rgba(76,166,48,1) 60%, rgba(20,74,3,1) 100%),
     "special": blue,
     "one-of-one": #fff
 );
@@ -33,11 +35,36 @@ $faction-icons: (
 #header-row {
     font-size: 1.2rem;
     font-family: windlass, serif;
+
+    .field-icon {
+        height: 25px;
+    }
+
+    .link-icon {
+        height: 35px;
+    }
+
+    @include breakpoint(tablet) {
+        font-size: 1rem;
+
+        .field-icon {
+            height: 20px;
+        }
+
+        .link-icon {
+            height: 25px;
+        }
+    }
 }
 
 #csg-list {
     margin: 0 35px;
     min-width: 700px;
+
+    @include breakpoint(tablet) {
+        margin: 15px 0 0;
+        min-width: 0;
+    }
 }
 
 .windlass-font {
@@ -46,6 +73,11 @@ $faction-icons: (
     font-weight: 700;
     font-size: 1.4rem;
     color: #fff;
+
+    @include breakpoint(tablet) {
+        font-size: 1.2rem;
+    }
+
 }
 
 .csg-row {
@@ -71,7 +103,7 @@ $faction-icons: (
 }
 
 .csg-col {
-    padding: 5px 10px;
+    padding: 5px 0;
 }
 
 .rarity-col {
@@ -84,6 +116,10 @@ $faction-icons: (
 
 .id-col {
     flex: 2;
+
+    @include breakpoint(tablet) {
+        display: none;
+    }
 }
 
 .name-col {
@@ -92,6 +128,10 @@ $faction-icons: (
 
 .type-col {
     flex: 2;
+
+    @include breakpoint(tablet) {
+        display: none;
+    }
 }
 
 .pointCost-col {
@@ -99,7 +139,7 @@ $faction-icons: (
 }
 
 .masts-col {
-    flex: 2;
+    flex: 3;
 }
 
 .cargo-col {
@@ -107,15 +147,19 @@ $faction-icons: (
 }
 
 .baseMove-col {
-    flex: 4;
+    flex: 4 0;
 }
 
 .cannons-col {
-    flex: 4;
+    flex: 6 0;
 }
 
 .link-col {
     flex: 4;
+
+    @include breakpoint(tablet) {
+        display: none;
+    }
 }
 
 .ability-col {
@@ -123,6 +167,10 @@ $faction-icons: (
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
+
+    @include breakpoint(tablet) {
+        display: none;
+    }
 }
 
 @each $rarity, $color in $raritiesColors {

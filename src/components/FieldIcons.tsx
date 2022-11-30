@@ -9,7 +9,6 @@ import raritySvg from '../images/pirate-csg-icons/rarity.svg'
 import factionSvg from '../images/pirate-csg-icons/faction.svg'
 
 const defaultProps = {
-    height: '25px',
     draggable: false
 }
 
@@ -17,6 +16,7 @@ export function BaseMoveImage(props) {
     return <img
         src={baseMoveSvg}
         alt='Base Move'
+        className='field-icon'
         {...defaultProps}
         {...props}
     />
@@ -26,6 +26,7 @@ export function CannonsImage(props) {
     return <img
         src={cannonsSvg}
         alt='Cannons'
+        className='field-icon'
         {...defaultProps}
         {...props}
     />
@@ -35,6 +36,7 @@ export function CargoImage(props) {
     return <img
         src={cargoSvg}
         alt='Cargo'
+        className='field-icon'
         {...defaultProps}
         {...props}
     />
@@ -44,6 +46,7 @@ export function MastsImage(props) {
     return <img
         src={mastsSvg}
         alt='Masts'
+        className='field-icon'
         {...defaultProps}
         {...props}
     />
@@ -54,8 +57,8 @@ export function LinkImage(props) {
     return <img
         src={linkSvg}
         alt='Link'
+        className='field-icon link-icon'
         {...linkImageProps}
-        height="35px"
         {...props}
     />
 }
@@ -64,6 +67,7 @@ export function RarityImage(props) {
     return <img
         src={raritySvg}
         alt='Rarity'
+        className='field-icon'
         {...defaultProps}
         {...props}
     />
@@ -73,6 +77,7 @@ export function FactionImage(props) {
     return <img
         src={factionSvg}
         alt='Faction'
+        className='field-icon'
         {...defaultProps}
         {...props}
     />

@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import '../styles/toggleButton.scss'
 
 interface ButtonProps {
     id: string

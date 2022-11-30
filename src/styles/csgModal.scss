@@ -2,13 +2,13 @@ $modal-border-radius: 5px;
 $image-border-radius: 15px;
 $raritiesColors: (
     "common": red,
-    "uncommon": linear-gradient(90deg, rgba(170,169,173,1) 15%, rgba(85,85,85,1) 50%, rgba(170,169,173,1) 85%),
-    "rare": linear-gradient(90deg, rgba(228,197,31,1) 15%, rgba(133,116,27,1) 50%, rgba(228,197,31,1) 85%),
+    "uncommon": linear-gradient(90deg, rgba(170,169,173,1) 20%, rgba(94,94,94,1) 40%, rgba(55,55,55,1) 50%, rgba(94,94,94,1) 60%, rgba(170,169,173,1) 80%),
+    "rare": linear-gradient(90deg, rgba(228,197,31,1) 20%, rgba(148,129,32,1) 40%, rgba(120,104,30,1) 50%, rgba(148,129,32,1) 60%, rgba(228,197,31,1) 80%),
     "super-rare": black,
-    "promo": linear-gradient(90deg, rgba(61,185,22,1) 15%, rgba(173,218,160,1) 50%, rgba(61,185,22,1) 85%),
+    "promo": linear-gradient(90deg, rgba(20,74,3,1) 20%, rgba(76,166,48,1) 40%, rgba(142,199,126,1) 50%, rgba(76,166,48,1) 60%, rgba(20,74,3,1) 80%),
     "le": linear-gradient(90deg, rgba(114,66,40,1) 20%, rgba(171,133,112,1) 40%, rgba(236,193,170,1) 50%,rgba(171,133,112,1) 60%,rgba(114,66,40,1) 80%),
-    "pr": linear-gradient(90deg, rgba(61,185,22,1) 15%, rgba(173,218,160,1) 50%, rgba(61,185,22,1) 85%),
-    "se": linear-gradient(90deg, rgba(61,185,22,1) 15%, rgba(173,218,160,1) 50%, rgba(61,185,22,1) 85%),
+    "pr": linear-gradient(90deg, rgba(20,74,3,1) 20%, rgba(76,166,48,1) 40%, rgba(142,199,126,1) 50%, rgba(76,166,48,1) 60%, rgba(20,74,3,1) 80%),
+    "se": linear-gradient(90deg, rgba(20,74,3,1) 20%, rgba(76,166,48,1) 40%, rgba(175,219,163,1) 50%, rgba(76,166,48,1) 60%, rgba(20,74,3,1) 80%),
     "special": blue,
     "one-of-one": #fff
 );
@@ -84,6 +84,10 @@ $raritiesColors: (
                 font-size: 0.8rem;
             }
         }
+    }
+
+    .link-icon {
+        height: 35px;
     }
 }
 

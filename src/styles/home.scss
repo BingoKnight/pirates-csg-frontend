@@ -1,4 +1,5 @@
-@import './variables.scss';
+@import 'variables';
+@import 'screen';
 
 #content {
     display: flex;
@@ -16,6 +17,10 @@
 
     .page-control {
         margin-right: 40px;
+    }
+
+    @include breakpoint(tablet) {
+        justify-content: center;
     }
 }
 
@@ -71,6 +76,9 @@
 }
 
 .query-content {
+    flex: 1;
+    flex-direction: column;
+
     margin-top: 50px;
 }
 
@@ -83,9 +91,25 @@
     user-select: none;
 }
 
-#search-text-box {
-    min-width: 900px;
-    width: 900px;
+.search-row {
+    flex: 1;
+    width: 100%;
+    .form-input {
+        #search-text-box {
+            min-width: 900px;
+            width: 900px;
+        }
+
+        @include breakpoint(tablet) {
+            flex: 1;
+            margin: 0 30px;
+
+            #search-text-box {
+                width: 100%;
+                min-width: 100%;
+            }
+        }
+    }
 }
 
 .loading-container {
@@ -106,6 +130,36 @@
     }
     to {
         transform: rotate(360deg);
+    }
+}
+
+.faction-row {
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin-top: 15px;
+
+    .faction-toggle {
+        cursor: pointer;
+        padding: 0 0 0 0;
+        background-color: transparent;
+        border: none;
+        margin: 10px;
+        overflow: hidden;
+        height: 40px;
+
+        .faction-image {
+            object-fit: contain;
+            height: 100%;
+        }
+
+        &.toggled {
+            box-shadow: 0 0 10px 2px #bbb;
+        }
+    }
+
+    @include breakpoint(tablet) {
+        width: 60%;
+        flex-wrap: wrap
     }
 }
 
