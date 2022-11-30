@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom'
 
 import { getKeywordsDictionary, getPirateCsgList } from '../api.js'
 import Button from '../components/Button.tsx'
-import CsgModal from '../components/CsgModal.tsx'
+import CsgModal from '../components/modal/CsgModal.tsx'
 import Dropdown from '../components/Dropdown.tsx'
 import Layout from '../components/Layout.tsx'
 import ToggleButton from '../components/ToggleButton.tsx'
@@ -436,7 +436,7 @@ function Content({ setActiveCsgItem, windowWidth }) {
                 pageNumber={pageNumber}
                 maxPages={maxPages}
                 setPageNumber={setPageNumber}
-                lenPageNumbers={windowWidth <= TABLET_VIEW ? 5 : null}
+                lenPageNumbers={windowWidth <= TABLET_VIEW ? 5 : undefined}
             />
         </>
     )
@@ -457,9 +457,23 @@ function Home() {
         return () => window.removeEventListener('resize', updateWindowWidth)
     })
 
+    useEffect(() => {
+        if (activeCsgItem) {
+            document.body.style.overflow = 'hidden'
+            document.body.style.height = '100vh'
+        } else {
+            document.body.style.overflow = ''
+            document.body.style.height = ''
+        }
+    }, [activeCsgItem])
+
     return (
        <Layout>
-            <CsgModal csgItem={activeCsgItem} closeModal={() => setActiveCsgItem(null)} />
+            <CsgModal
+                csgItem={activeCsgItem}
+                closeModal={() => setActiveCsgItem(null)}
+                windowWidth={windowWidth}
+            />
             <Content setActiveCsgItem={setActiveCsgItem} windowWidth={windowWidth} />
         </Layout>
     ) 

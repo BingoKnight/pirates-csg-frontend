@@ -5,19 +5,6 @@ import Header from './Header.tsx'
 import '../styles/layout.scss'
 
 function Layout({ children }) {
-    const [windowWidth, setWindowWidth] = useState(window.innerWidth)
-
-    function updateWindowWidth() {
-        const width = window.innerWidth
-        setWindowWidth(width)
-    }
-
-    useEffect(() => {
-        updateWindowWidth()
-        window.addEventListener('resize', updateWindowWidth)
-        return () => window.removeEventListener('resize', updateWindowWidth)
-    })
-
     return (
         <div>
             <div id="backdrops">

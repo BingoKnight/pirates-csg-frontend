@@ -151,7 +151,7 @@ $faction-icons: (
 }
 
 .cannons-col {
-    flex: 6 0;
+    flex: 7 0;
 }
 
 .link-col {
@@ -164,6 +164,7 @@ $faction-icons: (
 
 .ability-col {
     flex: 8;
+    margin-left: 15px;
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;

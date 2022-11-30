@@ -1,28 +1,28 @@
-import React, {useEffect, useState} from 'react'
-import { useSearchParams } from 'react-router-dom'
+import React, { useState, useEffect } from 'react'
 
-import Button from './Button.tsx'
-import CannonImage from './CannonImages.tsx'
-import { ReactComponent as DownArrow } from '../images/angle-down-solid.svg'
-import { ReactComponent as Copy } from '../images/copy-regular.svg'
-import { ReactComponent as CircleCheck } from '../images/circle-check-regular.svg'
-import factionImageMapper from '../utils/factionImageMapper.tsx'
-import fieldIconMapper from '../utils/fieldIconMapper.tsx'
-import setIconMapper from '../utils/setIconMapper.tsx'
+import Button from '../Button.tsx'
+import CannonImage from '../CannonImages.tsx'
 
-import '../styles/csgModal.scss'
+import { ReactComponent as DownArrow } from '../../images/angle-down-solid.svg'
+import factionImageMapper from '../../utils/factionImageMapper.tsx'
+import fieldIconMapper from '../../utils/fieldIconMapper.tsx'
+import setIconMapper from '../../utils/setIconMapper.tsx'
 
-function ModalOverlay({ closeModal, children }) {
+import '../../styles/mobileModal.scss'
+
+function LinkIcon({ link }) {
     return (
-        <div className='fixed-overlay' onClick={closeModal}>
-            {children}
+        <div className="row">
+            <div className="col">
+                {fieldIconMapper.link()} {link}
+            </div>
         </div>
     )
 }
 
 function CsgItemImage({ csgItem }) {
     return (
-        <div id="image-container">
+        <div className="image-container">
             <img
                 src={csgItem.image}
                 className="noselect"
@@ -44,7 +44,7 @@ function CsgItemImage({ csgItem }) {
 
 function CsgPoints({ pointCost }) {
     return (
-        <div className="col" id="points-col">
+        <div className="col points-col">
             <div className="row">
                 <div className="col" id="point-cost">{pointCost}</div>
             </div>
@@ -106,70 +106,25 @@ function CsgShipStats({ csgItem }) {
     )
 }
 
-function CopyButton({ csgItemId }) {
-    const [ showTooltip, setShowTooltip] = useState(false)
+function Faction({ faction }) {
+    return <span>{!['ut', 'none'].includes(faction.toLowerCase()) && factionImageMapper[faction.toLowerCase()]({height: '35px'})}</span>
+}
 
-    function handleClick() {
-        navigator.clipboard.writeText(`${process.env.REACT_APP_PIRATE_CSG_FE_BASE_URL}?_id=${csgItemId}`)
-        setShowTooltip(true)
-    }
-
-    useEffect(() => {
-        if (showTooltip) {
-            const intervalId = setInterval(() => setShowTooltip(false), 7000)
-            return () => clearInterval(intervalId)
-        }
-    }, [showTooltip])
-
+function CsgItemHeader({ csgItem }) {
     return (
-        <div className="copy-button">
-            <Copy onClick={handleClick} />
-            {
-                showTooltip
-                && <div className="copy-tooltip">
-                    <div className="row">
-                        <div className="col circle-check-col">
-                            <CircleCheck />
-                        </div>
-                        <div className="col">Copied</div>
+        <div className="row csg-item-header">
+            <CsgPoints pointCost={csgItem.pointCost} />
+            <div className="col faction-title-col">
+                <div className="row">
+                    <div className="col faction-col">
+                        <Faction faction={csgItem.faction} />
+                    </div>
+                    <div className="col title-col">
+                        {csgItem.name}
                     </div>
                 </div>
-            }
-        </div>
-    )
-}
-
-function LinkIcon({ link }) {
-    return (
-        <div className="link-dropdown">
-            <div className="hover-helper">
-                <div className="link-tooltip">{link}</div>
+                <CsgShipStats csgItem={csgItem} />
             </div>
-            <span className="link-icon noselect">
-                {fieldIconMapper.link()}
-            </span>
-        </div>
-    )
-}
-
-function CsgStats({ csgItem }) {
-    return (
-        <div className="col" id="stats-col">
-            <div className="row">
-                <div className="col" id="faction">
-                    {
-                        !['ut', 'none'].includes(csgItem.faction.toLowerCase())
-                        && factionImageMapper[csgItem.faction.toLowerCase()]({height: '35px'})
-                    }
-                </div>
-                <div className="col" id="name-col">
-                    <span id="name">{csgItem.name}</span>
-                    { csgItem.link && <LinkIcon link={csgItem.link} /> }
-                </div>
-                <CopyButton csgItemId={csgItem._id} />
-            </div>
-
-            { csgItem.type.toLowerCase() === 'ship' && <CsgShipStats csgItem={csgItem} /> }
         </div>
     )
 }
@@ -209,6 +164,13 @@ function Ability({ ability }) {
     const formattedAbility = formatMovement(formatKeywords(ability))
 
     return <div className="col" id="ability-col" dangerouslySetInnerHTML={{__html: formattedAbility}} />
+}
+
+function FlavorText({ flavorText }) {
+
+    return (
+        <div id="flavor-text">{flavorText}</div>
+    )
 }
 
 function KeywordItem({ keyword, definition }) {
@@ -264,71 +226,20 @@ function KeywordsSection({ keywords, ability }) {
     )
 }
 
-function CsgItemDetails({ csgItem, closeModal }){
+// TODO: add copy button
+function MobileModal({csgItem, closeModalHandler }) {
     return (
-        <>
-            <div className="row title-and-stats-row">
-                {csgItem.pointCost && <CsgPoints pointCost={csgItem.pointCost} />}
-                <CsgStats csgItem={csgItem} />
-            </div>
-            <div className="row">
-                {
-                    csgItem.type.toLowerCase() !== 'story'
-                    && <Ability ability={csgItem.ability} />
-                }
-            </div>
-            <div className="row">
-                <div className="col" id="flavor-text">{csgItem.flavorText}</div>
-            </div>
-            {
-                csgItem.keywords.length > 0 && <div className="row keywords-row">
-                    <KeywordsSection keywords={csgItem.keywords} ability={csgItem.ability} />
-                </div>
-            }
-            <div className="close-button-row">
-                <Button className="close-button" onClick={closeModal}>Close</Button>
-            </div>
-        </>
+        <div className="mobile-modal" onClick={e => e.stopPropagation()}>
+            <CsgItemHeader csgItem={csgItem} />
+            { csgItem.link && <LinkIcon link={csgItem.link} /> }
+            <Ability ability={csgItem.ability} />
+            <CsgItemImage csgItem={csgItem} />
+            <FlavorText flavorText={csgItem.flavorText} />
+            <KeywordsSection keywords={csgItem.keywords} ability={csgItem.ability} />
+            <Button className="close-button" onClick={closeModalHandler}>Close</Button>
+        </div>
     )
 }
 
-function CsgModal({ csgItem, closeModal }) {
-    const [ searchParams, setSearchParams ] = useSearchParams()
-
-    function closeModalHandler() {
-        closeModal()
-
-        if (searchParams.has('_id')) {
-            searchParams.delete('_id')
-            setSearchParams(searchParams)
-        }
-    }
-
-    if (!csgItem)
-        return null
-
-    return (
-        <ModalOverlay closeModal={closeModalHandler}>
-            <div className="csg-modal" onClick={e => e.stopPropagation()}>
-                <div className="row modal-content">
-                    <div className="col" id="csg-image-col">
-                        <CsgItemImage csgItem={csgItem} />
-                        <div className="row">
-                            <div className="col" id="set-text">
-                                {setIconMapper[csgItem.set]({height: '40px'})}
-                                <span> </span>
-                                {csgItem.set}
-                            </div>
-                        </div>
-                    </div>
-                    <div className="col" id="csg-details-col">
-                        <CsgItemDetails csgItem={csgItem} closeModal={closeModalHandler}/>
-                    </div>
-                </div>
-            </div>
-        </ModalOverlay>
-    )
-}
-
-export default CsgModal
+export default MobileModal
 
