@@ -21,6 +21,9 @@
 
     @include breakpoint(tablet) {
         justify-content: center;
+        .page-control {
+            margin-right: 0px;
+        }
     }
 }
 
@@ -34,9 +37,28 @@
         flex: 0;
     }
 
-    #page-button {
+    .page-button {
         width: 90px;
         height: 40px;
+
+        svg {
+            path {
+                fill: #fff;
+            }
+        }
+
+        &.previous svg {
+            transform: scaleX(-1);
+        }
+
+        &.disabled svg path {
+            fill: #999;
+        }
+
+        @include breakpoint(phone) {
+            width: 50px;
+            height: 30px;
+        }
     }
 
     #page-number-list .row:first-child{
@@ -73,7 +95,12 @@
             box-shadow: 0 0 10px 10px #000 inset;
         }
     }
+
+    @include breakpoint(phone) {
+        flex-direction: column-reverse;
+    }
 }
+
 
 .query-content {
     flex: 1;
@@ -92,8 +119,9 @@
 }
 
 .search-row {
-    flex: 1;
+    flex: 1 1 100%;
     width: 100%;
+
     .form-input {
         #search-text-box {
             min-width: 900px;
@@ -135,8 +163,10 @@
 
 .faction-row {
     flex-wrap: wrap;
-    justify-content: space-between;
+    justify-content: space-evenly;
     margin-top: 15px;
+    flex: 1;
+    width: 100%;
 
     .faction-toggle {
         cursor: pointer;
@@ -157,9 +187,13 @@
         }
     }
 
-    @include breakpoint(tablet) {
-        width: 60%;
-        flex-wrap: wrap
+    @include breakpoint(phone) {
+        .faction-toggle{
+            margin: 0 15px;
+            .faction-image {
+                height: 30px;
+            }
+        }
     }
 }
 

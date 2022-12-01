@@ -1,6 +1,7 @@
 @use "sass:map";
 
 @import 'screen';
+@import 'variables';
 
 $row-border-color: #555;
 $row-border-hover-color: #eee;
@@ -33,7 +34,7 @@ $faction-icons: (
 );
 
 #header-row {
-    font-size: 1.2rem;
+    font-size: 1.3rem;
     font-family: windlass, serif;
 
     .field-icon {
@@ -45,7 +46,7 @@ $faction-icons: (
     }
 
     @include breakpoint(tablet) {
-        font-size: 1rem;
+        font-size: 1.2rem;
 
         .field-icon {
             height: 20px;
@@ -58,7 +59,8 @@ $faction-icons: (
 }
 
 #csg-list {
-    margin: 0 35px;
+    max-width: ($max-content-width - 70px);
+    flex: 1 1 100%;
     min-width: 700px;
 
     @include breakpoint(tablet) {
@@ -115,7 +117,7 @@ $faction-icons: (
 }
 
 .id-col {
-    flex: 2;
+    flex: 3;
 
     @include breakpoint(tablet) {
         display: none;
@@ -147,15 +149,23 @@ $faction-icons: (
 }
 
 .baseMove-col {
-    flex: 4 0;
+    flex: 5 0;
+
+    @include breakpoint(phone) {
+        display: none;
+    }
 }
 
 .cannons-col {
     flex: 7 0;
+
+    @include breakpoint(phone) {
+        display: none;
+    }
 }
 
 .link-col {
-    flex: 4;
+    flex: 5;
 
     @include breakpoint(tablet) {
         display: none;
@@ -196,6 +206,12 @@ $faction-icons: (
     .#{$faction}-col {
         .faction-image {
             height: 25px;
+        }
+
+        @include breakpoint(phone) {
+            .faction-image {
+                height: 20px;
+            }
         }
     }
 }

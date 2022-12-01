@@ -22,9 +22,10 @@ import {
 } from '../components/FactionImages.tsx'
 import PirateCsgList from '../components/PiratesCsgList.tsx';
 import TextInput from '../components/TextInput.tsx'
-import { TABLET_VIEW } from '../constants.js'
+import { TABLET_VIEW, PHONE_VIEW } from '../constants.js'
 import noImage from '../images/no-image.jpg'
 import { ReactComponent as ShipWheel } from '../images/ship-wheel.svg'
+import { ReactComponent as Arrow } from '../images/arrow-solid.svg'
 
 import '../styles/home.scss';
 
@@ -125,30 +126,12 @@ function updateQuery(query, pirateCsgList, setFiltered) {
 
 }
 
-function PrevPageButton({ pageNumber, decrementPage }) {
-    const isDisabled = pageNumber === 1
-    const className = isDisabled ? 'disabled noselect' : 'noselect'
-
+function PageButton({ isDisabled, updatePage, className, children }) {
     return (
         <Button
-            label="Previous"
-            className={className}
-            id='page-button'
-            onClick={isDisabled ? null : decrementPage}
-        >Previous</Button>
-    )
-}
-
-function NextPageButton({ pageNumber, maxPages, incrementPage }) {
-    const isDisabled = pageNumber === maxPages
-    const className = isDisabled ? 'disabled noselect' : 'noselect'
-
-    return (
-        <Button
-            className={className}
-            id='page-button'
-            onClick={isDisabled ? null : incrementPage}
-        >Next</Button>
+            className={className + ' page-button ' + (isDisabled ? 'disabled noselect' : 'noselect')}
+            onClick={isDisabled ? null : updatePage}
+        >{children}</Button>
     )
 }
 
@@ -224,7 +207,7 @@ function PageSizeSelect({ pageSize, setPageSize }) {
 }
 
 function PageControl(props) {
-    const { pageNumber, maxPages, className, setPageNumber, pageSize, setPageSize, lenPageNumbers = 9 } = props
+    const { pageNumber, maxPages, className, setPageNumber, pageSize, setPageSize, windowWidth, lenPageNumbers = 9 } = props
     const totalPageNumbers = Math.min(lenPageNumbers, maxPages)
 
     function incrementPage() {
@@ -236,13 +219,29 @@ function PageControl(props) {
     }
 
     const pageControlClass = 'page-control-container' + (className ? ` ${className}` : '')
+    let nextPageLabel = 'Next'
+    let prevPageLabel = 'Previous'
+
+    console.log(windowWidth)
+
+    if (windowWidth <= PHONE_VIEW) {
+        nextPageLabel = <Arrow />
+        prevPageLabel = <Arrow />
+    }
 
     return (
         <div className={pageControlClass}>
             <div className="row page-control">
+                <div className="row">
                 <PageSizeSelect pageSize={pageSize} setPageSize={setPageSize} />
+                </div>
+                <div className="row">
                 <div className="col">
-                    <PrevPageButton pageNumber={pageNumber} decrementPage={decrementPage} />
+                    <PageButton
+                        className={'previous'}
+                        isDisabled={pageNumber === 1}
+                        updatePage={decrementPage}
+                    >{prevPageLabel}</PageButton>
                 </div>
                 <div className="col" id="page-number-list">
                     <div className="row">
@@ -255,8 +254,12 @@ function PageControl(props) {
                     </div>
                 </div>
                 <div className="col">
-                    <NextPageButton pageNumber={pageNumber} maxPages={maxPages} incrementPage={incrementPage} />
-                </div>
+                    <PageButton
+                        className={'next'}
+                        isDisabled={pageNumber === maxPages}
+                        updatePage={incrementPage}
+                    >{nextPageLabel}</PageButton>
+                </div></div>
             </div>
         </div>
     )
@@ -405,19 +408,19 @@ function Content({ setActiveCsgItem, windowWidth }) {
     return (
         <>
             <div className="row query-content">
-                    <div className="row search-row">
-                        <TextInput
-                            label={'Search'}
-                            id={'search-text-box'}
-                            ref={searchRef}
-                            onChange={executeSearch}
-                            defaultValue={query.search || ''}
-                            disableSpellCheck
-                        />
-                    </div>
-                    <div className="row faction-row">
-                        <FactionCheckboxes factionList={factionList} filterFactions={filterFactions} />
-                    </div>
+                <div className="row search-row">
+                    <TextInput
+                        label={'Search'}
+                        id={'search-text-box'}
+                        ref={searchRef}
+                        onChange={executeSearch}
+                        defaultValue={query.search || ''}
+                        disableSpellCheck
+                    />
+                </div>
+                <div className="row faction-row">
+                    <FactionCheckboxes factionList={factionList} filterFactions={filterFactions} />
+                </div>
             </div>
             <PageControl
                 className="upper"
@@ -427,6 +430,7 @@ function Content({ setActiveCsgItem, windowWidth }) {
                 lenPageNumbers={windowWidth <= TABLET_VIEW ? 3 : 5}
                 pageSize={pageSize}
                 setPageSize={updatePageSize}
+                windowWidth={windowWidth}
             />
             <div className='result-content'>
                 {piratesList}
@@ -436,7 +440,15 @@ function Content({ setActiveCsgItem, windowWidth }) {
                 pageNumber={pageNumber}
                 maxPages={maxPages}
                 setPageNumber={setPageNumber}
-                lenPageNumbers={windowWidth <= TABLET_VIEW ? 5 : undefined}
+                lenPageNumbers={(() => {
+                    if (windowWidth <= PHONE_VIEW) {
+                        return 3
+                    } if (windowWidth <= TABLET_VIEW) {
+                        return 5
+                    }
+                    return undefined
+                })()}
+                windowWidth={windowWidth}
             />
         </>
     )

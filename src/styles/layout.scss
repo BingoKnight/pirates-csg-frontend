@@ -1,8 +1,5 @@
 @import 'screen';
-
-$page-content-width: 70%;
-$min-content-width: 1400px;
-$max-content-width: 2400px;
+@import 'variables';
 
 @font-face {
     font-family: 'windlass';
@@ -26,28 +23,21 @@ $max-content-width: 2400px;
 
     .page-content {
         display: flex;
-        flex: 0 1 70%;
+        flex: 1 1 $max-content-width;
         flex-direction: column;
         align-items: center;
         justify-content: center;
 
         margin-bottom: 40px;
-        width: 70%;
         max-width: $max-content-width;
-        min-width: $min-content-width;
-
-        @include breakpoint(tablet) {
-            min-width: 100%;
-            justify-content: center;
-        }
 
         .result-content {
+            display: flex;
             flex: 1 1 auto;
+            justify-content: center;
             width: 100%;
         }
     }
-
-    min-width: 600px;
 }
 
 #backdrops {
@@ -78,9 +68,8 @@ $max-content-width: 2400px;
         background-color: #000;
         filter: blur(6px);
     
-        width: $page-content-width;
         max-width: $max-content-width;
-        min-width: $min-content-width;
+        min-width: $max-content-width;
         height: 110%;
     
         position: fixed;
@@ -91,3 +80,4 @@ $max-content-width: 2400px;
         z-index: -1;
     }
 }
+

@@ -281,7 +281,6 @@ function CopyButton({ csgItemId }) {
     )
 }
 
-// TODO: add copy button
 function MobileModal({csgItem, closeModalHandler }) {
     return (
         <div className="mobile-modal" onClick={e => e.stopPropagation()}>

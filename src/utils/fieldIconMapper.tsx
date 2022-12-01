@@ -5,6 +5,7 @@ import {
     FactionImage,
     LinkImage,
     MastsImage,
+    PointCostImage,
     RarityImage
 } from '../components/FieldIcons.tsx'
 
@@ -15,7 +16,8 @@ const fieldIconMapper = {
     masts: (props) => <MastsImage {...props} />,
     link: (props) => <LinkImage {...props} />,
     rarity: (props) => <RarityImage {...props} />,
-    faction: (props) => <FactionImage {...props} />
+    faction: (props) => <FactionImage {...props} />,
+    pointCost: (props) => <PointCostImage {...props} />
 }
 
 export default fieldIconMapper

@@ -1,12 +1,13 @@
 import React from 'react'
 
-import  baseMoveSvg  from '../images/pirate-csg-icons/baseMove.svg'
-import cannonsSvg from '../images/pirate-csg-icons/cannons.svg'
-import cargoSvg from '../images/pirate-csg-icons/cargo.svg'
-import mastsSvg from '../images/pirate-csg-icons/masts.svg'
-import linkSvg from '../images/pirate-csg-icons/link.svg'
-import raritySvg from '../images/pirate-csg-icons/rarity.svg'
-import factionSvg from '../images/pirate-csg-icons/faction.svg'
+import  baseMoveSvg  from '../images/field-icons/baseMove.svg'
+import cannonsSvg from '../images/field-icons/cannons.svg'
+import cargoSvg from '../images/field-icons/cargo.svg'
+import mastsSvg from '../images/field-icons/masts.svg'
+import linkSvg from '../images/field-icons/link.svg'
+import raritySvg from '../images/field-icons/rarity.svg'
+import factionSvg from '../images/field-icons/faction.svg'
+import pointCostSvg from '../images/field-icons/point-cost.svg'
 
 const defaultProps = {
     draggable: false
@@ -77,6 +78,16 @@ export function FactionImage(props) {
     return <img
         src={factionSvg}
         alt='Faction'
+        className='field-icon'
+        {...defaultProps}
+        {...props}
+    />
+}
+
+export function PointCostImage(props) {
+    return <img
+        src={pointCostSvg}
+        alt='Point Cost'
         className='field-icon'
         {...defaultProps}
         {...props}
