@@ -31,6 +31,9 @@ import '../styles/home.scss';
 
 const pageSizeOptions = [10, 25, 50]
 
+// TODO: preload image on faction query change
+// TODO: allow android back button to close modal, not go back in history
+
 function FactionCheckboxes({ factionList, filterFactions }) {
     const [filteredFactions, setFilteredFactions] = useState(new Set())
 
