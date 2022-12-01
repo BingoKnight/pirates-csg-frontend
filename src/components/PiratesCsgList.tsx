@@ -4,6 +4,7 @@ import CannonImage from './CannonImages.tsx'
 
 import factionImageMapper from '../utils/factionImageMapper.tsx'
 import fieldIconMapper from '../utils/fieldIconMapper.tsx'
+import setIconMapper from '../utils/setIconMapper.tsx'
 import {capitalize} from '../utils/string.tsx'
 
 import '../styles/piratesCsgList.scss'
@@ -21,6 +22,7 @@ enum OrderedCsgFields {
     cannons = 'cannons',
     ability = 'ability',
     link = 'link',
+    set = 'set',
     id = 'id',
     // flavorText = 'flavorText',
     // teasureValues = 'teasureValues'
@@ -109,6 +111,12 @@ function CsgItemColumns({ csgItem }) {
             return <div className={`col csg-col ${fieldName}-col`}>{linkText}</div>
         }
 
+        if (fieldName === 'set') {
+            return <div className={`col csg-col ${fieldName}-col`} title={csgItem[fieldName]}>
+                {setIconMapper[csgItem[fieldName]]({height: '25px'})}
+            </div>
+        }
+
         return <div className={`col csg-col ${fieldName}-col`}>{csgItem[fieldName]}</div>
     })
 }
@@ -137,7 +145,7 @@ function HeaderRow() {
                     pointCost: 'Points'
                 }
 
-                const prettyName = prettyNameMapper[fieldName] || capitalize(fieldName)
+                let prettyName = prettyNameMapper[fieldName] || capitalize(fieldName)
 
                 return (
                     <div className={`${defaultClassName}${fieldName}-col`}>
