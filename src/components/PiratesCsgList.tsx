@@ -6,22 +6,22 @@ import factionImageMapper from '../utils/factionImageMapper.tsx'
 import fieldIconMapper from '../utils/fieldIconMapper.tsx'
 import {capitalize} from '../utils/string.tsx'
 
-import '../styles/pirateCsgList.scss'
+import '../styles/piratesCsgList.scss'
 
 enum OrderedCsgFields {
     rarity = 'rarity',
     // image = 'image',
     faction = 'faction',
-    id = 'id',
+    pointCost = 'pointCost',
     name = 'name',
     type = 'type',
-    pointCost = 'pointCost',
     masts = 'masts',
     cargo = 'cargo',
     baseMove = 'baseMove',
     cannons = 'cannons',
     ability = 'ability',
     link = 'link',
+    id = 'id',
     // flavorText = 'flavorText',
     // teasureValues = 'teasureValues'
 }

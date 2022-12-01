@@ -13,8 +13,6 @@ body {
       sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    
-    /* min-height: 100vh; */
 }
 
 code {
@@ -33,10 +31,6 @@ code {
     align-items: center;
     text-align: center;
     flex: 1;
-}
-
-#search-text-box {
-    width: 50vw;
 }
 
 .noselect {

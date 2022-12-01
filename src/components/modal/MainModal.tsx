@@ -1,16 +1,16 @@
 import React, {useEffect, useState} from 'react'
-import { useSearchParams } from 'react-router-dom'
 
-import Button from './Button.tsx'
-import CannonImage from './CannonImages.tsx'
-import { ReactComponent as DownArrow } from '../images/angle-down-solid.svg'
-import { ReactComponent as Copy } from '../images/copy-regular.svg'
-import { ReactComponent as CircleCheck } from '../images/circle-check-regular.svg'
-import factionImageMapper from '../utils/factionImageMapper.tsx'
-import fieldIconMapper from '../utils/fieldIconMapper.tsx'
-import setIconMapper from '../utils/setIconMapper.tsx'
+import Button from '../Button.tsx'
+import CannonImage from '../CannonImages.tsx'
+import { ReactComponent as DownArrow } from '../../images/angle-down-solid.svg'
+import { ReactComponent as Copy } from '../../images/copy-regular.svg'
+import { ReactComponent as CircleCheck } from '../../images/circle-check-regular.svg'
+import noImage from '../../images/no-image.jpg'
+import factionImageMapper from '../../utils/factionImageMapper.tsx'
+import fieldIconMapper from '../../utils/fieldIconMapper.tsx'
+import setIconMapper from '../../utils/setIconMapper.tsx'
 
-import '../styles/csgModal.scss'
+import '../../styles/mainModal.scss'
 
 function ModalOverlay({ closeModal, children }) {
     return (
@@ -29,6 +29,10 @@ function CsgItemImage({ csgItem }) {
                 id="csg-item-image"
                 alt={csgItem.name}
                 draggable="false"
+                onError={({ currentTarget }) => {
+                    currentTarget.onerror = null // prevents looping
+                    currentTarget.src = noImage
+                }}
             />
             <div className={csgItem.rarity.toLowerCase()} id='rarity-tab'>
                 <div className="id-num">
@@ -90,11 +94,11 @@ function CsgShipStats({ csgItem }) {
         <div className="row stats-row">
             <div className="col">
                 <div className="row">
-                    <div className="row stat">
+                    <div className="row stat masts-stat">
                         <div className="col icon">{fieldIconMapper.masts({height: '23px'})}</div>
                         <div className="col value">{csgItem.masts}</div>
                     </div>
-                    <div className="row stat">
+                    <div className="row stat cargo-stat">
                         <div className="col icon">{fieldIconMapper.cargo({height: '23px'})}</div>
                         <div className="col value">{csgItem.cargo}</div>
                     </div>
@@ -227,9 +231,7 @@ function KeywordItem({ keyword, definition }) {
                 </div>
             </div>
             {
-                isExpanded && <div className="row definition">
-                    <div className="col" dangerouslySetInnerHTML={{__html: formattedDefinition}} />
-                </div>
+                isExpanded && <div className="row definition" dangerouslySetInnerHTML={{__html: formattedDefinition}} />
             }
         </div>
     )
@@ -292,21 +294,7 @@ function CsgItemDetails({ csgItem, closeModal }){
     )
 }
 
-function CsgModal({ csgItem, closeModal }) {
-    const [ searchParams, setSearchParams ] = useSearchParams()
-
-    function closeModalHandler() {
-        closeModal()
-
-        if (searchParams.has('_id')) {
-            searchParams.delete('_id')
-            setSearchParams(searchParams)
-        }
-    }
-
-    if (!csgItem)
-        return null
-
+function MainModal({ csgItem, closeModalHandler }) {
     return (
         <ModalOverlay closeModal={closeModalHandler}>
             <div className="csg-modal" onClick={e => e.stopPropagation()}>
@@ -326,9 +314,9 @@ function CsgModal({ csgItem, closeModal }) {
                     </div>
                 </div>
             </div>
-        </ModalOverlay>
+        </ ModalOverlay>
     )
 }
 
-export default CsgModal
+export default MainModal
 

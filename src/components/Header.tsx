@@ -15,7 +15,6 @@ export default function Header() {
                     <Image src={ShipImage} alt="Logo" height="50px"/>
                 </Link>
             </div>
-            <div className="col" id="empty-col"></div>
         </div>
     )
 }

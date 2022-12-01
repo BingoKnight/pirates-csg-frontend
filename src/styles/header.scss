@@ -1,5 +1,9 @@
+@import 'screen';
+@import 'variables';
+
 .header-row {
     height: 100px;
+    min-width: 600px;
 
     .header-title {
         display: flex;
@@ -9,12 +13,16 @@
         font-size: 2rem;
         border: none;
 
+        line-height: 2rem;
+
         &:hover {
             box-shadow: none;
             border: none;
         }
 
         .title-link {
+            flex: 0 1 $max-content-width - 70px;
+            margin-left: 25px;
             color: #fff;
             text-decoration: none;
             display: flex;
@@ -22,6 +30,29 @@
 
             img {
                 padding-left: 20px;
+            }
+
+            @include breakpoint(tablet) {
+                flex: 0 0 auto;
+            }
+        }
+    }
+
+    @include breakpoint(tablet) {
+        min-width: 100%;
+        .header-title {
+            flex: 1 1 auto;
+            width: 100%;
+
+            @media screen and (max-width: 447px) {
+                font-size: 1.3rem;
+            }
+
+            .title-link {
+                img {
+                    height: 40px;
+                    margin-right: 5px;
+                }
             }
         }
     }

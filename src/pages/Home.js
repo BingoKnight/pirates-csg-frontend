@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom'
 
 import { getKeywordsDictionary, getPirateCsgList } from '../api.js'
 import Button from '../components/Button.tsx'
-import CsgModal from '../components/CsgModal.tsx'
+import CsgModal from '../components/modal/CsgModal.tsx'
 import Dropdown from '../components/Dropdown.tsx'
 import Layout from '../components/Layout.tsx'
 import ToggleButton from '../components/ToggleButton.tsx'
@@ -22,8 +22,10 @@ import {
 } from '../components/FactionImages.tsx'
 import PirateCsgList from '../components/PiratesCsgList.tsx';
 import TextInput from '../components/TextInput.tsx'
+import { TABLET_VIEW, PHONE_VIEW } from '../constants.js'
 import noImage from '../images/no-image.jpg'
 import { ReactComponent as ShipWheel } from '../images/ship-wheel.svg'
+import { ReactComponent as Arrow } from '../images/arrow-solid.svg'
 
 import '../styles/home.scss';
 
@@ -124,30 +126,12 @@ function updateQuery(query, pirateCsgList, setFiltered) {
 
 }
 
-function PrevPageButton({ pageNumber, decrementPage }) {
-    const isDisabled = pageNumber === 1
-    const className = isDisabled ? 'disabled noselect' : 'noselect'
-
+function PageButton({ isDisabled, updatePage, className, children }) {
     return (
         <Button
-            label="Previous"
-            className={className}
-            id='page-button'
-            onClick={isDisabled ? null : decrementPage}
-        >Previous</Button>
-    )
-}
-
-function NextPageButton({ pageNumber, maxPages, incrementPage }) {
-    const isDisabled = pageNumber === maxPages
-    const className = isDisabled ? 'disabled noselect' : 'noselect'
-
-    return (
-        <Button
-            className={className}
-            id='page-button'
-            onClick={isDisabled ? null : incrementPage}
-        >Next</Button>
+            className={className + ' page-button ' + (isDisabled ? 'disabled noselect' : 'noselect')}
+            onClick={isDisabled ? null : updatePage}
+        >{children}</Button>
     )
 }
 
@@ -191,14 +175,13 @@ function PageNumbers({ currentPageNumber, setPageNumber, maxPages, lenPageNumber
         if (num === currentPageNumber) {
             return <div
                 className='col page-number-col noselect'
-                style={{textDecoration: 'underline', width: '40px'}}
+                style={{textDecoration: 'underline'}}
             >
                 {num}
             </div>
         }
         return <div
             className='col page-number-col noselect'
-            style={{width: '50px'}}
             onClick={() => setPageNumber(num)}
         >
             {num}
@@ -223,7 +206,7 @@ function PageSizeSelect({ pageSize, setPageSize }) {
 }
 
 function PageControl(props) {
-    const { pageNumber, maxPages, className, setPageNumber, pageSize, setPageSize, lenPageNumbers = 9 } = props
+    const { pageNumber, maxPages, className, setPageNumber, pageSize, setPageSize, windowWidth, lenPageNumbers = 9 } = props
     const totalPageNumbers = Math.min(lenPageNumbers, maxPages)
 
     function incrementPage() {
@@ -235,13 +218,29 @@ function PageControl(props) {
     }
 
     const pageControlClass = 'page-control-container' + (className ? ` ${className}` : '')
+    let nextPageLabel = 'Next'
+    let prevPageLabel = 'Previous'
+
+    console.log(windowWidth)
+
+    if (windowWidth <= PHONE_VIEW) {
+        nextPageLabel = <Arrow />
+        prevPageLabel = <Arrow />
+    }
 
     return (
         <div className={pageControlClass}>
             <div className="row page-control">
+                <div className="row">
                 <PageSizeSelect pageSize={pageSize} setPageSize={setPageSize} />
+                </div>
+                <div className="row">
                 <div className="col">
-                    <PrevPageButton pageNumber={pageNumber} decrementPage={decrementPage} />
+                    <PageButton
+                        className={'previous'}
+                        isDisabled={pageNumber === 1}
+                        updatePage={decrementPage}
+                    >{prevPageLabel}</PageButton>
                 </div>
                 <div className="col" id="page-number-list">
                     <div className="row">
@@ -254,8 +253,12 @@ function PageControl(props) {
                     </div>
                 </div>
                 <div className="col">
-                    <NextPageButton pageNumber={pageNumber} maxPages={maxPages} incrementPage={incrementPage} />
-                </div>
+                    <PageButton
+                        className={'next'}
+                        isDisabled={pageNumber === maxPages}
+                        updatePage={incrementPage}
+                    >{nextPageLabel}</PageButton>
+                </div></div>
             </div>
         </div>
     )
@@ -265,7 +268,7 @@ function getPiratesListPage(piratesList, pageSize, pageNumber) {
     return piratesList.slice(pageSize * (pageNumber - 1), pageSize * pageNumber)
 }
 
-function Content({ setActiveCsgItem }) {
+function Content({ setActiveCsgItem, windowWidth }) {
     const [pirateCsgList, setPirateCsgList] = useState(JSON.parse(sessionStorage.getItem('pirateCsgList')) || [])
     const [filteredCsgList, setFilteredCsgList] = useState(pirateCsgList)
 
@@ -403,24 +406,19 @@ function Content({ setActiveCsgItem }) {
 
     return (
         <>
-            <div className="query-content">
-                <div className="row">
-                    <div className="col" />
-                    <div className="col">
-                        <div className="row">
-                            <TextInput
-                                label={'Search'}
-                                id={'search-text-box'}
-                                ref={searchRef}
-                                onChange={executeSearch}
-                                defaultValue={query.search || ''}
-                                disableSpellCheck
-                            />
-                        </div>
-                        <div className="row">
-                            <FactionCheckboxes factionList={factionList} filterFactions={filterFactions} />
-                        </div>
-                    </div>
+            <div className="row query-content">
+                <div className="row search-row">
+                    <TextInput
+                        label={'Search'}
+                        id={'search-text-box'}
+                        ref={searchRef}
+                        onChange={executeSearch}
+                        defaultValue={query.search || ''}
+                        disableSpellCheck
+                    />
+                </div>
+                <div className="row faction-row">
+                    <FactionCheckboxes factionList={factionList} filterFactions={filterFactions} />
                 </div>
             </div>
             <PageControl
@@ -428,9 +426,10 @@ function Content({ setActiveCsgItem }) {
                 pageNumber={pageNumber}
                 maxPages={maxPages}
                 setPageNumber={setPageNumber}
-                lenPageNumbers={5}
+                lenPageNumbers={windowWidth <= TABLET_VIEW ? 3 : 5}
                 pageSize={pageSize}
                 setPageSize={updatePageSize}
+                windowWidth={windowWidth}
             />
             <div className='result-content'>
                 {piratesList}
@@ -440,6 +439,15 @@ function Content({ setActiveCsgItem }) {
                 pageNumber={pageNumber}
                 maxPages={maxPages}
                 setPageNumber={setPageNumber}
+                lenPageNumbers={(() => {
+                    if (windowWidth <= PHONE_VIEW) {
+                        return 3
+                    } if (windowWidth <= TABLET_VIEW) {
+                        return 5
+                    }
+                    return undefined
+                })()}
+                windowWidth={windowWidth}
             />
         </>
     )
@@ -447,11 +455,37 @@ function Content({ setActiveCsgItem }) {
 
 function Home() {
     const [ activeCsgItem, setActiveCsgItem ] = useState(null)
+    const [windowWidth, setWindowWidth] = useState(window.innerWidth)
+
+    function updateWindowWidth() {
+        const width = window.innerWidth
+        setWindowWidth(width)
+    }
+
+    useEffect(() => {
+        updateWindowWidth()
+        window.addEventListener('resize', updateWindowWidth)
+        return () => window.removeEventListener('resize', updateWindowWidth)
+    })
+
+    useEffect(() => {
+        if (activeCsgItem) {
+            document.body.style.overflow = 'hidden'
+            document.body.style.height = '100vh'
+        } else {
+            document.body.style.overflow = ''
+            document.body.style.height = ''
+        }
+    }, [activeCsgItem])
 
     return (
-        <Layout>
-            <CsgModal csgItem={activeCsgItem} closeModal={() => setActiveCsgItem(null)} />
-            <Content setActiveCsgItem={setActiveCsgItem} />
+       <Layout>
+            <CsgModal
+                csgItem={activeCsgItem}
+                closeModal={() => setActiveCsgItem(null)}
+                windowWidth={windowWidth}
+            />
+            <Content setActiveCsgItem={setActiveCsgItem} windowWidth={windowWidth} />
         </Layout>
     ) 
 }

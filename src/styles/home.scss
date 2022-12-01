@@ -1,4 +1,5 @@
-@import './variables.scss';
+@import 'variables';
+@import 'screen';
 
 #content {
     display: flex;
@@ -17,6 +18,13 @@
     .page-control {
         margin-right: 40px;
     }
+
+    @include breakpoint(tablet) {
+        justify-content: center;
+        .page-control {
+            margin-right: 0px;
+        }
+    }
 }
 
 .page-control-container.lower {
@@ -29,13 +37,43 @@
         flex: 0;
     }
 
-    #page-button {
+    .page-button {
         width: 90px;
         height: 40px;
+
+        svg {
+            path {
+                fill: #fff;
+            }
+        }
+
+        &.previous svg {
+            transform: scaleX(-1);
+        }
+
+        &.disabled svg path {
+            fill: #999;
+        }
+
+        @include breakpoint(phone) {
+            width: 40px;
+            height: 30px;
+        }
     }
 
     #page-number-list .row:first-child{
         justify-content: space-evenly;
+
+        .ellipsis {
+            width: 15px;
+        }
+        .page-number-col {
+            width: 50px;
+
+            @include breakpoint(phone) {
+                width: 40px;
+            }
+        }
     }
 
     .page-number-col {
@@ -68,9 +106,17 @@
             box-shadow: 0 0 10px 10px #000 inset;
         }
     }
+
+    @include breakpoint(phone) {
+        flex-direction: column-reverse;
+    }
 }
 
+
 .query-content {
+    flex: 1;
+    flex-direction: column;
+
     margin-top: 50px;
 }
 
@@ -83,9 +129,26 @@
     user-select: none;
 }
 
-#search-text-box {
-    min-width: 900px;
-    width: 900px;
+.search-row {
+    flex: 1 1 100%;
+    width: 100%;
+
+    .form-input {
+        #search-text-box {
+            min-width: 900px;
+            width: 900px;
+        }
+
+        @include breakpoint(tablet) {
+            flex: 1;
+            margin: 0 30px;
+
+            #search-text-box {
+                width: 100%;
+                min-width: 100%;
+            }
+        }
+    }
 }
 
 .loading-container {
@@ -106,6 +169,42 @@
     }
     to {
         transform: rotate(360deg);
+    }
+}
+
+.faction-row {
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    margin-top: 15px;
+    flex: 1;
+    width: 100%;
+
+    .faction-toggle {
+        cursor: pointer;
+        padding: 0 0 0 0;
+        background-color: transparent;
+        border: none;
+        margin: 10px;
+        overflow: hidden;
+        height: 40px;
+
+        .faction-image {
+            object-fit: contain;
+            height: 100%;
+        }
+
+        &.toggled {
+            box-shadow: 0 0 10px 2px #bbb;
+        }
+    }
+
+    @include breakpoint(phone) {
+        .faction-toggle{
+            margin: 0 15px;
+            .faction-image {
+                height: 30px;
+            }
+        }
     }
 }
 
