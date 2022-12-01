@@ -175,14 +175,13 @@ function PageNumbers({ currentPageNumber, setPageNumber, maxPages, lenPageNumber
         if (num === currentPageNumber) {
             return <div
                 className='col page-number-col noselect'
-                style={{textDecoration: 'underline', width: '40px'}}
+                style={{textDecoration: 'underline'}}
             >
                 {num}
             </div>
         }
         return <div
             className='col page-number-col noselect'
-            style={{width: '50px'}}
             onClick={() => setPageNumber(num)}
         >
             {num}

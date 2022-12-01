@@ -56,13 +56,24 @@
         }
 
         @include breakpoint(phone) {
-            width: 50px;
+            width: 40px;
             height: 30px;
         }
     }
 
     #page-number-list .row:first-child{
         justify-content: space-evenly;
+
+        .ellipsis {
+            width: 15px;
+        }
+        .page-number-col {
+            width: 50px;
+
+            @include breakpoint(phone) {
+                width: 40px;
+            }
+        }
     }
 
     .page-number-col {
