@@ -4,18 +4,19 @@ import Button from '../Button.tsx'
 import CannonImage from '../CannonImages.tsx'
 
 import { ReactComponent as DownArrow } from '../../images/angle-down-solid.svg'
+import { ReactComponent as CircleCheck } from '../../images/circle-check-regular.svg'
+import { ReactComponent as Copy } from '../../images/copy-regular.svg'
+import noImage from '../../images/no-image.jpg'
 import factionImageMapper from '../../utils/factionImageMapper.tsx'
 import fieldIconMapper from '../../utils/fieldIconMapper.tsx'
 import setIconMapper from '../../utils/setIconMapper.tsx'
 
 import '../../styles/mobileModal.scss'
 
-function LinkIcon({ link }) {
+function CsgItemLink({ link }) {
     return (
-        <div className="row">
-            <div className="col">
-                {fieldIconMapper.link()} {link}
-            </div>
+        <div className="row csg-item-link-row">
+            {fieldIconMapper.link()} {link}
         </div>
     )
 }
@@ -29,13 +30,20 @@ function CsgItemImage({ csgItem }) {
                 id="csg-item-image"
                 alt={csgItem.name}
                 draggable="false"
+                onError={({ currentTarget }) => {
+                    console.log('hit')
+                    currentTarget.onerror = null // prevents looping
+                    currentTarget.src = noImage
+                }}
             />
-            <div className={csgItem.rarity.toLowerCase()} id='rarity-tab'>
-                <div className="id-num">
-                    {csgItem.id}
-                </div>
-                <div className="icon">
-                    {setIconMapper[csgItem.set]({height: '25px'})}
+            <div className="rarity-tab-container">
+                <div className={csgItem.rarity.toLowerCase()} id='rarity-tab'>
+                    <div className="id-num">
+                        {csgItem.id}
+                    </div>
+                    <div className="icon">
+                        {setIconMapper[csgItem.set]({height: '25px'})}
+                    </div>
                 </div>
             </div>
         </div>
@@ -161,8 +169,13 @@ function formatMovement(str: string) {
 
 function Ability({ ability }) {
     const formattedAbility = formatMovement(formatKeywords(ability))
+    console.log(formattedAbility)
 
-    return <div className="col" id="ability-col" dangerouslySetInnerHTML={{__html: formattedAbility}} />
+    return (
+        <div className="row ability-row">
+            <div className="col" dangerouslySetInnerHTML={{__html: formattedAbility}} />
+        </div>
+    )
 }
 
 function FlavorText({ flavorText }) {
@@ -179,8 +192,8 @@ function KeywordItem({ keyword, definition }) {
 
     return (
         <div className="keyword-item">
-            <div className="row title" onClick={() => setExpanded(!isExpanded)}>
-                <div className="col">
+            <div className="row" onClick={() => setExpanded(!isExpanded)}>
+                <div className="col title">
                     {keyword}
                 </div>
                 <div className="col caret">
@@ -188,9 +201,7 @@ function KeywordItem({ keyword, definition }) {
                 </div>
             </div>
             {
-                isExpanded && <div className="row definition">
-                    <div className="col" dangerouslySetInnerHTML={{__html: formattedDefinition}} />
-                </div>
+                isExpanded && <div className="row definition" dangerouslySetInnerHTML={{__html: formattedDefinition}} />
             }
         </div>
     )
@@ -212,16 +223,61 @@ function KeywordsList({ keywords, ability }) {
     })
 }
 
+function CsgSet({ csgItemSet }) {
+    return (
+        <div className="row">
+            <div className="col set-text">
+                {setIconMapper[csgItemSet]({height: '40px'})}
+                <span> </span>
+                {csgItemSet}
+            </div>
+        </div>
+    )
+}
+
 function KeywordsSection({ keywords, ability }) {
     return (
-        <>
+        <div className='keywords-row'>
             <div className="row">
                 <div className="col keywords-title">Keywords</div>
             </div>
             <div className="overflow-scroll">
                 <KeywordsList keywords={keywords} ability={ability} />
             </div>
-        </>
+        </div>
+    )
+}
+
+function CopyButton({ csgItemId }) {
+    const [ showTooltip, setShowTooltip] = useState(false)
+
+    function handleClick() {
+        navigator.clipboard.writeText(`${process.env.REACT_APP_PIRATE_CSG_FE_BASE_URL}?_id=${csgItemId}`)
+        setShowTooltip(true)
+    }
+
+    useEffect(() => {
+        if (showTooltip) {
+            const intervalId = setInterval(() => setShowTooltip(false), 7000)
+            return () => clearInterval(intervalId)
+        }
+    }, [showTooltip])
+
+    return (
+        <div className="copy-button">
+            <Copy onClick={handleClick} height="30px" />
+            {
+                showTooltip
+                && <div className="copy-tooltip" onClick={() => setShowTooltip(false)}>
+                    <div className="row">
+                        <div className="col circle-check-col">
+                            <CircleCheck />
+                        </div>
+                        <div className="col">Copied</div>
+                    </div>
+                </div>
+            }
+        </div>
     )
 }
 
@@ -230,14 +286,18 @@ function MobileModal({csgItem, closeModalHandler }) {
     return (
         <div className="mobile-modal" onClick={e => e.stopPropagation()}>
             <div className="mobile-modal-content">
+                <CopyButton csgItemId={csgItem._id} />
                 <CsgItemHeader csgItem={csgItem} />
-                <CsgShipStats csgItem={csgItem} />
-                { csgItem.link && <LinkIcon link={csgItem.link} /> }
+                { csgItem.type.toLowerCase() === 'ship' && <CsgShipStats csgItem={csgItem} /> }
                 <Ability ability={csgItem.ability} />
+                { csgItem.link && <CsgItemLink link={csgItem.link} /> }
                 <CsgItemImage csgItem={csgItem} />
+                <CsgSet csgItemSet={csgItem.set} />
                 <FlavorText flavorText={csgItem.flavorText} />
-                <KeywordsSection keywords={csgItem.keywords} ability={csgItem.ability} />
-                <Button className="close-button" onClick={closeModalHandler}>Close</Button>
+                { csgItem.keywords.length > 0 && <KeywordsSection keywords={csgItem.keywords} ability={csgItem.ability} /> }
+                <div className="row close-button-row">
+                    <Button className="close-button" onClick={closeModalHandler}>Close</Button>
+                </div>
             </div>
         </div>
     )

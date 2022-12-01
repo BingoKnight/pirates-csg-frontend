@@ -5,6 +5,7 @@ import CannonImage from '../CannonImages.tsx'
 import { ReactComponent as DownArrow } from '../../images/angle-down-solid.svg'
 import { ReactComponent as Copy } from '../../images/copy-regular.svg'
 import { ReactComponent as CircleCheck } from '../../images/circle-check-regular.svg'
+import noImage from '../../images/no-image.jpg'
 import factionImageMapper from '../../utils/factionImageMapper.tsx'
 import fieldIconMapper from '../../utils/fieldIconMapper.tsx'
 import setIconMapper from '../../utils/setIconMapper.tsx'
@@ -28,6 +29,10 @@ function CsgItemImage({ csgItem }) {
                 id="csg-item-image"
                 alt={csgItem.name}
                 draggable="false"
+                onError={({ currentTarget }) => {
+                    currentTarget.onerror = null // prevents looping
+                    currentTarget.src = noImage
+                }}
             />
             <div className={csgItem.rarity.toLowerCase()} id='rarity-tab'>
                 <div className="id-num">
@@ -226,9 +231,7 @@ function KeywordItem({ keyword, definition }) {
                 </div>
             </div>
             {
-                isExpanded && <div className="row definition">
-                    <div className="col" dangerouslySetInnerHTML={{__html: formattedDefinition}} />
-                </div>
+                isExpanded && <div className="row definition" dangerouslySetInnerHTML={{__html: formattedDefinition}} />
             }
         </div>
     )
