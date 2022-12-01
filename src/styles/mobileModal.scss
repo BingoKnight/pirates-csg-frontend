@@ -19,13 +19,20 @@ $raritiesColors: (
     top: 0;
     left: 0;
 
-    width: 100vw;
-    height: 100vh;
-    overflow: scroll;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
 
     backdrop-filter: blur(25px);
 
     z-index: 11;
+
+    // provides horizontal scroll if window too small
+    // and internal margin on the modal
+    .mobile-modal-content {
+        min-width: 301px;
+        margin: 10px;
+    }
 
     .link-icon {
         height: 35px;
@@ -34,7 +41,7 @@ $raritiesColors: (
     .image-container {
         display: block;
         overflow: hidden;
-        margin: 30px;
+        margin: 20px;
         border-radius: $image-border-radius;
 
         #csg-item-image {
@@ -48,18 +55,18 @@ $raritiesColors: (
 
         .points-col {
             display: flex;
-            flex: 0 0 70px;
+            flex: 0 0 60px;
             flex-direction: column;
             justify-content: space-evenly;
 
             background-color: grey;
-            height: 70px;
+            height: 60px;
             background-color: #222222;
             border: 2px solid #000;
 
             #point-cost {
                 font-family: minister, serif;
-                font-size: 2.4rem;
+                font-size: 2.0rem;
                 margin-bottom: -10px;
                 margin-top: -5px;
             }
@@ -77,7 +84,6 @@ $raritiesColors: (
                 flex: 100;
                 font-family: windlass, serif;
                 font-size: 1.5rem;
-                line-height: 2.1rem;
                 text-align: left;
                 padding-left: 15px;
             }
@@ -90,55 +96,63 @@ $raritiesColors: (
                 }
             }
         }
-        
-        .stats-row {
-            font-family: minister, serif;
-            font-size: 1.4rem;
-    
-            .row {
-                align-items: stretch;
-                justify-content: start;
-                flex-wrap:wrap;
-            }
-    
-            .stat:first-child {
-                padding-left: 70px;
-                margin-left: -60px;
-                z-index: -1;
-            }
-    
-            .stat {
-                background-color: #000;
-                padding: 5px 7px;
-                margin: 2px 2px 0 0;
-                align-items: center;
-            }
+    }
 
-            // .col {
-            //         margin: 0 1px;
-            //         padding: 1px 4px;
-            //     }
+    .stats-row {
+        font-family: minister, serif;
+        font-size: 1.4rem;
+        margin-left: 5px;
+        margin-top: -28px;
+    
+        .row {
+            align-items: stretch;
+            justify-content: start;
+            flex-wrap:wrap;
+        }
+    
+        .stat:first-child {
+            padding-left: 65px;
+            z-index: -1;
+        }
+    
+        .stat {
+            background-color: #000;
+            padding: 0px 7px 2px;
+            margin: 2px 2px 0 0;
+            align-items: center;
+        }
 
-            .masts-stat .icon {
-                padding: 1px 4px;
-            }
-    
-            .cannons-stat .value{
-                flex: 7;
-            }
-    
-            .base-move-stat .icon {
-                flex: 1;
-            }
+        .col {
+            margin: 0 1px;
+        }
 
-            .base-move-stat .value {
-                flex: 4;
-                padding: 1px 4px;
-            }
-    
-            .icon {
-                display: flex;
-            }
+        .value {
+            padding-left: 5px;
+        }
+
+        .cargo-stat .value {
+            margin-top: 4px;
+        }
+
+        .masts-stat .value {
+            margin-top: 4px;
+        }
+
+        .cannons-stat .value{
+            flex: 8;
+        }
+
+        .base-move-stat .icon {
+            flex: 1;
+        }
+
+        .base-move-stat .value {
+            flex: 4;
+            margin-top: 4px;
+        }
+
+        .icon {
+            display: flex;
         }
     }
 }

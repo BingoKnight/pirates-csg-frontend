@@ -66,7 +66,7 @@ function BaseMoveCol({ baseMove }) {
 
     return (
             <div className="row stat base-move-stat">
-                <div className="col icon">{fieldIconMapper.baseMove({height: '20px'})}</div>
+                <div className="col icon">{fieldIconMapper.baseMove({height: '19px'})}</div>
                 <div className="col value">{baseMoveText}</div>
             </div>
     )
@@ -75,11 +75,11 @@ function BaseMoveCol({ baseMove }) {
 function CannonsCol({ cannons }) {
     const cannonsList = cannons
         .split('-')
-        .map(cannon => <CannonImage cannon={cannon} height="15px"/>)
+        .map(cannon => <CannonImage cannon={cannon} height="12px" width="14px"/>)
         .reduce((prev, curr) => [prev, ' ', curr])
     return (
             <div className="row stat cannons-stat">
-                <div className="col icon">{fieldIconMapper.cannons({height: '20px'})}</div>
+                <div className="col icon">{fieldIconMapper.cannons({height: '16px'})}</div>
                 <div className="col value">{cannonsList}</div>
             </div>
     )
@@ -90,12 +90,12 @@ function CsgShipStats({ csgItem }) {
         <div className="row stats-row">
             <div className="col">
                 <div className="row">
-                    <div className="row stat">
-                        <div className="col icon">{fieldIconMapper.masts({height: '23px'})}</div>
+                    <div className="row stat masts-stat">
+                        <div className="col icon">{fieldIconMapper.masts({height: '20px'})}</div>
                         <div className="col value">{csgItem.masts}</div>
                     </div>
-                    <div className="row stat">
-                        <div className="col icon">{fieldIconMapper.cargo({height: '23px'})}</div>
+                    <div className="row stat cargo-stat">
+                        <div className="col icon">{fieldIconMapper.cargo({height: '20px'})}</div>
                         <div className="col value">{csgItem.cargo}</div>
                     </div>
                     <BaseMoveCol baseMove={csgItem.baseMove} />
@@ -107,7 +107,7 @@ function CsgShipStats({ csgItem }) {
 }
 
 function Faction({ faction }) {
-    return <span>{!['ut', 'none'].includes(faction.toLowerCase()) && factionImageMapper[faction.toLowerCase()]({height: '35px'})}</span>
+    return <span>{!['ut', 'none'].includes(faction.toLowerCase()) && factionImageMapper[faction.toLowerCase()]({height: '30px'})}</span>
 }
 
 function CsgItemHeader({ csgItem }) {
@@ -123,7 +123,6 @@ function CsgItemHeader({ csgItem }) {
                         {csgItem.name}
                     </div>
                 </div>
-                <CsgShipStats csgItem={csgItem} />
             </div>
         </div>
     )
@@ -230,13 +229,16 @@ function KeywordsSection({ keywords, ability }) {
 function MobileModal({csgItem, closeModalHandler }) {
     return (
         <div className="mobile-modal" onClick={e => e.stopPropagation()}>
-            <CsgItemHeader csgItem={csgItem} />
-            { csgItem.link && <LinkIcon link={csgItem.link} /> }
-            <Ability ability={csgItem.ability} />
-            <CsgItemImage csgItem={csgItem} />
-            <FlavorText flavorText={csgItem.flavorText} />
-            <KeywordsSection keywords={csgItem.keywords} ability={csgItem.ability} />
-            <Button className="close-button" onClick={closeModalHandler}>Close</Button>
+            <div className="mobile-modal-content">
+                <CsgItemHeader csgItem={csgItem} />
+                <CsgShipStats csgItem={csgItem} />
+                { csgItem.link && <LinkIcon link={csgItem.link} /> }
+                <Ability ability={csgItem.ability} />
+                <CsgItemImage csgItem={csgItem} />
+                <FlavorText flavorText={csgItem.flavorText} />
+                <KeywordsSection keywords={csgItem.keywords} ability={csgItem.ability} />
+                <Button className="close-button" onClick={closeModalHandler}>Close</Button>
+            </div>
         </div>
     )
 }
