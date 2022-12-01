@@ -94,11 +94,11 @@ function CsgShipStats({ csgItem }) {
         <div className="row stats-row">
             <div className="col">
                 <div className="row">
-                    <div className="row stat">
+                    <div className="row stat masts-stat">
                         <div className="col icon">{fieldIconMapper.masts({height: '23px'})}</div>
                         <div className="col value">{csgItem.masts}</div>
                     </div>
-                    <div className="row stat">
+                    <div className="row stat cargo-stat">
                         <div className="col icon">{fieldIconMapper.cargo({height: '23px'})}</div>
                         <div className="col value">{csgItem.cargo}</div>
                     </div>
