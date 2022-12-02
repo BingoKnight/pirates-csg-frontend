@@ -122,24 +122,23 @@ function sortList(sort, piratesCsgList) {
         return csgItemField
     }
 
-    console.log(sort.order)
-
     if (sort.order === SortOrder.ascending) {
-        return piratesCsgList.sort((first, second) =>
-            ignoreQuotes(first[sort.field]) < ignoreQuotes(second[sort.field]) ? -1 : 1
+        return [...piratesCsgList].sort((first, second) =>
+            ignoreQuotes(first[sort.field]) < ignoreQuotes(second[sort.field]) ? 1 : -1
         )
     } else if (sort.order === SortOrder.descending) {
-        return piratesCsgList.sort((first, second) =>
-            ignoreQuotes(first[sort.field]) < ignoreQuotes(second[sort.field]) ? 1 : -1
+        return [...piratesCsgList].sort((first, second) =>
+            ignoreQuotes(first[sort.field]) < ignoreQuotes(second[sort.field]) ? -1 : 1
         )
     }
 
     return piratesCsgList
 }
 
-function updateQuery(query, piratesCsgList, setFiltered) {
+function updateQuery(query, piratesCsgList, sort, setSorted, setFiltered) {
     if (!query.search && query.factions.length === 0) {
         setFiltered(piratesCsgList)
+        setSorted(sortList(sort, piratesCsgList))
         return piratesCsgList.length
     } else {
         const filtered = piratesCsgList.filter(csgItem =>
@@ -154,6 +153,7 @@ function updateQuery(query, piratesCsgList, setFiltered) {
             && (query.factions.length === 0 || query.factions.includes(csgItem.faction))
         )
         setFiltered(filtered)
+        setSorted(sortList(sort, filtered))
         return filtered.length
     }
 
@@ -302,7 +302,7 @@ function getPiratesListPage(piratesList, pageSize, pageNumber) {
 function Content({ setActiveCsgItem, windowWidth }) {
     const [completeCsgList, setCompleteCsgList] = useState(JSON.parse(sessionStorage.getItem('piratesCsgList')) || [])
     const [filteredCsgList, setFilteredCsgList] = useState(completeCsgList)
-    const [sortedCsgList, setSortedCsgList] = useState(filteredCsgList)
+    const [sortedCsgList, setSortedCsgList] = useState(completeCsgList)
 
     const [ searchParams ] = useSearchParams()
 
@@ -336,6 +336,11 @@ function Content({ setActiveCsgItem, windowWidth }) {
         setPageSize(value)
     }
 
+    function handleUpdatedSort(newSort) {
+        setSort(newSort)
+        setSortedCsgList(sortList(newSort, filteredCsgList))
+    }
+
     function executeSearch() {
         setQuery({...query, search: searchRef.current.value})
     }
@@ -360,7 +365,7 @@ function Content({ setActiveCsgItem, windowWidth }) {
 
     async function preloadImages() {
         const imagePromiseList = getPiratesListPage(
-            filteredCsgList,
+            sortedCsgList,
             pageSize,
             pageNumber
         ).map(csgItem => promisePreload(csgItem.image))
@@ -375,6 +380,7 @@ function Content({ setActiveCsgItem, windowWidth }) {
             )
             setCompleteCsgList(filtered)
             setFilteredCsgList(filtered)
+            setSortedCsgList(filtered)
 
             if (searchParams.has('_id')) {
                 const match = filtered.find(item => item._id === searchParams.get('_id'))
@@ -395,7 +401,7 @@ function Content({ setActiveCsgItem, windowWidth }) {
     }, [])
 
     useEffect(() => {
-        updateQuery(query, completeCsgList, setFilteredCsgList)
+        updateQuery(query, completeCsgList, sort, setSortedCsgList, setFilteredCsgList)
         setPageNumber(1)
         sessionStorage.setItem('query', JSON.stringify(query))
 
@@ -410,7 +416,7 @@ function Content({ setActiveCsgItem, windowWidth }) {
 
     useEffect(() => {
         setMaxPages(calculateMaxPages(filteredCsgList.length, pageSize))
-    }, [filteredCsgList])
+    }, [filteredCsgList]) // keep as filteredCsgList dependant because sorting doesn't change page count
 
     useEffect(() => {
         const newMaxPages = calculateMaxPages(filteredCsgList.length, pageSize)
@@ -430,8 +436,10 @@ function Content({ setActiveCsgItem, windowWidth }) {
 
     if (apiFetchComplete) {
         piratesList = <PiratesCsgList
-            piratesCsgList={getPiratesListPage(filteredCsgList, pageSize, pageNumber)}
+            piratesCsgList={getPiratesListPage(sortedCsgList, pageSize, pageNumber)}
             setActiveCsgItem={setActiveCsgItem}
+            sort={sort}
+            setSort={handleUpdatedSort}
         />
     }
 

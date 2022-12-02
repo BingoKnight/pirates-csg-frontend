@@ -137,12 +137,11 @@ function CsgItemRows({ piratesCsgList, setActive }) {
 function HeaderRow({ sort, setSort }) {
     const sortCycle = {
         null: 'descending',
-        ascending: 'ascending',
-        descending: null
+        descending: 'ascending',
+        ascending: null
     }
 
     function handleSort(fieldName: string) {
-        console.log(`handle sort: ${sort.order}`)
         setSort({
             order: sortCycle[fieldName === sort.field ? sort.order : null],
             field: fieldName

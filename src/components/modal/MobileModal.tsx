@@ -25,13 +25,12 @@ function CsgItemImage({ csgItem }) {
     return (
         <div className="image-container">
             <img
-                src={csgItem.image}
+                src={csgItem.image || noImage}
                 className="noselect"
                 id="csg-item-image"
                 alt={csgItem.name}
                 draggable="false"
                 onError={({ currentTarget }) => {
-                    console.log('hit')
                     currentTarget.onerror = null // prevents looping
                     currentTarget.src = noImage
                 }}

@@ -24,7 +24,7 @@ function CsgItemImage({ csgItem }) {
     return (
         <div id="image-container">
             <img
-                src={csgItem.image}
+                src={csgItem.image || noImage}
                 className="noselect"
                 id="csg-item-image"
                 alt={csgItem.name}
