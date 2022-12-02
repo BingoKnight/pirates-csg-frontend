@@ -36,6 +36,8 @@ $faction-icons: (
 #header-row {
     font-size: 1.3rem;
     font-family: windlass, serif;
+    align-items: stretch;
+    height: 80px;
 
     .field-header {
         cursor: pointer;
@@ -47,6 +49,38 @@ $faction-icons: (
 
     .link-icon {
         height: 35px;
+    }
+
+    .header-col {
+        text-align: center;
+        justify-content: space-between;
+    }
+
+    .csg-col {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .sort-order {
+        height: 20px;
+
+        svg {
+            display: none;
+        }
+
+        &.ascending {
+            transform: scaleY(-1);
+
+            &.show svg {
+                display: block;
+            }
+        }
+
+        &.descending {
+            &.show svg {
+                display: block;
+            }
+        }
     }
 
     @include breakpoint(tablet) {
@@ -127,7 +161,7 @@ $faction-icons: (
     flex: 3;
 
     @include breakpoint(tablet) {
-        display: none;
+        display: none !important;
     }
 }
 
@@ -139,7 +173,7 @@ $faction-icons: (
     flex: 2;
 
     @include breakpoint(tablet) {
-        display: none;
+        display: none !important;
     }
 }
 
@@ -159,7 +193,7 @@ $faction-icons: (
     flex: 5 0;
 
     @include breakpoint(phone) {
-        display: none;
+        display: none !important;
     }
 }
 
@@ -167,7 +201,7 @@ $faction-icons: (
     flex: 7 0;
 
     @include breakpoint(phone) {
-        display: none;
+        display: none !important;
     }
 }
 
@@ -175,7 +209,7 @@ $faction-icons: (
     flex: 5;
 
     @include breakpoint(tablet) {
-        display: none;
+        display: none !important;
     }
 }
 
@@ -187,7 +221,7 @@ $faction-icons: (
     white-space: nowrap;
 
     @include breakpoint(tablet) {
-        display: none;
+        display: none !important;
     }
 }
 

@@ -1,7 +1,7 @@
 import React from 'react'
 
 import CannonImage from './CannonImages.tsx'
-
+import {ReactComponent as Arrow} from '../images/angle-down-solid.svg'
 import factionImageMapper from '../utils/factionImageMapper.tsx'
 import fieldIconMapper from '../utils/fieldIconMapper.tsx'
 import setIconMapper from '../utils/setIconMapper.tsx'
@@ -152,7 +152,8 @@ function HeaderRow({ sort, setSort }) {
         <div className='row csg-row' id='header-row'>
         {
             Object.keys(OrderedCsgFields).map(fieldName => {
-                const defaultClassName = `noselect${fieldName === 'rarity' ? '' : ' col csg-col'}`
+                // const defaultClassName = 'noselect col csg-col'
+                const defaultClassName = `noselect${fieldName === 'rarity' ? ' header-col csg-col' : ' header-col col csg-col'}`
                 const prettyNameMapper = {
                     id: 'ID',
                     pointCost: 'Points'
@@ -162,9 +163,15 @@ function HeaderRow({ sort, setSort }) {
 
                 return (
                     <div className={defaultClassName + ' ' + fieldName + '-col'} onClick={() => handleSort(fieldName)}>
+                        <div className={"sort-order ascending" + (sort.field === fieldName && sort.order === 'ascending' ? ' show': '')}>
+                            <Arrow width="15px" />
+                        </div>
                         <span className='field-header'>
                             {Object.keys(fieldIconMapper).includes(fieldName) ? fieldIconMapper[fieldName]() : prettyName}
                         </span>
+                        <div className={"sort-order descending" + (sort.field === fieldName && sort.order === 'descending' ? ' show': '')}>
+                            <Arrow width="15px" />
+                        </div>
                     </div>
                 )
             })
