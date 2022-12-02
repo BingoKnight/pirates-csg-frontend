@@ -121,25 +121,39 @@ function CsgItemColumns({ csgItem }) {
     })
 }
 
-function CsgItemRows({ pirateCsgList, setActive }) {
-    if (pirateCsgList.length === 0)
+function CsgItemRows({ piratesCsgList, setActive }) {
+    if (piratesCsgList.length === 0)
         return <div className="row csg-row no-items">
             No results found
         </ div>
 
-    return pirateCsgList.map((csgItem: CsgItem) => (
+    return piratesCsgList.map((csgItem: CsgItem) => (
         <div className={`row csg-row csg-item-row noselect`} onClick={() => setActive(csgItem)}>
             <CsgItemColumns csgItem={csgItem} />
         </ div>
     ))
 }
 
-function HeaderRow() {
+function HeaderRow({ sort, setSort }) {
+    const sortCycle = {
+        null: 'descending',
+        ascending: 'ascending',
+        descending: null
+    }
+
+    function handleSort(fieldName: string) {
+        console.log(`handle sort: ${sort.order}`)
+        setSort({
+            order: sortCycle[fieldName === sort.field ? sort.order : null],
+            field: fieldName
+        })
+    }
+
     return (
         <div className='row csg-row' id='header-row'>
         {
             Object.keys(OrderedCsgFields).map(fieldName => {
-                const defaultClassName = fieldName === 'rarity' ? '' : 'col csg-col '
+                const defaultClassName = `noselect${fieldName === 'rarity' ? '' : ' col csg-col'}`
                 const prettyNameMapper = {
                     id: 'ID',
                     pointCost: 'Points'
@@ -148,8 +162,10 @@ function HeaderRow() {
                 let prettyName = prettyNameMapper[fieldName] || capitalize(fieldName)
 
                 return (
-                    <div className={`${defaultClassName}${fieldName}-col`}>
-                        {Object.keys(fieldIconMapper).includes(fieldName) ? fieldIconMapper[fieldName]() : prettyName}
+                    <div className={defaultClassName + ' ' + fieldName + '-col'} onClick={() => handleSort(fieldName)}>
+                        <span className='field-header'>
+                            {Object.keys(fieldIconMapper).includes(fieldName) ? fieldIconMapper[fieldName]() : prettyName}
+                        </span>
                     </div>
                 )
             })
@@ -158,14 +174,14 @@ function HeaderRow() {
     )
 }
 
-function PirateCsgList({ pirateCsgList, setActiveCsgItem }) {
+function PiratesCsgList({ piratesCsgList, setActiveCsgItem, sort, setSort }) {
     return (
         <div id='csg-list'>
-            <HeaderRow />
-            <CsgItemRows pirateCsgList={pirateCsgList} setActive={setActiveCsgItem} />
+            <HeaderRow sort={sort} setSort={setSort} />
+            <CsgItemRows piratesCsgList={piratesCsgList} setActive={setActiveCsgItem} />
         </div>
     )
 }
 
-export default PirateCsgList
+export default PiratesCsgList
 

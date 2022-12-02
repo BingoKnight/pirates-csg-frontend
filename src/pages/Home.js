@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
-import { getKeywordsDictionary, getPirateCsgList } from '../api.js'
+import { getKeywordsDictionary, getPiratesCsgList } from '../api.js'
 import Button from '../components/Button.tsx'
 import CsgModal from '../components/modal/CsgModal.tsx'
 import Dropdown from '../components/Dropdown.tsx'
@@ -20,19 +20,25 @@ import {
     VikingImage,
     WhiteBeardRaidersImage
 } from '../components/FactionImages.tsx'
-import PirateCsgList from '../components/PiratesCsgList.tsx';
+import PiratesCsgList from '../components/PiratesCsgList.tsx';
 import TextInput from '../components/TextInput.tsx'
 import { TABLET_VIEW, PHONE_VIEW } from '../constants.js'
 import noImage from '../images/no-image.jpg'
-import { ReactComponent as ShipWheel } from '../images/ship-wheel.svg'
 import { ReactComponent as Arrow } from '../images/arrow-solid.svg'
+import { ReactComponent as ShipWheel } from '../images/ship-wheel.svg'
 
 import '../styles/home.scss';
 
 const pageSizeOptions = [10, 25, 50]
 
+const SortOrder = {
+    ascending: 'ascending',
+    descending: 'descending'
+}
+
 // TODO: preload image on faction query change
 // TODO: allow android back button to close modal, not go back in history
+// TODO: replace spinning wheel with empty rows with moving gradient to signify loading
 
 function FactionCheckboxes({ factionList, filterFactions }) {
     const [filteredFactions, setFilteredFactions] = useState(new Set())
@@ -107,12 +113,36 @@ function queryId(objItem, query) {
     return objItem.id.toLowerCase().includes(query.search.toLowerCase())
 }
 
-function updateQuery(query, pirateCsgList, setFiltered) {
+function sortList(sort, piratesCsgList) {
+    // TODO: add object of comparison functions to handle things like rarity, base move, and masts
+    // correctly (masts null == 0) which is not the same
+    function ignoreQuotes(csgItemField) {
+        if (typeof csgItemField === 'string')
+            return csgItemField.replaceAll('\'', '').replaceAll('"', '').replaceAll('“', '')
+        return csgItemField
+    }
+
+    console.log(sort.order)
+
+    if (sort.order === SortOrder.ascending) {
+        return piratesCsgList.sort((first, second) =>
+            ignoreQuotes(first[sort.field]) < ignoreQuotes(second[sort.field]) ? -1 : 1
+        )
+    } else if (sort.order === SortOrder.descending) {
+        return piratesCsgList.sort((first, second) =>
+            ignoreQuotes(first[sort.field]) < ignoreQuotes(second[sort.field]) ? 1 : -1
+        )
+    }
+
+    return piratesCsgList
+}
+
+function updateQuery(query, piratesCsgList, setFiltered) {
     if (!query.search && query.factions.length === 0) {
-        setFiltered(pirateCsgList)
-        return pirateCsgList.length
+        setFiltered(piratesCsgList)
+        return piratesCsgList.length
     } else {
-        const filtered = pirateCsgList.filter(csgItem =>
+        const filtered = piratesCsgList.filter(csgItem =>
             (
                 !query.search
                 || queryName(csgItem, query)
@@ -224,8 +254,6 @@ function PageControl(props) {
     let nextPageLabel = 'Next'
     let prevPageLabel = 'Previous'
 
-    console.log(windowWidth)
-
     if (windowWidth <= PHONE_VIEW) {
         nextPageLabel = <Arrow />
         prevPageLabel = <Arrow />
@@ -272,8 +300,9 @@ function getPiratesListPage(piratesList, pageSize, pageNumber) {
 }
 
 function Content({ setActiveCsgItem, windowWidth }) {
-    const [pirateCsgList, setPirateCsgList] = useState(JSON.parse(sessionStorage.getItem('pirateCsgList')) || [])
-    const [filteredCsgList, setFilteredCsgList] = useState(pirateCsgList)
+    const [completeCsgList, setCompleteCsgList] = useState(JSON.parse(sessionStorage.getItem('piratesCsgList')) || [])
+    const [filteredCsgList, setFilteredCsgList] = useState(completeCsgList)
+    const [sortedCsgList, setSortedCsgList] = useState(filteredCsgList)
 
     const [ searchParams ] = useSearchParams()
 
@@ -283,7 +312,7 @@ function Content({ setActiveCsgItem, windowWidth }) {
     const [maxPages, setMaxPages] = useState(calculateMaxPages(filteredCsgList.length, pageSize))
     const [pageNumber, setPageNumber] = useState(parseInt(sessionStorage.getItem('page')) || 1)
 
-    const [apiFetchComplete, setApiFetchComplete] = useState(sessionStorage.getItem('pirateCsgList') !== null)
+    const [apiFetchComplete, setApiFetchComplete] = useState(sessionStorage.getItem('piratesCsgList') !== null)
 
     const sessionStorageQuery = JSON.parse(sessionStorage.getItem('query'))
 
@@ -291,11 +320,12 @@ function Content({ setActiveCsgItem, windowWidth }) {
         search: sessionStorageQuery?.search || '',
         factions: sessionStorageQuery?.factions || [],
     })
+    const [sort, setSort] = useState({field: null, order: null})
     const searchRef = useRef(null)
 
     const factionList = [
         ...new Set(
-            pirateCsgList
+            completeCsgList
                 .map(model => model.faction)
                 .filter(faction => !['ut', 'none'].includes(faction.toLowerCase()))
         )
@@ -335,7 +365,7 @@ function Content({ setActiveCsgItem, windowWidth }) {
             pageNumber
         ).map(csgItem => promisePreload(csgItem.image))
 
-        console.log(await Promise.all(imagePromiseList))
+        await Promise.all(imagePromiseList)
     }
 
     useEffect(() => {
@@ -343,7 +373,7 @@ function Content({ setActiveCsgItem, windowWidth }) {
             const filtered = csgList.filter(
                 csgItem => csgItem.ability || !csgItem.set.toLowerCase() === 'unreleased'
             )
-            setPirateCsgList(filtered)
+            setCompleteCsgList(filtered)
             setFilteredCsgList(filtered)
 
             if (searchParams.has('_id')) {
@@ -356,7 +386,7 @@ function Content({ setActiveCsgItem, windowWidth }) {
         }
 
         async function fetchData() {
-            updateCsgLists(await getPirateCsgList())
+            updateCsgLists(await getPiratesCsgList())
             await getKeywordsDictionary()
             setApiFetchComplete(true)
         }
@@ -365,9 +395,9 @@ function Content({ setActiveCsgItem, windowWidth }) {
     }, [])
 
     useEffect(() => {
-        updateQuery(query, pirateCsgList, setFilteredCsgList)
-        sessionStorage.setItem('query', JSON.stringify(query))
+        updateQuery(query, completeCsgList, setFilteredCsgList)
         setPageNumber(1)
+        sessionStorage.setItem('query', JSON.stringify(query))
 
         const timer = setTimeout(() => {
             preloadImages()
@@ -376,9 +406,7 @@ function Content({ setActiveCsgItem, windowWidth }) {
         return () => { clearTimeout(timer) }
     }, [query])
 
-    useEffect(() => {
-        sessionStorage.setItem('page', pageNumber)
-    }, [pageNumber])
+    useEffect(() => { sessionStorage.setItem('page', pageNumber) }, [pageNumber])
 
     useEffect(() => {
         setMaxPages(calculateMaxPages(filteredCsgList.length, pageSize))
@@ -394,15 +422,15 @@ function Content({ setActiveCsgItem, windowWidth }) {
 
     useEffect(() => {
         preloadImages()
-    }, [pageNumber, pirateCsgList])
+    }, [pageNumber, completeCsgList])
 
     let piratesList = <div className="loading-container">
         <ShipWheel className='loading-icon'/>
     </div>
 
     if (apiFetchComplete) {
-        piratesList = <PirateCsgList
-            pirateCsgList={getPiratesListPage(filteredCsgList, pageSize, pageNumber)}
+        piratesList = <PiratesCsgList
+            piratesCsgList={getPiratesListPage(filteredCsgList, pageSize, pageNumber)}
             setActiveCsgItem={setActiveCsgItem}
         />
     }

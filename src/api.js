@@ -1,12 +1,12 @@
-export async function getPirateCsgList() {
-    const sessionPiratesList = sessionStorage.getItem('pirateCsgList')
+export async function getPiratesCsgList() {
+    const sessionPiratesList = sessionStorage.getItem('piratesCsgList')
     if (sessionPiratesList)
         return JSON.parse(sessionPiratesList)
 
     const piratesList = await fetch(
         `${process.env.REACT_APP_PIRATE_CSG_API_BASE_URL}/v1/pirates-csg`
     ).then(res => res.json())
-    sessionStorage.setItem('pirateCsgList', JSON.stringify(piratesList.models))
+    sessionStorage.setItem('piratesCsgList', JSON.stringify(piratesList.models))
     return piratesList.models
 }
 

@@ -37,6 +37,10 @@ $faction-icons: (
     font-size: 1.3rem;
     font-family: windlass, serif;
 
+    .field-header {
+        cursor: pointer;
+    }
+
     .field-icon {
         height: 25px;
     }
