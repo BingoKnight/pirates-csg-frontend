@@ -52,8 +52,12 @@ $faction-icons: (
     }
 
     .header-col {
-        text-align: center;
         justify-content: space-between;
+        text-align: center;
+    }
+
+    .rarity-col {
+            margin-left: -2px;
     }
 
     .csg-col {
@@ -63,6 +67,8 @@ $faction-icons: (
 
     .sort-order {
         height: 20px;
+        align-self: center;
+
 
         svg {
             display: none;
