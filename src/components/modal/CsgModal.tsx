@@ -6,9 +6,6 @@ import MobileModal from './MobileModal.tsx'
 
 import {TABLET_VIEW} from '../../constants'
 
-// TODO: keyword text with movement characters negatively affecting the rest of the text
-//       and not showing color in mobile
-
 function CsgModal({ csgItem, closeModal, windowWidth }) {
     const [ searchParams, setSearchParams ] = useSearchParams()
 
