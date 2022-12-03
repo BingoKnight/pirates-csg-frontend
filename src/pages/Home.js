@@ -113,26 +113,86 @@ function queryId(objItem, query) {
     return objItem.id.toLowerCase().includes(query.search.toLowerCase())
 }
 
-function sortList(sort, piratesCsgList) {
-    // TODO: add object of comparison functions to handle things like rarity, base move, and masts
-    // correctly (masts null == 0) which is not the same
+function sortCompare(a, b, sortOrder) { // sortOrder will only be ascending or descending, sortList removes null case
     function ignoreQuotes(csgItemField) {
         if (typeof csgItemField === 'string')
             return csgItemField.replaceAll('\'', '').replaceAll('"', '').replaceAll('“', '')
         return csgItemField
     }
 
-    if (sort.order === SortOrder.ascending) {
-        return [...piratesCsgList].sort((first, second) =>
-            ignoreQuotes(first[sort.field]) < ignoreQuotes(second[sort.field]) ? 1 : -1
-        )
-    } else if (sort.order === SortOrder.descending) {
-        return [...piratesCsgList].sort((first, second) =>
-            ignoreQuotes(first[sort.field]) < ignoreQuotes(second[sort.field]) ? -1 : 1
-        )
+    if (sortOrder === SortOrder.ascending) {
+        return ignoreQuotes(a) > ignoreQuotes(b) ? 1 : -1
     }
 
-    return piratesCsgList
+    return ignoreQuotes(a) < ignoreQuotes(b) ? 1 : -1
+}
+
+function sortRarity(csgList, sortOrder, _) {
+    const rarityEnumerator = {
+        common: 1,
+        uncommon: 2,
+        rare: 3,
+        pr: 4,
+        promo: 5,  // only includes whitebeard
+        se: 6,
+        le: 7,
+        'super rare': 8,
+        'special': 9,
+        '1 of 1': 10
+    }
+
+    return [...csgList].sort((a, b) =>
+        sortCompare(rarityEnumerator[a.rarity.toLowerCase()], rarityEnumerator[b.rarity.toLowerCase()], sortOrder)
+    )
+}
+
+function sortBaseMove(csgList, sortOrder, _) {
+    const baseMoveEnumerator = {
+        t: 1,
+        s: 2,
+        l: 3,
+        's+s': 4,
+        's+l': 5,
+        'l+s': 5,
+        'l+l': 6,
+        's+s+s': 7,
+        'l+l+l': 8,
+        d: 9
+    }
+
+    return [...csgList].filter(val => val.baseMove).sort((a, b) =>
+        sortCompare(baseMoveEnumerator[a.baseMove.toLowerCase()], baseMoveEnumerator[b.baseMove.toLowerCase()], sortOrder)
+    )
+}
+
+function sortIgnoreNull(csgList, sortOrder, sortField) {
+    const sortedWithoutFalsy = [...csgList]
+        .filter(val => val[sortField] || val[sortField] === 0)
+        .sort((a, b) => sortCompare(a[sortField], b[sortField], sortOrder))
+
+    return [...sortedWithoutFalsy, ...csgList.filter(val => isNaN(val[sortField]))]
+}
+
+function defaultSort(csgList, sortOrder, sortField) {
+    return [...csgList].sort((a, b) =>
+        sortCompare(a[sortField], b[sortField], sortOrder)
+    )
+}
+
+function sortList(sort, piratesCsgList) {
+    if(!sort.order)
+        return piratesCsgList
+
+    const sortHandlers = {
+        rarity: sortRarity,
+        baseMove: sortBaseMove,
+        masts: sortIgnoreNull,
+        cargo: sortIgnoreNull,
+        link: sortIgnoreNull,
+        id: sortIgnoreNull
+    }
+
+    return (sort.field in sortHandlers ? sortHandlers[sort.field] : defaultSort)(piratesCsgList, sort.order, sort.field)
 }
 
 function updateQuery(query, piratesCsgList, sort, setSorted, setFiltered) {

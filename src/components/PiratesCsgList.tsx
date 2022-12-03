@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {MouseEventHandler} from 'react'
 
 import CannonImage from './CannonImages.tsx'
 import {ReactComponent as Arrow} from '../images/angle-down-solid.svg'
@@ -136,9 +136,9 @@ function CsgItemRows({ piratesCsgList, setActive }) {
 
 function HeaderRow({ sort, setSort }) {
     const sortCycle = {
-        null: 'descending',
-        descending: 'ascending',
-        ascending: null
+        null: 'ascending',
+        ascending: 'descending',
+        descending: null
     }
 
     function handleSort(fieldName: string) {
@@ -152,21 +152,27 @@ function HeaderRow({ sort, setSort }) {
         <div className='row csg-row' id='header-row'>
         {
             Object.keys(OrderedCsgFields).map(fieldName => {
-                // const defaultClassName = 'noselect col csg-col'
                 const defaultClassName = `noselect${fieldName === 'rarity' ? ' header-col csg-col' : ' header-col col csg-col'}`
                 const prettyNameMapper = {
                     id: 'ID',
                     pointCost: 'Points'
                 }
 
-                let prettyName = prettyNameMapper[fieldName] || capitalize(fieldName)
+                const prettyName = prettyNameMapper[fieldName] || capitalize(fieldName)
+                let onClick : undefined | MouseEventHandler<HTMLDivElement> = () => handleSort(fieldName)
+                let sortableHeaderClass : undefined | string = 'sortable-header'
+
+                if (fieldName === 'cannons') {
+                    onClick = undefined
+                    sortableHeaderClass = undefined
+                }
 
                 return (
-                    <div className={defaultClassName + ' ' + fieldName + '-col'} onClick={() => handleSort(fieldName)}>
+                    <div className={defaultClassName + ' ' + fieldName + '-col'} onClick={onClick}>
                         <div className={"sort-order ascending" + (sort.field === fieldName && sort.order === 'ascending' ? ' show': '')}>
                             <Arrow width="15px" />
                         </div>
-                        <span className='field-header'>
+                        <span className={sortableHeaderClass}>
                             {Object.keys(fieldIconMapper).includes(fieldName) ? fieldIconMapper[fieldName]() : prettyName}
                         </span>
                         <div className={"sort-order descending" + (sort.field === fieldName && sort.order === 'descending' ? ' show': '')}>

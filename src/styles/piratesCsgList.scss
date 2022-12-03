@@ -39,10 +39,6 @@ $faction-icons: (
     align-items: stretch;
     height: 80px;
 
-    .field-header {
-        cursor: pointer;
-    }
-
     .field-icon {
         height: 25px;
     }
@@ -54,6 +50,11 @@ $faction-icons: (
     .header-col {
         justify-content: space-between;
         text-align: center;
+
+        .sortable-header {
+            cursor: pointer;
+        }
+
     }
 
     .rarity-col {
