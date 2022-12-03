@@ -38,6 +38,14 @@ $faction-icons: (
     font-family: windlass, serif;
     align-items: stretch;
     height: 80px;
+    position: sticky;
+    top: 0;
+    transition-duration: 0.3s;
+    transition-timing-function: ease-in-out;
+
+    &.scrolling {
+        box-shadow: inset 0px 0px 80px 80px rgba(0, 0, 0, 0.95), 0px 0px 26px 26px rgba(0, 0, 0, 0.95);
+    }
 
     .field-icon {
         height: 25px;

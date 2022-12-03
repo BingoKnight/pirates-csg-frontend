@@ -1,4 +1,4 @@
-import React, {MouseEventHandler} from 'react'
+import React, { useEffect, useRef, useState, MouseEventHandler } from 'react'
 
 import CannonImage from './CannonImages.tsx'
 import {ReactComponent as Arrow} from '../images/angle-down-solid.svg'
@@ -135,6 +135,9 @@ function CsgItemRows({ piratesCsgList, setActive }) {
 }
 
 function HeaderRow({ sort, setSort }) {
+    const [yOffset, setYOffset] = useState(0)
+    const headerRowRef = useRef(null)
+
     const sortCycle = {
         null: 'ascending',
         ascending: 'descending',
@@ -148,8 +151,24 @@ function HeaderRow({ sort, setSort }) {
         })
     }
 
+    useEffect(() => {
+        function onScroll() {
+            if (headerRowRef?.current.offsetTop <= window.pageYOffset + 10 && !headerRowRef.current.className.includes('scrolling')) {
+                headerRowRef.current.className = headerRowRef?.current?.className + ' scrolling'
+                console.log(headerRowRef.current.className)
+            } else if (headerRowRef?.current.offsetTop > window.pageYOffset + 10 && headerRowRef.current.className.includes('scrolling')){
+                headerRowRef.current.className = headerRowRef?.current?.className.replace(' scrolling', '')
+            }
+        }
+        // const onScroll = () => setYOffset(window.pageYOffset)
+
+        window.removeEventListener('scroll', onScroll)
+        window.addEventListener('scroll', onScroll, { passive: true })
+        return () => window.removeEventListener('scroll', onScroll)
+    }, [])
+
     return (
-        <div className='row csg-row' id='header-row'>
+        <div className='row csg-row' id='header-row' ref={headerRowRef} >
         {
             Object.keys(OrderedCsgFields).map(fieldName => {
                 const defaultClassName = `noselect${fieldName === 'rarity' ? ' header-col csg-col' : ' header-col col csg-col'}`
