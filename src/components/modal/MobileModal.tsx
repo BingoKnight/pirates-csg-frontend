@@ -200,7 +200,9 @@ function KeywordItem({ keyword, definition }) {
                 </div>
             </div>
             {
-                isExpanded && <div className="row definition" dangerouslySetInnerHTML={{__html: formattedDefinition}} />
+                isExpanded && <div className="row definition">
+                    <div dangerouslySetInnerHTML={{__html: formattedDefinition}} />
+                </div>
             }
         </div>
     )
