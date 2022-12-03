@@ -1,7 +1,7 @@
-import React from 'react'
+import React, {MouseEventHandler} from 'react'
 
 import CannonImage from './CannonImages.tsx'
-
+import {ReactComponent as Arrow} from '../images/angle-down-solid.svg'
 import factionImageMapper from '../utils/factionImageMapper.tsx'
 import fieldIconMapper from '../utils/fieldIconMapper.tsx'
 import setIconMapper from '../utils/setIconMapper.tsx'
@@ -121,35 +121,63 @@ function CsgItemColumns({ csgItem }) {
     })
 }
 
-function CsgItemRows({ pirateCsgList, setActive }) {
-    if (pirateCsgList.length === 0)
+function CsgItemRows({ piratesCsgList, setActive }) {
+    if (piratesCsgList.length === 0)
         return <div className="row csg-row no-items">
             No results found
         </ div>
 
-    return pirateCsgList.map((csgItem: CsgItem) => (
+    return piratesCsgList.map((csgItem: CsgItem) => (
         <div className={`row csg-row csg-item-row noselect`} onClick={() => setActive(csgItem)}>
             <CsgItemColumns csgItem={csgItem} />
         </ div>
     ))
 }
 
-function HeaderRow() {
+function HeaderRow({ sort, setSort }) {
+    const sortCycle = {
+        null: 'ascending',
+        ascending: 'descending',
+        descending: null
+    }
+
+    function handleSort(fieldName: string) {
+        setSort({
+            order: sortCycle[fieldName === sort.field ? sort.order : null],
+            field: fieldName
+        })
+    }
+
     return (
         <div className='row csg-row' id='header-row'>
         {
             Object.keys(OrderedCsgFields).map(fieldName => {
-                const defaultClassName = fieldName === 'rarity' ? '' : 'col csg-col '
+                const defaultClassName = `noselect${fieldName === 'rarity' ? ' header-col csg-col' : ' header-col col csg-col'}`
                 const prettyNameMapper = {
                     id: 'ID',
                     pointCost: 'Points'
                 }
 
-                let prettyName = prettyNameMapper[fieldName] || capitalize(fieldName)
+                const prettyName = prettyNameMapper[fieldName] || capitalize(fieldName)
+                let onClick : undefined | MouseEventHandler<HTMLDivElement> = () => handleSort(fieldName)
+                let sortableHeaderClass : undefined | string = 'sortable-header'
+
+                if (fieldName === 'cannons') {
+                    onClick = undefined
+                    sortableHeaderClass = undefined
+                }
 
                 return (
-                    <div className={`${defaultClassName}${fieldName}-col`}>
-                        {Object.keys(fieldIconMapper).includes(fieldName) ? fieldIconMapper[fieldName]() : prettyName}
+                    <div className={defaultClassName + ' ' + fieldName + '-col'} onClick={onClick}>
+                        <div className={"sort-order ascending" + (sort.field === fieldName && sort.order === 'ascending' ? ' show': '')}>
+                            <Arrow width="15px" />
+                        </div>
+                        <span className={sortableHeaderClass}>
+                            {Object.keys(fieldIconMapper).includes(fieldName) ? fieldIconMapper[fieldName]() : prettyName}
+                        </span>
+                        <div className={"sort-order descending" + (sort.field === fieldName && sort.order === 'descending' ? ' show': '')}>
+                            <Arrow width="15px" />
+                        </div>
                     </div>
                 )
             })
@@ -158,14 +186,14 @@ function HeaderRow() {
     )
 }
 
-function PirateCsgList({ pirateCsgList, setActiveCsgItem }) {
+function PiratesCsgList({ piratesCsgList, setActiveCsgItem, sort, setSort }) {
     return (
         <div id='csg-list'>
-            <HeaderRow />
-            <CsgItemRows pirateCsgList={pirateCsgList} setActive={setActiveCsgItem} />
+            <HeaderRow sort={sort} setSort={setSort} />
+            <CsgItemRows piratesCsgList={piratesCsgList} setActive={setActiveCsgItem} />
         </div>
     )
 }
 
-export default PirateCsgList
+export default PiratesCsgList
 

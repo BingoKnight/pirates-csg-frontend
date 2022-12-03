@@ -6,7 +6,6 @@ import MobileModal from './MobileModal.tsx'
 
 import {TABLET_VIEW} from '../../constants'
 
-
 function CsgModal({ csgItem, closeModal, windowWidth }) {
     const [ searchParams, setSearchParams ] = useSearchParams()
 

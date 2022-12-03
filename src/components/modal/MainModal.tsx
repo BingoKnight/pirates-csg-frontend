@@ -24,7 +24,7 @@ function CsgItemImage({ csgItem }) {
     return (
         <div id="image-container">
             <img
-                src={csgItem.image}
+                src={csgItem.image || noImage}
                 className="noselect"
                 id="csg-item-image"
                 alt={csgItem.name}
@@ -231,7 +231,9 @@ function KeywordItem({ keyword, definition }) {
                 </div>
             </div>
             {
-                isExpanded && <div className="row definition" dangerouslySetInnerHTML={{__html: formattedDefinition}} />
+                isExpanded && <div className="row definition">
+                    <div dangerouslySetInnerHTML={{__html: formattedDefinition}} />
+                </div>
             }
         </div>
     )

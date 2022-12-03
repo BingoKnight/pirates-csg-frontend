@@ -36,6 +36,8 @@ $faction-icons: (
 #header-row {
     font-size: 1.3rem;
     font-family: windlass, serif;
+    align-items: stretch;
+    height: 80px;
 
     .field-icon {
         height: 25px;
@@ -43,6 +45,49 @@ $faction-icons: (
 
     .link-icon {
         height: 35px;
+    }
+
+    .header-col {
+        justify-content: space-between;
+        text-align: center;
+
+        .sortable-header {
+            cursor: pointer;
+        }
+
+    }
+
+    .rarity-col {
+            margin-left: -2px;
+    }
+
+    .csg-col {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .sort-order {
+        height: 20px;
+        align-self: center;
+
+
+        svg {
+            display: none;
+        }
+
+        &.ascending {
+            transform: scaleY(-1);
+
+            &.show svg {
+                display: block;
+            }
+        }
+
+        &.descending {
+            &.show svg {
+                display: block;
+            }
+        }
     }
 
     @include breakpoint(tablet) {
@@ -123,7 +168,7 @@ $faction-icons: (
     flex: 3;
 
     @include breakpoint(tablet) {
-        display: none;
+        display: none !important;
     }
 }
 
@@ -135,7 +180,7 @@ $faction-icons: (
     flex: 2;
 
     @include breakpoint(tablet) {
-        display: none;
+        display: none !important;
     }
 }
 
@@ -155,7 +200,7 @@ $faction-icons: (
     flex: 5 0;
 
     @include breakpoint(phone) {
-        display: none;
+        display: none !important;
     }
 }
 
@@ -163,7 +208,7 @@ $faction-icons: (
     flex: 7 0;
 
     @include breakpoint(phone) {
-        display: none;
+        display: none !important;
     }
 }
 
@@ -171,7 +216,7 @@ $faction-icons: (
     flex: 5;
 
     @include breakpoint(tablet) {
-        display: none;
+        display: none !important;
     }
 }
 
@@ -183,7 +228,7 @@ $faction-icons: (
     white-space: nowrap;
 
     @include breakpoint(tablet) {
-        display: none;
+        display: none !important;
     }
 }
 

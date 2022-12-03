@@ -17,7 +17,7 @@
     min-width: 999px;
     padding: 20px;
 
-    max-height: 702px;
+    max-height: 710px;
     overflow: auto;
 
     display: block;
@@ -150,22 +150,6 @@
         }
     }
 
-    .windlass-white {
-        font-family: windlass, serif;
-        color: #fff;
-        font-size: 1.4rem;
-        padding-left: 1px;
-        padding-right: 1px;
-    }
-    
-    .windlass-red {
-        font-family: windlass, serif;
-        color: red;
-        font-size: 1.4rem;
-        padding-left: 1px;
-        padding-right: 1px;
-    }
-    
     .link-dropdown {
         display: inline-block;
     
@@ -390,7 +374,7 @@
         .title {
             padding: 15px;
             font-family: windlass, serif;
-            font-size: 1.2rem;
+            font-size: 1.5rem;
             cursor: pointer;
     
             .col {
