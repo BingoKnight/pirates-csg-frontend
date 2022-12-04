@@ -158,7 +158,6 @@ function HeaderRow({ sort, setSort }) {
         function onScroll() {
             if (headerRowRef?.current.offsetTop <= window.pageYOffset + 10 && !headerRowRef.current.className.includes('scrolling')) {
                 headerRowRef.current.className = headerRowRef?.current?.className + ' scrolling'
-                console.log(headerRowRef.current.className)
             } else if (headerRowRef?.current.offsetTop > window.pageYOffset + 10 && headerRowRef.current.className.includes('scrolling')){
                 headerRowRef.current.className = headerRowRef?.current?.className.replace(' scrolling', '')
             }

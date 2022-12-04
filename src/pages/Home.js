@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import { getKeywordsDictionary, getPiratesCsgList } from '../api.js'
 import Button from '../components/Button.tsx'
@@ -36,11 +36,14 @@ const SortOrder = {
     descending: 'descending'
 }
 
+// TODO: fix tablet view to be more like computer view
+// TODO: redirect /details/:id to MainModal with :id selected if in computer view
+// TODO: if faction is in session storage default to query it
 // TODO: preload image on faction query change
 // TODO: allow android back button to close modal, not go back in history
 // TODO: replace spinning wheel with empty rows with moving gradient to signify loading
 
-function FactionCheckboxes({ factionList, filterFactions }) {
+function FactionToggles({ factionList, filterFactions }) {
     const [filteredFactions, setFilteredFactions] = useState(new Set())
 
     const factionNameMapper = {
@@ -86,7 +89,7 @@ function FactionCheckboxes({ factionList, filterFactions }) {
 }
 
 function calculateMaxPages(csgListSize, pageSize) {
-    return Math.ceil(csgListSize / pageSize)
+    return Math.ceil(csgListSize / pageSize) || 1
 }
 
 function queryName(objItem, query) {
@@ -179,8 +182,8 @@ function defaultSort(csgList, sortOrder, sortField) {
     )
 }
 
-function sortList(sort, piratesCsgList) {
-    if(!sort.order)
+function sortList(piratesCsgList, sort) {
+    if(!(sort.order && sort.field))
         return piratesCsgList
 
     const sortHandlers = {
@@ -195,25 +198,29 @@ function sortList(sort, piratesCsgList) {
     return (sort.field in sortHandlers ? sortHandlers[sort.field] : defaultSort)(piratesCsgList, sort.order, sort.field)
 }
 
+function filterCsgList(piratesCsgList, query) {
+    return piratesCsgList.filter(csgItem =>
+        (
+            !query.search
+            || queryName(csgItem, query)
+            || queryAbility(csgItem, query)
+            // || queryFlavorText(csgItem, query)
+            || queryKeywords(csgItem, query)
+            || queryId(csgItem, query)
+        )
+        && (query.factions.length === 0 || query.factions.includes(csgItem.faction))
+    )
+}
+
 function updateQuery(query, piratesCsgList, sort, setSorted, setFiltered) {
     if (!query.search && query.factions.length === 0) {
         setFiltered(piratesCsgList)
-        setSorted(sortList(sort, piratesCsgList))
+        setSorted(sortList(piratesCsgList, sort))
         return piratesCsgList.length
     } else {
-        const filtered = piratesCsgList.filter(csgItem =>
-            (
-                !query.search
-                || queryName(csgItem, query)
-                || queryAbility(csgItem, query)
-                // || queryFlavorText(csgItem, query)
-                || queryKeywords(csgItem, query)
-                || queryId(csgItem, query)
-            )
-            && (query.factions.length === 0 || query.factions.includes(csgItem.faction))
-        )
+        const filtered = filterCsgList(piratesCsgList, query)
         setFiltered(filtered)
-        setSorted(sortList(sort, filtered))
+        setSorted(sortList(filtered, sort))
         return filtered.length
     }
 
@@ -360,9 +367,22 @@ function getPiratesListPage(piratesList, pageSize, pageNumber) {
 }
 
 function Content({ setActiveCsgItem, windowWidth }) {
+    const sessionStorageQuery = JSON.parse(sessionStorage.getItem('query'))
+
+    const [query, setQuery] = useState({
+        search: sessionStorageQuery?.search || '',
+        factions: sessionStorageQuery?.factions || [],
+    })
+
     const [completeCsgList, setCompleteCsgList] = useState(JSON.parse(sessionStorage.getItem('piratesCsgList')) || [])
-    const [filteredCsgList, setFilteredCsgList] = useState(completeCsgList)
-    const [sortedCsgList, setSortedCsgList] = useState(completeCsgList)
+
+    // filteredCsgList should be used to determine size because sortedCsgList doesn't affect maxPages
+    const [filteredCsgList, setFilteredCsgList] = useState(filterCsgList(completeCsgList, query))
+
+    const sessionStorageSort = JSON.parse(sessionStorage.getItem('sort'))
+    const [sort, setSort] = useState(sessionStorageSort || {field: null, order: null})
+
+    const [sortedCsgList, setSortedCsgList] = useState(sortList(filteredCsgList, sort))
 
     const [ searchParams ] = useSearchParams()
 
@@ -374,13 +394,6 @@ function Content({ setActiveCsgItem, windowWidth }) {
 
     const [apiFetchComplete, setApiFetchComplete] = useState(sessionStorage.getItem('piratesCsgList') !== null)
 
-    const sessionStorageQuery = JSON.parse(sessionStorage.getItem('query'))
-
-    const [query, setQuery] = useState({
-        search: sessionStorageQuery?.search || '',
-        factions: sessionStorageQuery?.factions || [],
-    })
-    const [sort, setSort] = useState({field: null, order: null})
     const searchRef = useRef(null)
 
     const factionList = [
@@ -398,7 +411,8 @@ function Content({ setActiveCsgItem, windowWidth }) {
 
     function handleUpdatedSort(newSort) {
         setSort(newSort)
-        setSortedCsgList(sortList(newSort, filteredCsgList))
+        setSortedCsgList(sortList(filteredCsgList, newSort))
+        sessionStorage.setItem('sort', JSON.stringify(newSort))
     }
 
     function executeSearch() {
@@ -439,8 +453,8 @@ function Content({ setActiveCsgItem, windowWidth }) {
                 csgItem => csgItem.ability || !csgItem.set.toLowerCase() === 'unreleased'
             )
             setCompleteCsgList(filtered)
-            setFilteredCsgList(filtered)
-            setSortedCsgList(filtered)
+            setFilteredCsgList(filterCsgList(filtered, query))
+            setSortedCsgList(sortList(filtered, sort))
 
             if (searchParams.has('_id')) {
                 const match = filtered.find(item => item._id === searchParams.get('_id'))
@@ -457,12 +471,12 @@ function Content({ setActiveCsgItem, windowWidth }) {
             setApiFetchComplete(true)
         }
 
-        fetchData()
+        if(!completeCsgList || completeCsgList.length === 0)
+            fetchData()
     }, [])
 
     useEffect(() => {
         updateQuery(query, completeCsgList, sort, setSortedCsgList, setFilteredCsgList)
-        setPageNumber(1)
         sessionStorage.setItem('query', JSON.stringify(query))
 
         const timer = setTimeout(() => {
@@ -475,16 +489,12 @@ function Content({ setActiveCsgItem, windowWidth }) {
     useEffect(() => { sessionStorage.setItem('page', pageNumber) }, [pageNumber])
 
     useEffect(() => {
-        setMaxPages(calculateMaxPages(filteredCsgList.length, pageSize))
-    }, [filteredCsgList]) // keep as filteredCsgList dependant because sorting doesn't change page count
-
-    useEffect(() => {
         const newMaxPages = calculateMaxPages(filteredCsgList.length, pageSize)
         setMaxPages(newMaxPages)
         if (pageNumber > newMaxPages) {
             setPageNumber(newMaxPages)
         }
-    }, [pageSize])
+    }, [filteredCsgList, pageSize])
 
     useEffect(() => {
         preloadImages()
@@ -517,7 +527,7 @@ function Content({ setActiveCsgItem, windowWidth }) {
                     />
                 </div>
                 <div className="row faction-row">
-                    <FactionCheckboxes factionList={factionList} filterFactions={filterFactions} />
+                    <FactionToggles factionList={factionList} filterFactions={filterFactions} />
                 </div>
             </div>
             <PageControl
@@ -555,10 +565,18 @@ function Content({ setActiveCsgItem, windowWidth }) {
 function Home() {
     const [ activeCsgItem, setActiveCsgItem ] = useState(null)
     const [windowWidth, setWindowWidth] = useState(window.innerWidth)
+    const navigate = useNavigate()
 
     function updateWindowWidth() {
         const width = window.innerWidth
         setWindowWidth(width)
+    }
+
+    function setActiveCsgItemHandler(csgItem) {
+        setActiveCsgItem(csgItem)
+        if (window.innerWidth <= TABLET_VIEW) {
+            navigate(`/details/${csgItem._id}`)
+        }
     }
 
     useEffect(() => {
@@ -567,24 +585,13 @@ function Home() {
         return () => window.removeEventListener('resize', updateWindowWidth)
     })
 
-    useEffect(() => {
-        if (activeCsgItem) {
-            document.body.style.overflow = 'hidden'
-            document.body.style.height = '100vh'
-        } else {
-            document.body.style.overflow = ''
-            document.body.style.height = ''
-        }
-    }, [activeCsgItem])
-
     return (
        <Layout>
             <CsgModal
                 csgItem={activeCsgItem}
                 closeModal={() => setActiveCsgItem(null)}
-                windowWidth={windowWidth}
             />
-            <Content setActiveCsgItem={setActiveCsgItem} windowWidth={windowWidth} />
+            <Content setActiveCsgItem={setActiveCsgItemHandler} windowWidth={windowWidth} />
         </Layout>
     ) 
 }

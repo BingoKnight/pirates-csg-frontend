@@ -9,7 +9,7 @@
     height: 100%;
     overflow: auto;
 
-    backdrop-filter: blur(25px);
+    background-color: rgba(0, 0, 0, 0.8);
 
     z-index: 11;
 
@@ -108,7 +108,7 @@
     }
 
     .ability-row {
-        margin: 10px 0;
+        margin: 20px 0;
         padding: 20px 5px;
         border: 2px solid #000;
 
@@ -165,14 +165,14 @@
         }
     }
 
-    .close-button-row {
+    .back-button-row {
         width: 100%;
 
         .form-button {
             flex: 1;
             margin: 45px 15px 15px;
 
-            .close-button {
+            .back-button {
                 width: 100%;
                 height: 50px;
             }

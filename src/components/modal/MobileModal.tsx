@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 
 import Button from '../Button.tsx'
 import CannonImage from '../CannonImages.tsx'
@@ -120,7 +121,7 @@ function Faction({ faction }) {
 function CsgItemHeader({ csgItem }) {
     return (
         <div className="row csg-item-header">
-            <CsgPoints pointCost={csgItem.pointCost} />
+            { csgItem.pointCost && <CsgPoints pointCost={csgItem.pointCost} /> }
             <div className="col faction-title-col">
                 <div className="row">
                     <div className="col faction-col">
@@ -168,7 +169,6 @@ function formatMovement(str: string) {
 
 function Ability({ ability }) {
     const formattedAbility = formatMovement(formatKeywords(ability))
-    console.log(formattedAbility)
 
     return (
         <div className="row ability-row">
@@ -282,7 +282,12 @@ function CopyButton({ csgItemId }) {
     )
 }
 
-function MobileModal({csgItem, closeModalHandler }) {
+function MobileModal() {
+    const { id } = useParams()
+    const navigate = useNavigate()
+
+    const csgItem = JSON.parse(sessionStorage.getItem('piratesCsgList')).filter(csgItem => csgItem._id === id)[0]
+
     return (
         <div className="mobile-modal" onClick={e => e.stopPropagation()}>
             <div className="mobile-modal-content">
@@ -295,8 +300,8 @@ function MobileModal({csgItem, closeModalHandler }) {
                 <CsgSet csgItemSet={csgItem.set} />
                 <FlavorText flavorText={csgItem.flavorText} />
                 { csgItem.keywords.length > 0 && <KeywordsSection keywords={csgItem.keywords} ability={csgItem.ability} /> }
-                <div className="row close-button-row">
-                    <Button className="close-button" onClick={closeModalHandler}>Close</Button>
+                <div className="row back-button-row">
+                    <Button className="back-button" onClick={() => navigate(-1)}>Go Back</Button>
                 </div>
             </div>
         </div>

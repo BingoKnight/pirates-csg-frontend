@@ -2,11 +2,8 @@ import React from 'react'
 import { useSearchParams } from 'react-router-dom'
 
 import MainModal from './MainModal.tsx'
-import MobileModal from './MobileModal.tsx'
 
-import {TABLET_VIEW} from '../../constants'
-
-function CsgModal({ csgItem, closeModal, windowWidth }) {
+function CsgModal({ csgItem, closeModal }) {
     const [ searchParams, setSearchParams ] = useSearchParams()
 
     function closeModalHandler() {
@@ -25,12 +22,6 @@ function CsgModal({ csgItem, closeModal, windowWidth }) {
 
     if (!csgItem)
         return null
-
-    if (windowWidth <= TABLET_VIEW) {
-        return (
-            <MobileModal {...modalProps} />
-        )
-    }
 
     return <MainModal {...modalProps} />
 }

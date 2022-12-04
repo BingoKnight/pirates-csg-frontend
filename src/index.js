@@ -8,18 +8,25 @@ import Home from './pages/Home';
 import NotFoundPage from './pages/NotFoundPage.tsx';
 
 import reportWebVitals from './reportWebVitals';
+import MobileModal from './components/modal/MobileModal.tsx';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
-const router = createBrowserRouter([
+const routes = [
     {
         path: '/',
         element: <Home />
     },
     {
+        path: '/details/:id',
+        element: <MobileModal />
+    },
+    {
         path: '*',
         element: <NotFoundPage />
     }
-])
+]
+
+const router = createBrowserRouter(routes.map(route => ({path: route.path, element: route.element})))
 
 root.render(
     <React.StrictMode>
