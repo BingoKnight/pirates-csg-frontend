@@ -10,7 +10,6 @@ import {capitalize} from '../utils/string.tsx'
 
 import '../styles/piratesCsgList.scss'
 
-// TODO: fix issue where going closing modal in mobile resets view location on list
 // TODO: when scrolling down the bottom of the page is white, almost like the body is scrolling
 
 enum OrderedCsgFields {
