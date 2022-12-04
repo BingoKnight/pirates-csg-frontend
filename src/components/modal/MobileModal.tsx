@@ -305,6 +305,14 @@ function DetailsContent({ csgItem, closeModal }) {
 }
 
 function MobileModal({ csgItem, closeModal }) {
+    useEffect(() => {
+        document.body.style.position = 'fixed'
+
+        return function cleanup () {
+            document.body.style.position = ''
+        }
+    })
+
     return (
         <Layout>
             <div className="mobile-modal" onClick={e => e.stopPropagation()}>
