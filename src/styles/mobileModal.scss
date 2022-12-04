@@ -108,7 +108,7 @@
     }
 
     .ability-row {
-        margin: 10px 0;
+        margin: 20px 0;
         padding: 20px 5px;
         border: 2px solid #000;
 
@@ -216,10 +216,13 @@
                 font-size: 1.5rem;
                 text-align: left;
                 padding-left: 15px;
+                line-height: 1.5rem;
+                padding-bottom: 28px;
             }
 
             .faction-col {
                 flex: 0 0;
+                align-self: start;
 
                 span {
                     margin: -8px;

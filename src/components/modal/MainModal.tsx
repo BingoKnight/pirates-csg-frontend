@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import Button from '../Button.tsx'
 import CannonImage from '../CannonImages.tsx'
@@ -114,7 +115,7 @@ function CopyButton({ csgItemId }) {
     const [ showTooltip, setShowTooltip] = useState(false)
 
     function handleClick() {
-        navigator.clipboard.writeText(`${process.env.REACT_APP_PIRATE_CSG_FE_BASE_URL}?_id=${csgItemId}`)
+        navigator.clipboard.writeText(`${process.env.REACT_APP_PIRATE_CSG_FE_BASE_URL}/details/${csgItemId}`)
         setShowTooltip(true)
     }
 
@@ -296,9 +297,9 @@ function CsgItemDetails({ csgItem, closeModal }){
     )
 }
 
-function MainModal({ csgItem, closeModalHandler }) {
+function MainModal({ csgItem, closeModal }) {
     return (
-        <ModalOverlay closeModal={closeModalHandler}>
+        <ModalOverlay closeModal={closeModal}>
             <div className="csg-modal" onClick={e => e.stopPropagation()}>
                 <div className="row modal-content">
                     <div className="col" id="csg-image-col">
@@ -312,7 +313,7 @@ function MainModal({ csgItem, closeModalHandler }) {
                         </div>
                     </div>
                     <div className="col" id="csg-details-col">
-                        <CsgItemDetails csgItem={csgItem} closeModal={closeModalHandler}/>
+                        <CsgItemDetails csgItem={csgItem} closeModal={closeModal}/>
                     </div>
                 </div>
             </div>

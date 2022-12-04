@@ -1,29 +1,27 @@
 import './index.css';  // At the top because it messes with style
 
 import React from 'react';
-import {createBrowserRouter, RouterProvider} from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import ReactDOM from 'react-dom/client';
 
+import CsgModal from './components/modal/CsgModal.tsx';
 import Home from './pages/Home';
 import NotFoundPage from './pages/NotFoundPage.tsx';
 
 import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
-const router = createBrowserRouter([
-    {
-        path: '/',
-        element: <Home />
-    },
-    {
-        path: '*',
-        element: <NotFoundPage />
-    }
-])
 
 root.render(
     <React.StrictMode>
-        <RouterProvider router={router} />
+        <Router>
+            <Routes>
+                <Route path='/' element={<Home />}>
+                    <Route path='details/:id' element={<CsgModal />} />
+                </Route>
+                <Route path='*' element={<NotFoundPage />} />
+            </Routes>
+        </Router>
     </React.StrictMode>
 );
 

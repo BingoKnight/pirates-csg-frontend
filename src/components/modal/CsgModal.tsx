@@ -1,38 +1,51 @@
-import React from 'react'
-import { useSearchParams } from 'react-router-dom'
+import React, { useEffect, useState } from 'react'
+import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom'
 
 import MainModal from './MainModal.tsx'
 import MobileModal from './MobileModal.tsx'
 
-import {TABLET_VIEW} from '../../constants'
+import { getPiratesCsgList, getKeywordsDictionary } from '../../api.js'
+import { TABLET_VIEW } from '../../constants.js'
 
-function CsgModal({ csgItem, closeModal, windowWidth }) {
-    const [ searchParams, setSearchParams ] = useSearchParams()
 
-    function closeModalHandler() {
-        closeModal()
+function CsgModal() {
+    const { id } = useParams()
+    const location = useLocation()
+    const navigate = useNavigate()
 
-        if (searchParams.has('_id')) {
-            searchParams.delete('_id')
-            setSearchParams(searchParams)
+    const sessionStoragePiratesList = JSON.parse(sessionStorage.getItem('piratesCsgList'))
+    const sessionStorageKeywordsDictionary = JSON.parse(sessionStorage.getItem('keywordsDictionary'))
+
+    const [ piratesCsgList, setPiratesCsgList ] = useState(sessionStoragePiratesList || [])
+    const [ apiFetchComplete, setApiFetchComplete ] = useState<Boolean>(sessionStoragePiratesList && sessionStorageKeywordsDictionary)
+
+    const csgItem = piratesCsgList.filter(csgItem => csgItem._id === id)[0]
+
+    const closeModal = location.state?.from ? () => navigate(-1) : () => navigate('/')
+
+    useEffect(() => {
+        async function fetchData() {
+            setPiratesCsgList(await getPiratesCsgList())
+            await getKeywordsDictionary()
+            setApiFetchComplete(true)
         }
-    }
 
-    const modalProps = {
-        csgItem,
-        closeModalHandler
+        if (!(piratesCsgList && piratesCsgList.length > 0)) {
+            fetchData()
+        }
+    }, [])
+
+    if (!apiFetchComplete) {
+        return
     }
 
     if (!csgItem)
-        return null
+        return <Navigate to='/' replace />
 
-    if (windowWidth <= TABLET_VIEW) {
-        return (
-            <MobileModal {...modalProps} />
-        )
+    if (window.innerWidth <= TABLET_VIEW) {
+        return <MobileModal csgItem={csgItem} closeModal={closeModal} />
     }
-
-    return <MainModal {...modalProps} />
+    return <MainModal csgItem={csgItem} closeModal={closeModal} />
 }
 
 export default CsgModal
