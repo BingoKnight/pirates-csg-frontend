@@ -9,7 +9,7 @@
     height: 100%;
     overflow: auto;
 
-    background-color: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(25px);
 
     z-index: 11;
 
@@ -165,14 +165,14 @@
         }
     }
 
-    .back-button-row {
+    .close-button-row {
         width: 100%;
 
         .form-button {
             flex: 1;
             margin: 45px 15px 15px;
 
-            .back-button {
+            .close-button {
                 width: 100%;
                 height: 50px;
             }
@@ -216,10 +216,13 @@
                 font-size: 1.5rem;
                 text-align: left;
                 padding-left: 15px;
+                line-height: 1.5rem;
+                padding-bottom: 28px;
             }
 
             .faction-col {
                 flex: 0 0;
+                align-self: start;
 
                 span {
                     margin: -8px;

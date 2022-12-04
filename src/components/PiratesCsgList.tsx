@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState, MouseEventHandler } from 'react'
 
 import CannonImage from './CannonImages.tsx'
+import RouterLinkButton from './RouterLinkButton.tsx'
 import {ReactComponent as Arrow} from '../images/angle-down-solid.svg'
 import factionImageMapper from '../utils/factionImageMapper.tsx'
 import fieldIconMapper from '../utils/fieldIconMapper.tsx'
@@ -131,14 +132,13 @@ function CsgItemRows({ piratesCsgList, setActive }) {
         </ div>
 
     return piratesCsgList.map((csgItem: CsgItem) => (
-        <div className={`row csg-row csg-item-row noselect`} onClick={() => setActive(csgItem)}>
+        <RouterLinkButton to={'/details/' + csgItem._id} state={{ from: '/'  }} className={'row csg-row csg-item-row noselect'}>
             <CsgItemColumns csgItem={csgItem} />
-        </ div>
+        </ RouterLinkButton>
     ))
 }
 
 function HeaderRow({ sort, setSort }) {
-    const [yOffset, setYOffset] = useState(0)
     const headerRowRef = useRef(null)
 
     const sortCycle = {
@@ -162,7 +162,6 @@ function HeaderRow({ sort, setSort }) {
                 headerRowRef.current.className = headerRowRef?.current?.className.replace(' scrolling', '')
             }
         }
-        // const onScroll = () => setYOffset(window.pageYOffset)
 
         window.removeEventListener('scroll', onScroll)
         window.addEventListener('scroll', onScroll, { passive: true })

@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { Navigate, useNavigate, useParams } from 'react-router-dom'
 
 import Button from '../Button.tsx'
 import CannonImage from '../CannonImages.tsx'
+import Layout from '../Layout.tsx'
+import Loading from '../Loading.tsx'
 
 import { ReactComponent as DownArrow } from '../../images/angle-down-solid.svg'
 import { ReactComponent as CircleCheck } from '../../images/circle-check-regular.svg'
@@ -13,6 +15,7 @@ import fieldIconMapper from '../../utils/fieldIconMapper.tsx'
 import setIconMapper from '../../utils/setIconMapper.tsx'
 
 import '../../styles/mobileModal.scss'
+import {getPiratesCsgList} from '../../api'
 
 function CsgItemLink({ link }) {
     return (
@@ -121,7 +124,7 @@ function Faction({ faction }) {
 function CsgItemHeader({ csgItem }) {
     return (
         <div className="row csg-item-header">
-            { csgItem.pointCost && <CsgPoints pointCost={csgItem.pointCost} /> }
+            { (csgItem.pointCost || csgItem.pointCost === 0) && <CsgPoints pointCost={csgItem.pointCost} /> }
             <div className="col faction-title-col">
                 <div className="row">
                     <div className="col faction-col">
@@ -282,29 +285,34 @@ function CopyButton({ csgItemId }) {
     )
 }
 
-function MobileModal() {
-    const { id } = useParams()
-    const navigate = useNavigate()
-
-    const csgItem = JSON.parse(sessionStorage.getItem('piratesCsgList')).filter(csgItem => csgItem._id === id)[0]
-
+function DetailsContent({ csgItem, closeModal }) {
     return (
-        <div className="mobile-modal" onClick={e => e.stopPropagation()}>
-            <div className="mobile-modal-content">
-                <CopyButton csgItemId={csgItem._id} />
-                <CsgItemHeader csgItem={csgItem} />
-                { csgItem.type.toLowerCase() === 'ship' && <CsgShipStats csgItem={csgItem} /> }
-                <Ability ability={csgItem.ability} />
-                { csgItem.link && <CsgItemLink link={csgItem.link} /> }
-                <CsgItemImage csgItem={csgItem} />
-                <CsgSet csgItemSet={csgItem.set} />
-                <FlavorText flavorText={csgItem.flavorText} />
-                { csgItem.keywords.length > 0 && <KeywordsSection keywords={csgItem.keywords} ability={csgItem.ability} /> }
-                <div className="row back-button-row">
-                    <Button className="back-button" onClick={() => navigate(-1)}>Go Back</Button>
+        <>
+            {/* <CopyButton csgItemId={csgItem._id} /> */}
+            <CsgItemHeader csgItem={csgItem} />
+            { csgItem.type.toLowerCase() === 'ship' && <CsgShipStats csgItem={csgItem} /> }
+            <Ability ability={csgItem.ability} />
+            { csgItem.link && <CsgItemLink link={csgItem.link} /> }
+            <CsgItemImage csgItem={csgItem} />
+            <CsgSet csgItemSet={csgItem.set} />
+            <FlavorText flavorText={csgItem.flavorText} />
+            { csgItem.keywords.length > 0 && <KeywordsSection keywords={csgItem.keywords} ability={csgItem.ability} /> }
+            <div className="row close-button-row">
+                <Button className="close-button" onClick={closeModal}>Close</Button>
+            </div>
+        </>
+    )
+}
+
+function MobileModal({ csgItem, closeModal }) {
+    return (
+        <Layout>
+            <div className="mobile-modal" onClick={e => e.stopPropagation()}>
+                <div className="mobile-modal-content">
+                    <DetailsContent csgItem={csgItem} closeModal={closeModal} />
                 </div>
             </div>
-        </div>
+        </Layout>
     )
 }
 

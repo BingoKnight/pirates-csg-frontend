@@ -331,9 +331,10 @@
     
     .copy-tooltip {
         position: absolute;
-        margin-left: -26px;
+        margin-left: -42px;
         margin-top: 10px;
         padding: 4px;
+        z-index: 15;
     
         border-radius: $modal-border-radius;
     

@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { Outlet } from 'react-router-dom'
 
 import { getKeywordsDictionary, getPiratesCsgList } from '../api.js'
 import Button from '../components/Button.tsx'
-import CsgModal from '../components/modal/CsgModal.tsx'
 import Dropdown from '../components/Dropdown.tsx'
 import Layout from '../components/Layout.tsx'
+import Loading from '../components/Loading.tsx'
 import ToggleButton from '../components/ToggleButton.tsx'
 import {
     AmericaImage,
@@ -25,7 +25,6 @@ import TextInput from '../components/TextInput.tsx'
 import { TABLET_VIEW, PHONE_VIEW } from '../constants.js'
 import noImage from '../images/no-image.jpg'
 import { ReactComponent as Arrow } from '../images/arrow-solid.svg'
-import { ReactComponent as ShipWheel } from '../images/ship-wheel.svg'
 
 import '../styles/home.scss';
 
@@ -37,14 +36,12 @@ const SortOrder = {
 }
 
 // TODO: fix tablet view to be more like computer view
-// TODO: redirect /details/:id to MainModal with :id selected if in computer view
-// TODO: if faction is in session storage default to query it
 // TODO: preload image on faction query change
-// TODO: allow android back button to close modal, not go back in history
 // TODO: replace spinning wheel with empty rows with moving gradient to signify loading
 
-function FactionToggles({ factionList, filterFactions }) {
-    const [filteredFactions, setFilteredFactions] = useState(new Set())
+function FactionToggles({ factionList, filterFactions, queriedFactions }) {
+    const [filteredFactions, setFilteredFactions] = useState(new Set(queriedFactions))
+    console.log(filteredFactions)
 
     const factionNameMapper = {
         'american': <AmericaImage />,
@@ -81,9 +78,10 @@ function FactionToggles({ factionList, filterFactions }) {
     return factionList.map(faction => {
         return <ToggleButton
             label={factionNameMapper[faction.toLowerCase()]}
-            className={'faction-toggle'}
+            className="faction-toggle"
             id={faction}
             onClick={handleOnChangeBuilder(faction)}
+            defaultToggle={queriedFactions.includes(faction)}
         />
     })
 }
@@ -366,7 +364,7 @@ function getPiratesListPage(piratesList, pageSize, pageNumber) {
     return piratesList.slice(pageSize * (pageNumber - 1), pageSize * pageNumber)
 }
 
-function Content({ setActiveCsgItem, windowWidth }) {
+function Content({ windowWidth }) {
     const sessionStorageQuery = JSON.parse(sessionStorage.getItem('query'))
 
     const [query, setQuery] = useState({
@@ -383,8 +381,6 @@ function Content({ setActiveCsgItem, windowWidth }) {
     const [sort, setSort] = useState(sessionStorageSort || {field: null, order: null})
 
     const [sortedCsgList, setSortedCsgList] = useState(sortList(filteredCsgList, sort))
-
-    const [ searchParams ] = useSearchParams()
 
     const localStoragePageSize = parseInt(localStorage.getItem('pageSize'))
     const defaultPageSize = pageSizeOptions.includes(localStoragePageSize) ? localStoragePageSize : 25
@@ -455,14 +451,6 @@ function Content({ setActiveCsgItem, windowWidth }) {
             setCompleteCsgList(filtered)
             setFilteredCsgList(filterCsgList(filtered, query))
             setSortedCsgList(sortList(filtered, sort))
-
-            if (searchParams.has('_id')) {
-                const match = filtered.find(item => item._id === searchParams.get('_id'))
-
-                if (match) {
-                    setActiveCsgItem(match)
-                }
-            }
         }
 
         async function fetchData() {
@@ -500,14 +488,11 @@ function Content({ setActiveCsgItem, windowWidth }) {
         preloadImages()
     }, [pageNumber, completeCsgList])
 
-    let piratesList = <div className="loading-container">
-        <ShipWheel className='loading-icon'/>
-    </div>
+    let piratesList = <Loading />
 
     if (apiFetchComplete) {
         piratesList = <PiratesCsgList
             piratesCsgList={getPiratesListPage(sortedCsgList, pageSize, pageNumber)}
-            setActiveCsgItem={setActiveCsgItem}
             sort={sort}
             setSort={handleUpdatedSort}
         />
@@ -527,7 +512,7 @@ function Content({ setActiveCsgItem, windowWidth }) {
                     />
                 </div>
                 <div className="row faction-row">
-                    <FactionToggles factionList={factionList} filterFactions={filterFactions} />
+                    <FactionToggles factionList={factionList} filterFactions={filterFactions} queriedFactions={query.factions}/>
                 </div>
             </div>
             <PageControl
@@ -563,20 +548,11 @@ function Content({ setActiveCsgItem, windowWidth }) {
 }
 
 function Home() {
-    const [ activeCsgItem, setActiveCsgItem ] = useState(null)
     const [windowWidth, setWindowWidth] = useState(window.innerWidth)
-    const navigate = useNavigate()
 
     function updateWindowWidth() {
         const width = window.innerWidth
         setWindowWidth(width)
-    }
-
-    function setActiveCsgItemHandler(csgItem) {
-        setActiveCsgItem(csgItem)
-        if (window.innerWidth <= TABLET_VIEW) {
-            navigate(`/details/${csgItem._id}`)
-        }
     }
 
     useEffect(() => {
@@ -587,11 +563,8 @@ function Home() {
 
     return (
        <Layout>
-            <CsgModal
-                csgItem={activeCsgItem}
-                closeModal={() => setActiveCsgItem(null)}
-            />
-            <Content setActiveCsgItem={setActiveCsgItemHandler} windowWidth={windowWidth} />
+            <Outlet />
+            <Content windowWidth={windowWidth} />
         </Layout>
     ) 
 }

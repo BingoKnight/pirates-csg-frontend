@@ -30,13 +30,6 @@
 
         margin-bottom: 40px;
         max-width: $max-content-width;
-
-        .result-content {
-            display: flex;
-            flex: 1 1 auto;
-            justify-content: center;
-            width: 100%;
-        }
     }
 }
 
@@ -55,6 +48,7 @@
         width: 110%;
     
         background-color: #000;
+        filter: blur(6px);
     
         z-index: -1;
 
@@ -65,6 +59,7 @@
     
     #page-content-backdrop {
         background-color: #000;
+        filter: blur(6px);
     
         max-width: $max-content-width;
         min-width: $max-content-width;
