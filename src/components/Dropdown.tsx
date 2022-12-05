@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react'
+import ToggleButton from './ToggleButton.tsx'
 import { ReactComponent as DownArrow } from '../images/angle-down-solid.svg'
 import { ReactComponent as Checkmark } from '../images/check-solid.svg'
 
@@ -9,10 +10,16 @@ interface DropdownProps {
     content: [any]
     onChange: (item: any) => any
     selected?: any
+    width?: string
+}
+
+interface MultiItemDropdownProps extends DropdownProps {
+    dropdownContentClass?: string
+    toggledListClass?: string
 }
 
 function Dropdown(props: DropdownProps) {
-    const { label, content, onChange, selected = null } = props
+    const { label, content, onChange, selected = null, width = "50px" } = props
 
     const [activeItem, setActiveItem] = useState(selected || content[0])
     const [isActive, setIsActive] = useState(false)
@@ -46,10 +53,10 @@ function Dropdown(props: DropdownProps) {
             </div>
             <div className="col">
                 <div ref={dropDownRef} className={'dropdown noselect' + (isActive ? ' active': '')}>
-                    <button className="dropdown-button" onClick={() => setIsActive(!isActive)}>
+                    <button className="dropdown-button" onClick={() => setIsActive(!isActive)} style={{ width }}>
                         <div className="dropdown-selected">{activeItem}<DownArrow /></div>
                     </button>
-                    <ul className="content">
+                    <ul className="content" style={{ width: `calc(${width} - 4px)` }}>
                         <div className="content-backdrop" />
                         {
                             content.map((item: any) => {
@@ -59,6 +66,95 @@ function Dropdown(props: DropdownProps) {
                                     </li>
                                 }
                                 return <li onClick={() => handleChange(item)}>{item}</li>
+                            })
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+function ToggledItemsLabel({ toggledItems, label, className }) {
+    if (toggledItems.size === 0) {
+        return (
+            <span className='dropdown-label'>{label}</span>
+        )
+    }
+
+    const toggledListClass = className ? `toggled-items-list ${className}` : 'toggled-items-list'
+
+    return (
+        <div className={toggledListClass}>
+            {[...toggledItems].map(item => <span className="toggled-item">{item}</span>)}
+        </div>
+    )
+}
+
+export function MultiItemDropdown(props: MultiItemDropdownProps) {
+    const { label, content, onChange, dropdownContentClass = '', toggledListClass = '', selected = [], width = "125px" } = props
+
+    const [toggledItems, setToggledItems] = useState<Set<string>>(new Set(selected))
+    const [isActive, setIsActive] = useState(false)
+
+    const dropDownRef = useRef(null)
+
+    const dropdownClass = dropdownContentClass ? `content multi-select-content ${dropdownContentClass}` : `content multi-select-content`
+    const dropDownStyle = []
+
+    function handleOnChangeBuilder(optionName: string) {
+        function handleOnChange(isToggled: boolean) {
+            if (isToggled) {
+                setToggledItems(new Set([...toggledItems, optionName]))
+            } else {
+                setToggledItems(new Set([...toggledItems].filter(value => value !== optionName)))
+            }
+        }
+
+        return handleOnChange
+    }
+
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (dropDownRef.current && !dropDownRef.current.contains(event.target)) {
+                setIsActive(false)
+            }
+        }
+
+        document.addEventListener('mouseup', handleClickOutside)
+
+        return () => {
+            document.removeEventListener('mouseup', handleClickOutside)
+        }
+    }, [dropDownRef])
+
+    useEffect(() => {
+
+        console.log(toggledItems)
+    })
+
+    return (
+        <div className="row">
+            <div className="col">
+                <div ref={dropDownRef} className={'dropdown noselect' + (isActive ? ' active': '')}>
+                    <button className="dropdown-button" onClick={() => setIsActive(!isActive)} style={{ width }}>
+                        <div className="dropdown-selected">
+                            <ToggledItemsLabel className={toggledListClass} toggledItems={toggledItems} label={label} />
+                            <span className='down-arrow'><DownArrow /></span>
+                        </div>
+                    </button>
+                    <ul className={dropdownClass} style={ width ? { width: `calc(${width} - 4px)` } : null}>
+                        <div className="content-backdrop" />
+                        {
+                            content.map((item: any) => {
+                                return <li>
+                                    <ToggleButton
+                                        label={item}
+                                        className="dropdown-toggle"
+                                        onClick={handleOnChangeBuilder(item)}
+                                    />
+                                    {toggledItems.has(item) && <Checkmark className="toggled-checkmark"/>}
+                                </li>
                             })
                         }
                     </ul>

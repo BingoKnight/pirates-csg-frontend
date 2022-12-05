@@ -3,7 +3,7 @@ import { Outlet } from 'react-router-dom'
 
 import { getKeywordsDictionary, getPiratesCsgList } from '../api.js'
 import Button from '../components/Button.tsx'
-import Dropdown from '../components/Dropdown.tsx'
+import Dropdown, { MultiItemDropdown } from '../components/Dropdown.tsx'
 import Layout from '../components/Layout.tsx'
 import Loading from '../components/Loading.tsx'
 import ToggleButton from '../components/ToggleButton.tsx'
@@ -364,12 +364,87 @@ function getPiratesListPage(piratesList, pageSize, pageNumber) {
     return piratesList.slice(pageSize * (pageNumber - 1), pageSize * pageNumber)
 }
 
+function AdvancedFilters({ setQuery }) {
+    const rarityLabels = [
+        <span id="common"><span>Common</span></span>,
+        <span id="uncommon"><span>Uncommon</span></span>,
+        <span id="rare"><span>Rare</span></span>,
+        <span id="pr"><span>PR</span></span>,
+        <span id="promo"><span>Promo</span></span>,
+        <span id="le"><span>LE</span></span>,
+        <span id="se"><span>SE</span></span>,
+        <span id="super-rare"><span>Super Rare</span></span>,
+        <span id="special"><span>Special</span></span>,
+        <span id="one-of-one"><span>1 of 1</span></span>
+    ]
+    return (
+        <div className="row advanced-filters-row">
+            <div className="col">
+                <div className="row advanced-filters-title"><div className="col">Advanced Filters</div></div>
+                <div className="row advanced-filters-content">
+                    <div className="col">
+                        <div className="row">
+                            Point Cost
+                        </div>
+                        <div className="row">
+                            <div className="col">
+                                <TextInput label={'Min'} id="min-points" className="point-cost-input" disableSpellCheck />
+                            </div>
+                        </div>
+                        <div className="row">
+                            <div className="col">
+                                <TextInput label={'Max'} id="max-points" className="point-cost-input" disableSpellCheck />
+                            </div>
+                        </div>
+                    </div>
+                    <div className="col">
+                        <div className="row">
+                            <div className="col">
+                                <TextInput label={'Masts'} id="masts" className="masts-input" disableSpellCheck />
+                            </div>
+                        </div>
+                        <div className="row">
+                            <div className="col">
+                                <TextInput label={'Cargo'} id="cargo" className="cargo-input" disableSpellCheck />
+                            </div>
+                        </div>
+                    </div>
+                    <div className="col">
+                        <div className="row">
+                            <div className="col">
+                                <MultiItemDropdown
+                                    label="Rarity"
+                                    content={rarityLabels}
+                                    width="140px"
+                                    toggledListClass="icons-only"
+                                    dropdownContentClass="rarities"
+                                    // onChange={setPageSize}
+                                    // selected={pageSize}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+
+}
+
 function Content({ windowWidth }) {
     const sessionStorageQuery = JSON.parse(sessionStorage.getItem('query'))
 
     const [query, setQuery] = useState({
         search: sessionStorageQuery?.search || '',
         factions: sessionStorageQuery?.factions || [],
+
+        minPointCost: sessionStorageQuery?.minPointCost || 0,
+        maxPointCost: sessionStorageQuery?.maxPointCost || 99,
+        rarities: sessionStorageQuery?.rarities || [],
+        type: sessionStorageQuery?.type || [],
+        masts: sessionStorageQuery?.masts || -1,
+        cargo: sessionStorageQuery?.cargo || -1,
+        baseMove: sessionStorageQuery?.cargo || null
     })
 
     const [completeCsgList, setCompleteCsgList] = useState(JSON.parse(sessionStorage.getItem('piratesCsgList')) || [])
@@ -514,6 +589,7 @@ function Content({ windowWidth }) {
                 <div className="row faction-row">
                     <FactionToggles factionList={factionList} filterFactions={filterFactions} queriedFactions={query.factions}/>
                 </div>
+                <AdvancedFilters setQuery={setQuery} />
             </div>
             <PageControl
                 className="upper"

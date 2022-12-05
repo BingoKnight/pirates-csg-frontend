@@ -1,6 +1,20 @@
 @import 'variables';
 @import 'screen';
 
+$raritiesColors: (
+    "common": red,
+    "uncommon": linear-gradient(90deg, rgba(170,169,173,1) 20%, rgba(94,94,94,1) 40%, rgba(55,55,55,1) 50%, rgba(94,94,94,1) 60%, rgba(170,169,173,1) 80%),
+    "rare": linear-gradient(90deg, rgba(228,197,31,1) 20%, rgba(148,129,32,1) 40%, rgba(120,104,30,1) 50%, rgba(148,129,32,1) 60%, rgba(228,197,31,1) 80%),
+    "super-rare": black,
+    "promo": linear-gradient(90deg, rgba(20,74,3,1) 20%, rgba(76,166,48,1) 40%, rgba(142,199,126,1) 50%, rgba(76,166,48,1) 60%, rgba(20,74,3,1) 80%),
+    "le": linear-gradient(90deg, rgba(114,66,40,1) 20%, rgba(171,133,112,1) 40%, rgba(236,193,170,1) 50%,rgba(171,133,112,1) 60%,rgba(114,66,40,1) 80%),
+    "pr": linear-gradient(90deg, rgba(20,74,3,1) 20%, rgba(76,166,48,1) 40%, rgba(142,199,126,1) 50%, rgba(76,166,48,1) 60%, rgba(20,74,3,1) 80%),
+    "se": linear-gradient(90deg, rgba(20,74,3,1) 20%, rgba(76,166,48,1) 40%, rgba(175,219,163,1) 50%, rgba(76,166,48,1) 60%, rgba(20,74,3,1) 80%),
+    "special": blue,
+    "one-of-one": #fff
+);
+
+
 .result-content {
     display: flex;
     flex: 1 1 auto;
@@ -190,6 +204,82 @@
             margin: 10px 15px 0 15px;
             .faction-image {
                 height: 30px;
+            }
+        }
+    }
+}
+
+.advanced-filters-row {
+    .row {
+        margin: 20px 0;
+    }
+
+    .point-cost-input, .masts-input, .cargo-input {
+        width: 55px;
+        margin: 0 7px;
+    }
+
+    .rarities {
+        @each $rarity, $color in $raritiesColors {
+            ##{$rarity}:before {
+                @if $rarity == common or $rarity == super-rare or $rarity == special or $rarity == one-of-one {
+                    background-color: $color;
+                } @else {
+                    background-image: $color;
+                }
+
+                @if $rarity == super-rare {
+                    border: 1px solid #555;
+                } @else {
+                    border: 1px solid #000;
+                }
+
+                height: 100%;
+                display: inline-block;
+                content: '';
+                width: 11px;
+                height: 11px;
+                margin-right: 5px;
+            }
+        }
+    }
+
+    .icons-only {
+        @each $rarity, $color in $raritiesColors {
+            ##{$rarity} {
+                display: flex;
+                align-items: center;
+                margin: 2px 0;
+            }
+
+            ##{$rarity} span {
+                @if $rarity == se or $rarity == promo or $rarity == pr {
+                    font-size: 0.8rem;
+                    flex-wrap: nowrap;
+                } @else {
+                    display: none;
+                }
+            }
+            ##{$rarity}:before {
+                content: '';
+                @if $rarity == common or $rarity == super-rare or $rarity == special or $rarity == one-of-one {
+                    background-color: $color;
+                } @else {
+                    background-image: $color;
+                }
+
+                @if $rarity == super-rare {
+                    border: 1px solid #555;
+                } @else {
+                    border: 1px solid #000;
+                }
+
+                height: 100%;
+                display: inline-block;
+                content: '';
+                width: 15px;
+                height: 15px;
+                margin-right: 5px;
             }
         }
     }
