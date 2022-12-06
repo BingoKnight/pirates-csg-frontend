@@ -14,6 +14,7 @@ interface DropdownProps {
 }
 
 interface MultiItemDropdownProps extends DropdownProps {
+    comparisonFunc?: (value: any, option: any) => boolean
     dropdownContentClass?: string
     toggledListClass?: string
 }
@@ -92,7 +93,7 @@ function ToggledItemsLabel({ toggledItems, label, className }) {
 }
 
 export function MultiItemDropdown(props: MultiItemDropdownProps) {
-    const { label, content, onChange, dropdownContentClass = '', toggledListClass = '', selected = [], width = "125px" } = props
+    const { label, content, onChange, comparisonFunc, dropdownContentClass = '', toggledListClass = '', selected = [], width = "125px" } = props
 
     const [toggledItems, setToggledItems] = useState<Set<any>>(new Set(selected))
     const [isActive, setIsActive] = useState(false)
@@ -100,6 +101,7 @@ export function MultiItemDropdown(props: MultiItemDropdownProps) {
     const dropDownRef = useRef(null)
 
     const dropdownClass = dropdownContentClass ? `content multi-select-content ${dropdownContentClass}` : `content multi-select-content`
+    const dropdownContentStyle = width ? { width: `calc(${width} - 4px)` } : null
 
     function handleOnChangeBuilder(optionName: string) {
         function handleOnChange(isToggled: boolean) {
@@ -107,13 +109,14 @@ export function MultiItemDropdown(props: MultiItemDropdownProps) {
 
             if (isToggled) {
                 updatedToggledItems = new Set([...toggledItems, optionName])
-                setToggledItems(updatedToggledItems)
 
             } else {
-                updatedToggledItems = new Set([...toggledItems].filter(value => value !== optionName))
-                setToggledItems(updatedToggledItems)
+                updatedToggledItems = new Set([...toggledItems].filter(value =>
+                    comparisonFunc ? !comparisonFunc(value, optionName) : value !== optionName)
+                )
             }
 
+            setToggledItems(updatedToggledItems)
             if (onChange) {
                 onChange([...updatedToggledItems])
             }
@@ -146,7 +149,7 @@ export function MultiItemDropdown(props: MultiItemDropdownProps) {
                             <span className='down-arrow'><DownArrow /></span>
                         </div>
                     </button>
-                    <ul className={dropdownClass} style={ width ? { width: `calc(${width} - 4px)` } : null}>
+                    <ul className={dropdownClass} style={dropdownContentStyle}>
                         <div className="content-backdrop" />
                         {
                             content.map((item: any) => {
@@ -156,7 +159,10 @@ export function MultiItemDropdown(props: MultiItemDropdownProps) {
                                         className="dropdown-toggle"
                                         onClick={handleOnChangeBuilder(item)}
                                     />
-                                    {toggledItems.has(item) && <Checkmark className="toggled-checkmark"/>}
+                                    {
+                                        [...toggledItems].some(value => comparisonFunc ? comparisonFunc(value, item) : value === item)
+                                        && <Checkmark className="toggled-checkmark"/>
+                                    }
                                 </li>
                             })
                         }

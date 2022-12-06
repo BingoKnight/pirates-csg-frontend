@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Outlet } from 'react-router-dom'
+import { v4 as uuid4 } from 'uuid'
 
 import { getKeywordsDictionary, getPiratesCsgList } from '../api.js'
 import Button from '../components/Button.tsx'
@@ -38,9 +39,6 @@ const SortOrder = {
     ascending: 'ascending',
     descending: 'descending'
 }
-
-// TODO: multi select broken, can't deselect items and toggled items don't show checkmark
-// TODO: add clear button functionality to advancde queries
 
 // TODO: fix tablet view to be more like computer view
 // TODO: preload image on faction query change
@@ -504,6 +502,7 @@ function BaseMoveFilter({ onChange }) {
                     toggledListClass="selected-base-movement"
                     dropdownContentClass="base-movement"
                     onChange={onChange}
+                    comparisonFunc={(value, option) => value.props.id === option.props.id}
                 />
             </div>
         </div>
@@ -579,6 +578,7 @@ function ExpansionSetFilter({ onChange }) {
                     toggledListClass="selected-set"
                     dropdownContentClass="set"
                     onChange={onChange}
+                    comparisonFunc={(value, option) => value.props.id === option.props.id}
                 />
             </div>
         </div>
@@ -609,6 +609,7 @@ function RarityFilter({ onChange }) {
                     toggledListClass="icons-only"
                     dropdownContentClass="rarities"
                     onChange={onChange}
+                    comparisonFunc={(value, option) => value.props.id === option.props.id}
                 />
             </div>
         </div>
@@ -618,7 +619,8 @@ function RarityFilter({ onChange }) {
 function AdvancedFilters({ query, setQuery, piratesCsgList }) {
     const [ showContent, setShowContent ] = useState(false)
     const [ isShowContentDisabled, setIsShowContentDisabled ] = useState(false)
-    const [ stagedQuery, setStagedQuery ] = useState({
+
+    const initialState = {
         minPointCost: null,
         maxPointCost: null,
         masts: null,
@@ -627,7 +629,15 @@ function AdvancedFilters({ query, setQuery, piratesCsgList }) {
         type: [],
         baseMove: [],
         set: []
-    })
+    }
+    const [ stagedQuery, setStagedQuery ] = useState(initialState)
+    const [ sliderKey, setSliderKey ] = useState(uuid4)
+    const [ mastsKey, setMastsKey ] = useState(uuid4)
+    const [ cargoKey, setCargoKey ] = useState(uuid4)
+    const [ rarityKey, setRarityKey ] = useState(uuid4)
+    const [ typeKey, setTypeKey ] = useState(uuid4)
+    const [ baseMoveKey, setBaseMoveKey ] = useState(uuid4)
+    const [ expansionKey, setExpansionKey ] = useState(uuid4)
     const contentRef = useRef(null)
 
     const maxPointCost = Math.max(...piratesCsgList.map(csgItem => csgItem.pointCost))
@@ -660,7 +670,13 @@ function AdvancedFilters({ query, setQuery, piratesCsgList }) {
     }
 
     function handleRarityChange(elements) {
-        const values = elements.map(element => element.props.id.toLowerCase())
+        const values = elements.map(element => {
+            const elementId = element.props.id
+            if (elementId === 'one-of-one')
+                return '1 of 1'
+
+            return elementId.toLowerCase().replaceAll('-', ' ')
+        })
         setStagedQuery({...stagedQuery, rarity: values})
     }
 
@@ -678,9 +694,17 @@ function AdvancedFilters({ query, setQuery, piratesCsgList }) {
         setStagedQuery({...stagedQuery, set: values})
     }
 
-    // function handleSearch() {
-    //     const mergedQueries = Object
-    // }
+    function clearState() {
+        setStagedQuery(initialState)
+        setQuery({...query, ...initialState})
+        setSliderKey(uuid4())
+        setMastsKey(uuid4())
+        setCargoKey(uuid4())
+        setRarityKey(uuid4())
+        setBaseMoveKey(uuid4())
+        setTypeKey(uuid4())
+        setExpansionKey(uuid4())
+    }
 
     return (
         <div className="row advanced-filters-row">
@@ -699,6 +723,7 @@ function AdvancedFilters({ query, setQuery, piratesCsgList }) {
                             <div className="col point-cost-title">Points</div>
                             <div className="col point-cost-slider">
                                 <Slider
+                                    key={sliderKey}
                                     defaultValue={[0, maxPointCost]}
                                     min={0}
                                     max={maxPointCost}
@@ -713,6 +738,7 @@ function AdvancedFilters({ query, setQuery, piratesCsgList }) {
                         <div className="row input-filter-row">
                             <div className="row number-inputs">
                                 <NumberInput
+                                    key={mastsKey}
                                     label={'Masts'}
                                     id="masts"
                                     className="masts-input"
@@ -721,6 +747,7 @@ function AdvancedFilters({ query, setQuery, piratesCsgList }) {
                                     onChange={value => setStagedQuery({...stagedQuery, masts: isNaN(value) ? null : value})}
                                 />
                                 <NumberInput
+                                    key={cargoKey}
                                     label={'Cargo'}
                                     id="cargo"
                                     className="cargo-input"
@@ -731,19 +758,19 @@ function AdvancedFilters({ query, setQuery, piratesCsgList }) {
                             </div>
                             <div className="row">
                                 <div className="col">
-                                    <RarityFilter onChange={handleRarityChange} />
-                                    <BaseMoveFilter onChange={handleBaseMoveChange} />
+                                    <RarityFilter key={rarityKey} onChange={handleRarityChange} />
+                                    <BaseMoveFilter key={baseMoveKey} onChange={handleBaseMoveChange} />
                                 </div>
                             </div>
                             <div className="row">
                                 <div className="col">
-                                    <CsgTypeFilter onChange={handleCsgTypeChange} />
-                                    <ExpansionSetFilter onChange={handleExpansionSetChange} />
+                                    <CsgTypeFilter key={typeKey} onChange={handleCsgTypeChange} />
+                                    <ExpansionSetFilter key={expansionKey} onChange={handleExpansionSetChange} />
                                 </div>
                             </div>
                         </div>
                         <div className="row buttons-row">
-                            <Button className="clear-button">Clear</Button>
+                            <Button className="clear-button" onClick={clearState} >Clear</Button>
                             <Button className="search-button" onClick={() => setQuery({...query, ...stagedQuery})}>Search</Button>
                         </div>
                     </div>
@@ -913,7 +940,7 @@ function Content({ windowWidth }) {
                 <div className="row faction-row">
                     <FactionToggles factionList={factionList} filterFactions={filterFactions} queriedFactions={query.factions}/>
                 </div>
-                <AdvancedFilters query={query} setQuery={setQuery} piratesCsgList={completeCsgList} />
+                { apiFetchComplete && <AdvancedFilters query={query} setQuery={setQuery} piratesCsgList={completeCsgList} /> }
             </div>
             <PageControl
                 className="upper"
