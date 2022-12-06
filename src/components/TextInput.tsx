@@ -1,4 +1,4 @@
-import React, { ChangeEvent, KeyboardEvent, RefObject, useState } from 'react'
+import React, { ChangeEvent, KeyboardEvent, useState } from 'react'
 
 import '../styles/textInput.scss'
 

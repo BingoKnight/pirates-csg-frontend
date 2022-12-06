@@ -4,9 +4,6 @@ import { Outlet } from 'react-router-dom'
 import { getKeywordsDictionary, getPiratesCsgList } from '../api.js'
 import Button from '../components/Button.tsx'
 import Dropdown, { MultiItemDropdown } from '../components/Dropdown.tsx'
-import Layout from '../components/Layout.tsx'
-import Loading from '../components/Loading.tsx'
-import ToggleButton from '../components/ToggleButton.tsx'
 import {
     AmericaImage,
     CorsairImage,
@@ -20,11 +17,18 @@ import {
     VikingImage,
     WhiteBeardRaidersImage
 } from '../components/FactionImages.tsx'
+import Layout from '../components/Layout.tsx'
+import Loading from '../components/Loading.tsx'
 import PiratesCsgList from '../components/PiratesCsgList.tsx';
+import Slider from '../components/Slider.tsx'
 import TextInput from '../components/TextInput.tsx'
+import ToggleButton from '../components/ToggleButton.tsx'
+
 import { TABLET_VIEW, PHONE_VIEW } from '../constants.js'
-import noImage from '../images/no-image.jpg'
+import { ReactComponent as DownArrow } from '../images/angle-down-solid.svg'
 import { ReactComponent as Arrow } from '../images/arrow-solid.svg'
+import noImage from '../images/no-image.jpg'
+import setIconMapper from '../utils/setIconMapper.tsx'
 
 import '../styles/home.scss';
 
@@ -364,7 +368,125 @@ function getPiratesListPage(piratesList, pageSize, pageNumber) {
     return piratesList.slice(pageSize * (pageNumber - 1), pageSize * pageNumber)
 }
 
-function AdvancedFilters({ setQuery }) {
+function BaseMoveFilter() {
+    const baseMoveLabels = [
+        'S',
+        'L',
+        'S+S',
+        'S+L',
+        'L+S',
+        'L+L',
+        'S+S+S',
+        'L+L+L',
+        'T',
+        'D'
+    ].map(movement => {
+        const movementChars = movement.split('+')
+        const className = `base-move ${movementChars.join('-').toLowerCase()}`
+        const movementText = movementChars.map(char => {
+            if (char.toLowerCase() === 'l')
+                return <span className='red'>{char}</span>
+            return char
+        }).reduce((prev, curr) => [prev, ' + ', curr])
+        return <span className={className}>{movementText}</span>
+    })
+
+    return (
+        <div className="row">
+            <div className="col">
+                <MultiItemDropdown
+                    label="Base Move"
+                    content={baseMoveLabels}
+                    width="250px"
+                    toggledListClass="selected-base-movement"
+                    dropdownContentClass="base-movement"
+                    // onChange={setPageSize}
+                    // selected={pageSize}
+                />
+            </div>
+        </div>
+    )
+}
+
+function CsgTypeFilter() {
+    const csgTypes = [
+        'Bust',
+        'Crew',
+        'Equipment',
+        'Event',
+        'Fort',
+        'Island',
+        'Ship',
+        'Story',
+        'Treasure'
+    ]
+
+    return (
+        <div className="row">
+            <div className="col">
+                <MultiItemDropdown
+                    label="Type"
+                    content={csgTypes}
+                    width="250px"
+                    toggledListClass="selected-type"
+                    dropdownContentClass="csg-type"
+                    // onChange={setPageSize}
+                    // selected={pageSize}
+                />
+            </div>
+        </div>
+    )
+}
+
+function ExpansionSetFilter() {
+    const expansionSets = [
+        ['BC', 'Barbary Coast'],
+        ['BCU', 'Barbary Coast Unlimited'],
+        ['PotC', 'Caribbean'],
+        ['CC', 'Crimson Coast'],
+        ['DJC', 'Davy Jones Curse'],
+        ['F&S', 'Fire and Steel'],
+        ['FN', 'Frozen North'],
+        ['MI', 'Mysterious Islands'],
+        ['OE', 'Oceans Edge'],
+        ['RtSS', 'Return to Savage Shores'],
+        ['RV', 'Revolution'],
+        ['RVU', 'Revolution Unlimited'],
+        ['RotF', 'Rise of the Fiends'],
+        ['SS', 'Savage Shores'],
+        ['SCS', 'South China Seas'],
+        ['SM', 'Spanish Main First Edition'],
+        ['SMU', 'Spanish Main Unlimited'],
+        ['U', 'Unreleased']
+    ].map(set => {
+        const setNameClass = set === 'Unreleased' ? 'set-name' : 'set-name hidable'
+        const containerClass = `set-container ${set[1].toLowerCase()}`
+        const setIcon = setIconMapper[set[1]]({height: '25px'})
+        return <div className={containerClass}>
+            {setIcon && <div className='set-icon'>{setIcon}</div> }
+            <div className={setNameClass}>{set[1]}</div>
+            <div className="set-abbreviation">{set[0]}</div>
+        </div>
+    })
+
+    return (
+        <div className="row">
+            <div className="col">
+                <MultiItemDropdown
+                    label="Set"
+                    content={expansionSets}
+                    width="250px"
+                    toggledListClass="selected-set"
+                    dropdownContentClass="set"
+                    // onChange={setPageSize}
+                    // selected={pageSize}
+                />
+            </div>
+        </div>
+    )
+}
+
+function RarityFilter() {
     const rarityLabels = [
         <span id="common"><span>Common</span></span>,
         <span id="uncommon"><span>Uncommon</span></span>,
@@ -377,50 +499,88 @@ function AdvancedFilters({ setQuery }) {
         <span id="special"><span>Special</span></span>,
         <span id="one-of-one"><span>1 of 1</span></span>
     ]
+
+    return (
+        <div className="row">
+            <div className="col">
+                <MultiItemDropdown
+                    label="Rarity"
+                    content={rarityLabels}
+                    width="250px"
+                    toggledListClass="icons-only"
+                    dropdownContentClass="rarities"
+                    // onChange={setPageSize}
+                    // selected={pageSize}
+                />
+            </div>
+        </div>
+    )
+}
+
+function AdvancedFilters({ setQuery }) {
+    const [ showContent, setShowContent ] = useState(false)
+    const contentRef = useRef(null)
+
+    let timer = null
+
+    function handleShowContent() {
+        clearTimeout(timer)
+
+        if (showContent) {
+            contentRef.current.style.overflow = 'hidden'
+            setShowContent(false)
+        } else {
+            setShowContent(true)
+            timer = setTimeout(() => contentRef.current.style.overflow = 'initial', 300)
+        }
+    }
+
     return (
         <div className="row advanced-filters-row">
             <div className="col">
-                <div className="row advanced-filters-title"><div className="col">Advanced Filters</div></div>
-                <div className="row advanced-filters-content">
+                <div className="row advanced-filters-title">
                     <div className="col">
-                        <div className="row">
-                            Point Cost
-                        </div>
-                        <div className="row">
-                            <div className="col">
-                                <TextInput label={'Min'} id="min-points" className="point-cost-input" disableSpellCheck />
-                            </div>
-                        </div>
-                        <div className="row">
-                            <div className="col">
-                                <TextInput label={'Max'} id="max-points" className="point-cost-input" disableSpellCheck />
-                            </div>
-                        </div>
+                        <span onClick={handleShowContent}>Advanced Filters</span>
+                        <span><DownArrow /></span>
                     </div>
+                </div>
+                <div className={'row advanced-filters-content' + (showContent ? ' show': '')} ref={contentRef}>
                     <div className="col">
                         <div className="row">
-                            <div className="col">
-                                <TextInput label={'Masts'} id="masts" className="masts-input" disableSpellCheck />
-                            </div>
-                        </div>
-                        <div className="row">
-                            <div className="col">
-                                <TextInput label={'Cargo'} id="cargo" className="cargo-input" disableSpellCheck />
-                            </div>
-                        </div>
-                    </div>
-                    <div className="col">
-                        <div className="row">
-                            <div className="col">
-                                <MultiItemDropdown
-                                    label="Rarity"
-                                    content={rarityLabels}
-                                    width="140px"
-                                    toggledListClass="icons-only"
-                                    dropdownContentClass="rarities"
-                                    // onChange={setPageSize}
-                                    // selected={pageSize}
+                            <div className="col point-cost-title">Point Cost:</div>
+                            <div className="col point-cost-slider">
+                                <Slider
+                                    defaultValue={[0, 35]}
+                                    min={0}
+                                    max={35}
+                                    renderThumb={(props, state) => <div {...props}>{state.valueNow}</div>}
                                 />
+                            </div>
+                        </div>
+                        <div className="row input-filter-row">
+                            <div className="col number-inputs">
+                                <div className="row">
+                                    <div className="col">
+                                        <TextInput label={'Masts'} id="masts" className="masts-input" disableSpellCheck />
+                                    </div>
+                                </div>
+                                <div className="row">
+                                    <div className="col">
+                                        <TextInput label={'Cargo'} id="cargo" className="cargo-input" disableSpellCheck />
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="row">
+                                <div className="col">
+                                    <RarityFilter />
+                                    <BaseMoveFilter />
+                                </div>
+                            </div>
+                            <div className="row">
+                                <div className="col">
+                                    <CsgTypeFilter />
+                                    <ExpansionSetFilter />
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -437,14 +597,14 @@ function Content({ windowWidth }) {
     const [query, setQuery] = useState({
         search: sessionStorageQuery?.search || '',
         factions: sessionStorageQuery?.factions || [],
-
         minPointCost: sessionStorageQuery?.minPointCost || 0,
         maxPointCost: sessionStorageQuery?.maxPointCost || 99,
         rarities: sessionStorageQuery?.rarities || [],
         type: sessionStorageQuery?.type || [],
         masts: sessionStorageQuery?.masts || -1,
         cargo: sessionStorageQuery?.cargo || -1,
-        baseMove: sessionStorageQuery?.cargo || null
+        baseMove: sessionStorageQuery?.cargo || null,
+        set: sessionStorageQuery?.set || []
     })
 
     const [completeCsgList, setCompleteCsgList] = useState(JSON.parse(sessionStorage.getItem('piratesCsgList')) || [])

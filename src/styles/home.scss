@@ -11,7 +11,7 @@ $raritiesColors: (
     "pr": linear-gradient(90deg, rgba(20,74,3,1) 20%, rgba(76,166,48,1) 40%, rgba(142,199,126,1) 50%, rgba(76,166,48,1) 60%, rgba(20,74,3,1) 80%),
     "se": linear-gradient(90deg, rgba(20,74,3,1) 20%, rgba(76,166,48,1) 40%, rgba(175,219,163,1) 50%, rgba(76,166,48,1) 60%, rgba(20,74,3,1) 80%),
     "special": blue,
-    "one-of-one": #fff
+    "one-of-one": linear-gradient(90deg, rgba(35,216,218,1) 20%, rgba(26,126,126,1) 40%, rgba(20,98,98,1) 50%, rgba(26,126,126,1) 60%, rgba(35,216,218,1) 80%)
 );
 
 
@@ -210,19 +210,63 @@ $raritiesColors: (
 }
 
 .advanced-filters-row {
-    .row {
-        margin: 20px 0;
+    padding: 0 40px;
+
+    .advanced-filters-title .col {
+        text-align: right;
+
+        span {
+            cursor: pointer;
+        }
     }
 
-    .point-cost-input, .masts-input, .cargo-input {
-        width: 55px;
+    .advanced-filters-content {
+        border: 2px solid #333;
+        max-height: 0;
+        overflow: hidden;
+
+        transition: max-height 0.3s ease-in-out;
+
+        &.show {
+            max-height: 500px;
+        }
+    }
+
+    .row {
+        margin: 10px 0;
+
+        .col {
+            margin: 0 10px;
+        }
+    }
+
+    .point-cost-title {
+        flex: 1;
+    }
+
+    .point-cost-slider {
+        flex: 9;
+    }
+
+    .input-filter-row {
+        align-items: stretch;
+
+        .number-inputs {
+            display: flex;
+            flex-direction: column;
+            align-content: space-between;
+        }
+    }
+
+    .masts-input, .cargo-input {
+        width: 75px;
         margin: 0 7px;
     }
 
     .rarities {
         @each $rarity, $color in $raritiesColors {
             ##{$rarity}:before {
-                @if $rarity == common or $rarity == super-rare or $rarity == special or $rarity == one-of-one {
+                @if $rarity == common or $rarity == super-rare or $rarity == special {
                     background-color: $color;
                 } @else {
                     background-image: $color;
@@ -249,7 +293,6 @@ $raritiesColors: (
             ##{$rarity} {
                 display: flex;
                 align-items: center;
-                margin: 2px 0;
             }
 
             ##{$rarity} span {
@@ -262,7 +305,7 @@ $raritiesColors: (
             }
             ##{$rarity}:before {
                 content: '';
-                @if $rarity == common or $rarity == super-rare or $rarity == special or $rarity == one-of-one {
+                @if $rarity == common or $rarity == super-rare or $rarity == special {
                     background-color: $color;
                 } @else {
                     background-image: $color;
@@ -281,6 +324,59 @@ $raritiesColors: (
                 height: 15px;
                 margin-right: 5px;
             }
+        }
+    }
+
+    .selected-base-movement, .selected-type {
+        .toggled-item {
+            padding: 4px 2px 3px 2px;
+            border: 1px solid #333;
+            background-color: rgba(55, 55, 55, 0.4);
+            border-radius: 4px;
+        }
+    }
+
+    .base-move {
+        font-family: windlass, serif;
+        font-size: 1.1rem;
+    
+        .red {
+            color: red;
+        }
+    }
+
+    .set-container {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+
+        .set-icon {
+            padding-right: 4px;
+        }
+
+        .set-abbreviation {
+            display: none;
+        }
+    }
+
+    .selected-set {
+        .toggled-item {
+            border: 1px solid #333;
+            background-color: rgba(55, 55, 55, 0.4);
+            border-radius: 4px;
+            padding: 0 4px;
+        }
+
+        .unreleased {
+            padding: 4px 2px 3px 2px;
+        }
+
+        .set-name {
+            display: none;
+        }
+
+        .set-abbreviation {
+            display: block;
         }
     }
 }
