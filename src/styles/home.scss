@@ -233,14 +233,14 @@ $raritiesColors: (
 
     .advanced-filters-content {
         border: 2px solid #333;
-        padding-top: 15px;
         max-height: 0;
         overflow: hidden;
 
-        transition: max-height 0.2s ease-in-out;
+        transition: max-height 0.2s ease-in-out, padding 0.1s ease-in-out;
 
         &.show {
-            max-height: 500px;
+            padding-top: 15px;
+            max-height: 1500px;
         }
     }
 
@@ -393,6 +393,16 @@ $raritiesColors: (
 
         .set-abbreviation {
             display: block;
+        }
+    }
+
+    .buttons-row {
+        justify-content: end;
+
+        .clear-button, .search-button {
+            width: 100px;
+            padding: 10px 0;
+            margin: 0 15px;
         }
     }
 }

@@ -94,20 +94,28 @@ function ToggledItemsLabel({ toggledItems, label, className }) {
 export function MultiItemDropdown(props: MultiItemDropdownProps) {
     const { label, content, onChange, dropdownContentClass = '', toggledListClass = '', selected = [], width = "125px" } = props
 
-    const [toggledItems, setToggledItems] = useState<Set<string>>(new Set(selected))
+    const [toggledItems, setToggledItems] = useState<Set<any>>(new Set(selected))
     const [isActive, setIsActive] = useState(false)
 
     const dropDownRef = useRef(null)
 
     const dropdownClass = dropdownContentClass ? `content multi-select-content ${dropdownContentClass}` : `content multi-select-content`
-    const dropDownStyle = []
 
     function handleOnChangeBuilder(optionName: string) {
         function handleOnChange(isToggled: boolean) {
+            let updatedToggledItems = new Set()
+
             if (isToggled) {
-                setToggledItems(new Set([...toggledItems, optionName]))
+                updatedToggledItems = new Set([...toggledItems, optionName])
+                setToggledItems(updatedToggledItems)
+
             } else {
-                setToggledItems(new Set([...toggledItems].filter(value => value !== optionName)))
+                updatedToggledItems = new Set([...toggledItems].filter(value => value !== optionName))
+                setToggledItems(updatedToggledItems)
+            }
+
+            if (onChange) {
+                onChange([...updatedToggledItems])
             }
         }
 
@@ -127,11 +135,6 @@ export function MultiItemDropdown(props: MultiItemDropdownProps) {
             document.removeEventListener('mouseup', handleClickOutside)
         }
     }, [dropDownRef])
-
-    useEffect(() => {
-
-        console.log(toggledItems)
-    })
 
     return (
         <div className="row">

@@ -39,13 +39,15 @@ const SortOrder = {
     descending: 'descending'
 }
 
+// TODO: multi select broken, can't deselect items and toggled items don't show checkmark
+// TODO: add clear button functionality to advancde queries
+
 // TODO: fix tablet view to be more like computer view
 // TODO: preload image on faction query change
 // TODO: replace spinning wheel with empty rows with moving gradient to signify loading
 
 function FactionToggles({ factionList, filterFactions, queriedFactions }) {
     const [filteredFactions, setFilteredFactions] = useState(new Set(queriedFactions))
-    console.log(filteredFactions)
 
     const factionNameMapper = {
         'american': <AmericaImage />,
@@ -94,28 +96,29 @@ function calculateMaxPages(csgListSize, pageSize) {
     return Math.ceil(csgListSize / pageSize) || 1
 }
 
-function queryName(objItem, query) {
-    return objItem.name.toLowerCase().includes(query.search.toLowerCase())
-}
-
-function queryAbility(objItem, query) {
-    return objItem.ability.toLowerCase().includes(query.search.toLowerCase())
-}
-
-function queryFlavorText(objItem, query) {
-    return objItem.flavorText.toLowerCase().includes(query.search.toLowerCase())
-}
-
-function queryKeywords(objItem, query) {
-    return objItem.keywords.some(keyword =>
-        keyword.toLowerCase().replace('-', ' ').includes(
-            query.search.toLowerCase().replace('-', ' ')
+function genericQuery(piratesCsgList, search) {
+    return piratesCsgList.filter(item =>
+        item.name.toLowerCase().includes(search.toLowerCase())
+        || item.ability.toLowerCase().includes(search.toLowerCase())
+        || item.id.toLowerCase().includes(search.toLowerCase())
+        || item.keywords.some(keyword =>
+            keyword.toLowerCase().replace('-', ' ').includes(
+                search.toLowerCase().replace('-', ' ')
+            )
         )
     )
 }
 
-function queryId(objItem, query) {
-    return objItem.id.toLowerCase().includes(query.search.toLowerCase())
+function queryRarity(piratesCsgList, rarities) {
+    return piratesCsgList.filter(item => rarities.includes(item.rarity.toLowerCase()))
+}
+
+function queryCargo(piratesCsgList, cargo) { // TODO: turn into a range change, min and max cargo
+    return piratesCsgList.filter(item => cargo === item.cargo)
+}
+
+function queryMasts(piratesCsgList, masts) { // TODO: turn into a range change, min and max masts
+    return piratesCsgList.filter(item => masts === item.masts)
 }
 
 function sortCompare(a, b, sortOrder) { // sortOrder will only be ascending or descending, sortList removes null case
@@ -200,31 +203,130 @@ function sortList(piratesCsgList, sort) {
     return (sort.field in sortHandlers ? sortHandlers[sort.field] : defaultSort)(piratesCsgList, sort.order, sort.field)
 }
 
-function filterCsgList(piratesCsgList, query) {
-    return piratesCsgList.filter(csgItem =>
-        (
-            !query.search
-            || queryName(csgItem, query)
-            || queryAbility(csgItem, query)
-            // || queryFlavorText(csgItem, query)
-            || queryKeywords(csgItem, query)
-            || queryId(csgItem, query)
-        )
-        && (query.factions.length === 0 || query.factions.includes(csgItem.faction))
-    )
+// function filterCsgList(piratesCsgList, query) {
+//     return piratesCsgList.filter(csgItem =>
+//         (
+//             queryName(csgItem, query)
+//             || queryAbility(csgItem, query)
+//             // || queryFlavorText(csgItem, query)
+//             || queryKeywords(csgItem, query)
+//             || queryId(csgItem, query)
+//             || queryCargo(csgItem, query.cargo)
+//             || queryRarity(csgItem, query.rarity)
+//         )
+//         && (query.factions.length === 0 || query.factions.includes(csgItem.faction))
+//     )
+// }
+
+function queryMaxPointCost(piratesCsgList, maxPointCost) {
+    return piratesCsgList.filter(item => maxPointCost >= item.pointCost)
 }
 
-function updateQuery(query, piratesCsgList, sort, setSorted, setFiltered) {
-    if (!query.search && query.factions.length === 0) {
-        setFiltered(piratesCsgList)
-        setSorted(sortList(piratesCsgList, sort))
-        return piratesCsgList.length
-    } else {
-        const filtered = filterCsgList(piratesCsgList, query)
-        setFiltered(filtered)
-        setSorted(sortList(filtered, sort))
-        return filtered.length
+function queryMinPointCost(piratesCsgList, minPointCost) {
+    return piratesCsgList.filter(item => minPointCost <= item.pointCost)
+}
+
+function queryFactions(piratesCsgList, factions) {
+    return piratesCsgList.filter(item => factions.map(faction => faction.toLowerCase()).includes(item.faction.toLowerCase()))
+}
+
+function queryBaseMove(piratesCsgList, baseMoveArray) {
+    return piratesCsgList.filter(item => baseMoveArray.includes(item.baseMove.toLowerCase()))
+}
+
+function querySet(piratesCsgList, expansionSets) {
+    return piratesCsgList.filter(item => expansionSets.includes(item.set.toLowerCase()))
+}
+
+function queryType(piratesCsgList, csgType) {
+    return piratesCsgList.filter(item => csgType.includes(item.type.toLowerCase()))
+}
+
+function updateQuery(piratesCsgList, query, sort = null, setSorted = null, setFiltered = null) {
+    const queryFunctionMapper = {
+        search: {
+            isEmpty: querySearch => !querySearch,
+            query: genericQuery
+        },
+        cargo: {
+            isEmpty: cargo => !(cargo || cargo === 0),
+            query: queryCargo
+        },
+        masts: {
+            isEmpty: masts => !(masts || masts === 0),
+            query: queryMasts
+        },
+        maxPointCost: {
+            isEmpty: maxPointCost => !(maxPointCost || maxPointCost === 0),
+            query: queryMaxPointCost
+        },
+        minPointCost: {
+            isEmpty: minPointCost => !(minPointCost || minPointCost === 0),
+            query: queryMinPointCost
+        },
+        factions: {
+            isEmpty: factions => factions.length === 0,
+            query: queryFactions
+        },
+        baseMove: {
+            isEmpty: baseMove => baseMove.length === 0,
+            query: queryBaseMove
+        },
+        rarity: {
+            isEmpty: rarity => rarity.length === 0,
+            query: queryRarity
+        },
+        set: {
+            isEmpty: set => set.length === 0,
+            query: querySet
+        },
+        type: {
+            isEmpty: type => type.length === 0,
+            query: queryType
+        }
     }
+
+    // function isEmptyQuery(query) {
+    //     return !query.search
+    //         && !(query.cargo || query.cargo === 0)
+    //         && !(query.masts || query.masts === 0)
+    //         && !(query.maxPointCost || query.maxPointCost === 0)
+    //         && !(query.minPointCost || query.minPointCost === 0)
+    //         && query.factions.length === 0
+    //         && query.baseMove.length === 0
+    //         && query.rarity.length === 0
+    //         && query.set.length === 0
+    //         && query.type.length === 0
+    // }
+
+    console.log(query)
+
+    const filteredCsgList = Object.entries(query)
+        .filter(([key, value]) => Object.keys(queryFunctionMapper).includes(key) && !queryFunctionMapper[key].isEmpty(value))
+        .reduce((acc, [key, value]) => queryFunctionMapper[key].query(acc, value), piratesCsgList)
+
+    if (setFiltered) {
+        setFiltered(filteredCsgList)
+    }
+
+    if (sort && setSorted) {
+        const sortedCsgList = sortList(filteredCsgList, sort)
+        setSorted(sortedCsgList)
+        return sortedCsgList
+    }
+
+    return filteredCsgList
+
+    // if (isEmptyQuery(query)) {
+    //     setFiltered(piratesCsgList)
+    //     setSorted(sortList(piratesCsgList, sort))
+    //     return piratesCsgList.length
+    // } else {
+    //     const filtered = filterCsgList(piratesCsgList, query)
+    //     setFiltered(filtered)
+    //     setSorted(sortList(filtered, sort))
+    //     return filtered.length
+    // }
 
 }
 
@@ -368,7 +470,7 @@ function getPiratesListPage(piratesList, pageSize, pageNumber) {
     return piratesList.slice(pageSize * (pageNumber - 1), pageSize * pageNumber)
 }
 
-function BaseMoveFilter() {
+function BaseMoveFilter({ onChange }) {
     const baseMoveLabels = [
         'S',
         'L',
@@ -382,13 +484,14 @@ function BaseMoveFilter() {
         'D'
     ].map(movement => {
         const movementChars = movement.split('+')
-        const className = `base-move ${movementChars.join('-').toLowerCase()}`
+        const id = movementChars.join('-').toLowerCase()
+        const className = `base-move ${id}`
         const movementText = movementChars.map(char => {
             if (char.toLowerCase() === 'l')
                 return <span className='red'>{char}</span>
             return char
         }).reduce((prev, curr) => [prev, ' + ', curr])
-        return <span className={className}>{movementText}</span>
+        return <span className={className} id={id}>{movementText}</span>
     })
 
     return (
@@ -400,15 +503,14 @@ function BaseMoveFilter() {
                     width="250px"
                     toggledListClass="selected-base-movement"
                     dropdownContentClass="base-movement"
-                    // onChange={setPageSize}
-                    // selected={pageSize}
+                    onChange={onChange}
                 />
             </div>
         </div>
     )
 }
 
-function CsgTypeFilter() {
+function CsgTypeFilter({ onChange }) {
     const csgTypes = [
         'Bust',
         'Crew',
@@ -430,15 +532,14 @@ function CsgTypeFilter() {
                     width="250px"
                     toggledListClass="selected-type"
                     dropdownContentClass="csg-type"
-                    // onChange={setPageSize}
-                    // selected={pageSize}
+                    onChange={onChange}
                 />
             </div>
         </div>
     )
 }
 
-function ExpansionSetFilter() {
+function ExpansionSetFilter({ onChange }) {
     const expansionSets = [
         ['BC', 'Barbary Coast'],
         ['BCU', 'Barbary Coast Unlimited'],
@@ -460,9 +561,8 @@ function ExpansionSetFilter() {
         ['U', 'Unreleased']
     ].map(set => {
         const setNameClass = set === 'Unreleased' ? 'set-name' : 'set-name hidable'
-        const containerClass = `set-container ${set[1].toLowerCase()}`
         const setIcon = setIconMapper[set[1]]({height: '25px'})
-        return <div className={containerClass}>
+        return <div className="set-container" id={set[1].toLowerCase().replaceAll(' ', '-')}>
             {setIcon && <div className='set-icon'>{setIcon}</div> }
             <div className={setNameClass}>{set[1]}</div>
             <div className="set-abbreviation">{set[0]}</div>
@@ -478,15 +578,14 @@ function ExpansionSetFilter() {
                     width="250px"
                     toggledListClass="selected-set"
                     dropdownContentClass="set"
-                    // onChange={setPageSize}
-                    // selected={pageSize}
+                    onChange={onChange}
                 />
             </div>
         </div>
     )
 }
 
-function RarityFilter() {
+function RarityFilter({ onChange }) {
     const rarityLabels = [
         <span id="common"><span>Common</span></span>,
         <span id="uncommon"><span>Uncommon</span></span>,
@@ -509,17 +608,26 @@ function RarityFilter() {
                     width="250px"
                     toggledListClass="icons-only"
                     dropdownContentClass="rarities"
-                    // onChange={setPageSize}
-                    // selected={pageSize}
+                    onChange={onChange}
                 />
             </div>
         </div>
     )
 }
 
-function AdvancedFilters({ setQuery, piratesCsgList }) {
+function AdvancedFilters({ query, setQuery, piratesCsgList }) {
     const [ showContent, setShowContent ] = useState(false)
     const [ isShowContentDisabled, setIsShowContentDisabled ] = useState(false)
+    const [ stagedQuery, setStagedQuery ] = useState({
+        minPointCost: null,
+        maxPointCost: null,
+        masts: null,
+        cargo: null,
+        rarity: [],
+        type: [],
+        baseMove: [],
+        set: []
+    })
     const contentRef = useRef(null)
 
     const maxPointCost = Math.max(...piratesCsgList.map(csgItem => csgItem.pointCost))
@@ -551,6 +659,29 @@ function AdvancedFilters({ setQuery, piratesCsgList }) {
         }
     }
 
+    function handleRarityChange(elements) {
+        const values = elements.map(element => element.props.id.toLowerCase())
+        setStagedQuery({...stagedQuery, rarity: values})
+    }
+
+    function handleBaseMoveChange(elements) {
+        const values = elements.map(element => element.props.id.replaceAll('-', '+').toLowerCase())
+        setStagedQuery({...stagedQuery, baseMove: values})
+    }
+
+    function handleCsgTypeChange(values) {
+        setStagedQuery({...stagedQuery, type: values.map(value => value.toLowerCase())})
+    }
+
+    function handleExpansionSetChange(elements) {
+        const values = elements.map(element => element.props.id.replaceAll('-', ' ').toLowerCase())
+        setStagedQuery({...stagedQuery, set: values})
+    }
+
+    // function handleSearch() {
+    //     const mergedQueries = Object
+    // }
+
     return (
         <div className="row advanced-filters-row">
             <div className="col">
@@ -572,26 +703,48 @@ function AdvancedFilters({ setQuery, piratesCsgList }) {
                                     min={0}
                                     max={maxPointCost}
                                     renderThumb={(props, state) => <div {...props}>{state.valueNow}</div>}
+                                    onChange={
+                                        ([min, max]) =>
+                                            setStagedQuery({...stagedQuery, minPointCost: min || null, maxPointCost: max === 35 ? null : max})
+                                    }
                                 />
                             </div>
                         </div>
                         <div className="row input-filter-row">
                             <div className="row number-inputs">
-                                <NumberInput label={'Masts'} id="masts" className="masts-input" min={0} max={maxMasts} />
-                                <NumberInput label={'Cargo'} id="cargo" className="cargo-input" min={0} max={maxCargo}  />
+                                <NumberInput
+                                    label={'Masts'}
+                                    id="masts"
+                                    className="masts-input"
+                                    min={0}
+                                    max={maxMasts}
+                                    onChange={value => setStagedQuery({...stagedQuery, masts: isNaN(value) ? null : value})}
+                                />
+                                <NumberInput
+                                    label={'Cargo'}
+                                    id="cargo"
+                                    className="cargo-input"
+                                    min={0}
+                                    max={maxCargo}
+                                    onChange={value => setStagedQuery({...stagedQuery, cargo: isNaN(value) ? null : value})}
+                                />
                             </div>
                             <div className="row">
                                 <div className="col">
-                                    <RarityFilter />
-                                    <BaseMoveFilter />
+                                    <RarityFilter onChange={handleRarityChange} />
+                                    <BaseMoveFilter onChange={handleBaseMoveChange} />
                                 </div>
                             </div>
                             <div className="row">
                                 <div className="col">
-                                    <CsgTypeFilter />
-                                    <ExpansionSetFilter />
+                                    <CsgTypeFilter onChange={handleCsgTypeChange} />
+                                    <ExpansionSetFilter onChange={handleExpansionSetChange} />
                                 </div>
                             </div>
+                        </div>
+                        <div className="row buttons-row">
+                            <Button className="clear-button">Clear</Button>
+                            <Button className="search-button" onClick={() => setQuery({...query, ...stagedQuery})}>Search</Button>
                         </div>
                     </div>
                 </div>
@@ -609,18 +762,18 @@ function Content({ windowWidth }) {
         factions: sessionStorageQuery?.factions || [],
         minPointCost: sessionStorageQuery?.minPointCost || 0,
         maxPointCost: sessionStorageQuery?.maxPointCost || 99,
-        rarities: sessionStorageQuery?.rarities || [],
+        rarity: sessionStorageQuery?.rarity || [],
         type: sessionStorageQuery?.type || [],
-        masts: sessionStorageQuery?.masts || -1,
-        cargo: sessionStorageQuery?.cargo || -1,
-        baseMove: sessionStorageQuery?.cargo || null,
+        masts: sessionStorageQuery?.masts || null,
+        cargo: sessionStorageQuery?.cargo || null,
+        baseMove: sessionStorageQuery?.cargo || [],
         set: sessionStorageQuery?.set || []
     })
 
     const [completeCsgList, setCompleteCsgList] = useState(JSON.parse(sessionStorage.getItem('piratesCsgList')) || [])
 
     // filteredCsgList should be used to determine size because sortedCsgList doesn't affect maxPages
-    const [filteredCsgList, setFilteredCsgList] = useState(filterCsgList(completeCsgList, query))
+    const [filteredCsgList, setFilteredCsgList] = useState(updateQuery(completeCsgList, query))
 
     const sessionStorageSort = JSON.parse(sessionStorage.getItem('sort'))
     const [sort, setSort] = useState(sessionStorageSort || {field: null, order: null})
@@ -694,8 +847,9 @@ function Content({ windowWidth }) {
                 csgItem => csgItem.ability || !csgItem.set.toLowerCase() === 'unreleased'
             )
             setCompleteCsgList(filtered)
-            setFilteredCsgList(filterCsgList(filtered, query))
-            setSortedCsgList(sortList(filtered, sort))
+            updateQuery(filtered, query, sort, setSortedCsgList, setFilteredCsgList)
+            // setFilteredCsgList(filterCsgList(filtered, query))
+            // setSortedCsgList(sortList(filtered, sort))
         }
 
         async function fetchData() {
@@ -709,7 +863,7 @@ function Content({ windowWidth }) {
     }, [])
 
     useEffect(() => {
-        updateQuery(query, completeCsgList, sort, setSortedCsgList, setFilteredCsgList)
+        updateQuery(completeCsgList, query, sort, setSortedCsgList, setFilteredCsgList)
         sessionStorage.setItem('query', JSON.stringify(query))
 
         const timer = setTimeout(() => {
@@ -759,7 +913,7 @@ function Content({ windowWidth }) {
                 <div className="row faction-row">
                     <FactionToggles factionList={factionList} filterFactions={filterFactions} queriedFactions={query.factions}/>
                 </div>
-                <AdvancedFilters setQuery={setQuery} piratesCsgList={completeCsgList} />
+                <AdvancedFilters query={query} setQuery={setQuery} piratesCsgList={completeCsgList} />
             </div>
             <PageControl
                 className="upper"
