@@ -218,14 +218,26 @@ $raritiesColors: (
         span {
             cursor: pointer;
         }
+
+        .title-text {
+            padding-right: 4px;
+        }
+
+        .down-arrow {
+            transition: transform 0.2s linear;
+            &.active {
+                transform: rotate(-180deg);
+            }
+        }
     }
 
     .advanced-filters-content {
         border: 2px solid #333;
+        padding-top: 15px;
         max-height: 0;
         overflow: hidden;
 
-        transition: max-height 0.3s ease-in-out;
+        transition: max-height 0.2s ease-in-out;
 
         &.show {
             max-height: 500px;
@@ -254,7 +266,11 @@ $raritiesColors: (
         .number-inputs {
             display: flex;
             flex-direction: column;
-            align-content: space-between;
+            justify-content: space-evenly;
+
+            .masts-input, .cargo-input {
+                height: 22px;
+            }
         }
     }
 

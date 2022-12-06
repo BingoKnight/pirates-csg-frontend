@@ -21,7 +21,7 @@ import Layout from '../components/Layout.tsx'
 import Loading from '../components/Loading.tsx'
 import PiratesCsgList from '../components/PiratesCsgList.tsx';
 import Slider from '../components/Slider.tsx'
-import TextInput from '../components/TextInput.tsx'
+import { TextInput, NumberInput } from '../components/TextInput.tsx'
 import ToggleButton from '../components/ToggleButton.tsx'
 
 import { TABLET_VIEW, PHONE_VIEW } from '../constants.js'
@@ -517,21 +517,37 @@ function RarityFilter() {
     )
 }
 
-function AdvancedFilters({ setQuery }) {
+function AdvancedFilters({ setQuery, piratesCsgList }) {
     const [ showContent, setShowContent ] = useState(false)
+    const [ isShowContentDisabled, setIsShowContentDisabled ] = useState(false)
     const contentRef = useRef(null)
+
+    const maxPointCost = Math.max(...piratesCsgList.map(csgItem => csgItem.pointCost))
+    const maxMasts = Math.max(...piratesCsgList.map(csgItem => csgItem.masts))
+    const maxCargo = Math.max(...piratesCsgList.map(csgItem => csgItem.cargo))
 
     let timer = null
 
     function handleShowContent() {
-        clearTimeout(timer)
+        if (isShowContentDisabled) return
 
+        clearTimeout(timer)
         if (showContent) {
             contentRef.current.style.overflow = 'hidden'
             setShowContent(false)
+
+            setIsShowContentDisabled(true)
+            timer = setTimeout(() => {
+                setIsShowContentDisabled(false)
+            }, 200)
         } else {
             setShowContent(true)
-            timer = setTimeout(() => contentRef.current.style.overflow = 'initial', 300)
+
+            setIsShowContentDisabled(true)
+            timer = setTimeout(() => {
+                contentRef.current.style.overflow = 'initial'
+                setIsShowContentDisabled(false)
+            }, 200)
         }
     }
 
@@ -540,35 +556,29 @@ function AdvancedFilters({ setQuery }) {
             <div className="col">
                 <div className="row advanced-filters-title">
                     <div className="col">
-                        <span onClick={handleShowContent}>Advanced Filters</span>
-                        <span><DownArrow /></span>
+                        <span onClick={handleShowContent}>
+                            <span className="title-text noselect">Advanced Filters</span>
+                            <span><DownArrow className={'down-arrow noselect' + (showContent ? ' active' : '')} /></span>
+                        </span>
                     </div>
                 </div>
                 <div className={'row advanced-filters-content' + (showContent ? ' show': '')} ref={contentRef}>
                     <div className="col">
                         <div className="row">
-                            <div className="col point-cost-title">Point Cost:</div>
+                            <div className="col point-cost-title">Points</div>
                             <div className="col point-cost-slider">
                                 <Slider
-                                    defaultValue={[0, 35]}
+                                    defaultValue={[0, maxPointCost]}
                                     min={0}
-                                    max={35}
+                                    max={maxPointCost}
                                     renderThumb={(props, state) => <div {...props}>{state.valueNow}</div>}
                                 />
                             </div>
                         </div>
                         <div className="row input-filter-row">
-                            <div className="col number-inputs">
-                                <div className="row">
-                                    <div className="col">
-                                        <TextInput label={'Masts'} id="masts" className="masts-input" disableSpellCheck />
-                                    </div>
-                                </div>
-                                <div className="row">
-                                    <div className="col">
-                                        <TextInput label={'Cargo'} id="cargo" className="cargo-input" disableSpellCheck />
-                                    </div>
-                                </div>
+                            <div className="row number-inputs">
+                                <NumberInput label={'Masts'} id="masts" className="masts-input" min={0} max={maxMasts} />
+                                <NumberInput label={'Cargo'} id="cargo" className="cargo-input" min={0} max={maxCargo}  />
                             </div>
                             <div className="row">
                                 <div className="col">
@@ -749,7 +759,7 @@ function Content({ windowWidth }) {
                 <div className="row faction-row">
                     <FactionToggles factionList={factionList} filterFactions={filterFactions} queriedFactions={query.factions}/>
                 </div>
-                <AdvancedFilters setQuery={setQuery} />
+                <AdvancedFilters setQuery={setQuery} piratesCsgList={completeCsgList} />
             </div>
             <PageControl
                 className="upper"
