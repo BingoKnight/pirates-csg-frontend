@@ -37,14 +37,9 @@ export const TextInput = React.forwardRef((props: TextInputProps, ref) => {
 
     function handleChange(e: ChangeEvent<HTMLInputElement>) {
         const value = e.target.value
-        setText(value)
+        setText(value.trim())
         if(onChange)
-            onChange(value)
-    }
-
-    function handleOnEnter(e: KeyboardEvent<HTMLInputElement>) {
-        if (e.key === 'Enter' && onEnter)
-            onEnter(e)
+            onChange(value.trim())
     }
 
 	return (
@@ -52,14 +47,15 @@ export const TextInput = React.forwardRef((props: TextInputProps, ref) => {
             <input
                 type={'text'}
                 id={id}
+                className={text ? 'active' : ''}
                 ref={ref}
                 onChange={handleChange}
-                onKeyDown={handleOnEnter}
+                onBlur={e => e.target.value = e.target.value.trim()}
                 defaultValue={defaultValue}
                 spellcheck={disableSpellCheck ? 'false' : ''}
                 {...textInputProps}
             />
-			<label htmlFor={id} className={text || defaultValue ? 'active' : null}>{label}</label>
+			<label htmlFor={id} className={text ? 'active' : null}>{label}</label>
 		</div>
 	)
 })

@@ -9,7 +9,7 @@ interface DropdownProps {
     label: string
     content: [any]
     onChange: (item: any) => any
-    selected?: any
+    defaultSelected?: any
     width?: string
 }
 
@@ -20,9 +20,9 @@ interface MultiItemDropdownProps extends DropdownProps {
 }
 
 function Dropdown(props: DropdownProps) {
-    const { label, content, onChange, selected = null, width = "50px" } = props
+    const { label, content, onChange, defaultSelected = null, width = "50px" } = props
 
-    const [activeItem, setActiveItem] = useState(selected || content[0])
+    const [activeItem, setActiveItem] = useState(defaultSelected || content[0])
     const [isActive, setIsActive] = useState(false)
 
     function handleChange(item: any) {
@@ -93,9 +93,18 @@ function ToggledItemsLabel({ toggledItems, label, className }) {
 }
 
 export function MultiItemDropdown(props: MultiItemDropdownProps) {
-    const { label, content, onChange, comparisonFunc, dropdownContentClass = '', toggledListClass = '', selected = [], width = "125px" } = props
+    const {
+        label,
+        content,
+        onChange,
+        comparisonFunc,
+        dropdownContentClass = '',
+        toggledListClass = '',
+        defaultSelected = [],
+        width = "125px"
+    } = props
 
-    const [toggledItems, setToggledItems] = useState<Set<any>>(new Set(selected))
+    const [toggledItems, setToggledItems] = useState<Set<any>>(new Set(defaultSelected))
     const [isActive, setIsActive] = useState(false)
 
     const dropDownRef = useRef(null)

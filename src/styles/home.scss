@@ -229,6 +229,17 @@ $raritiesColors: (
                 transform: rotate(-180deg);
             }
         }
+
+        .active-filter-alert-icon {
+            height: 15px;
+            width: 15px;
+            padding-right: 10px;
+            margin-bottom: -1px 
+
+            path {
+                fill: #ff6600;
+            }
+        }
     }
 
     .advanced-filters-content {
@@ -252,11 +263,17 @@ $raritiesColors: (
         }
     }
 
-    .point-cost-title {
-        flex: 1;
+    .point-cost-container, .masts-container, .cargo-container {
+        padding: 25px 10px;
+        border-style: solid;
+        border-color: #333;
     }
 
-    .point-cost-slider {
+    .point-cost-title, .masts-title, .cargo-title {
+        text-align: left;
+    }
+
+    .point-cost-slider, .masts-slider, .cargo-slider {
         flex: 9;
     }
 
@@ -404,6 +421,10 @@ $raritiesColors: (
             padding: 10px 0;
             margin: 0 15px;
         }
+    }
+
+    .name-filter, .ability-filter, .flavor-text-filter {
+        padding-top: 17px;
     }
 }
 
