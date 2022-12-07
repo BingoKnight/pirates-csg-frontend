@@ -1,4 +1,4 @@
-import React, { ChangeEvent, KeyboardEvent, useState } from 'react'
+import React, { ChangeEvent, KeyboardEvent, useEffect, useState } from 'react'
 
 import '../styles/textInput.scss'
 
@@ -42,6 +42,18 @@ export const TextInput = React.forwardRef((props: TextInputProps, ref) => {
             onChange(value.trim())
     }
 
+    function handleOnEnter(e: KeyboardEvent<HTMLInputElement>) {
+        if (onEnter && e.key === 'Enter') {
+            const value = parseInt((e.target as HTMLInputElement).value)
+            onEnter(value)
+        }
+    }
+
+    useEffect(() => {
+        if (ref && ref.current.value !== text)
+            setText(ref.current.value)
+    }, [ref?.current.value])
+
 	return (
         <div className={className ? 'form-input ' + className : 'form-input'}>
             <input
@@ -51,6 +63,7 @@ export const TextInput = React.forwardRef((props: TextInputProps, ref) => {
                 ref={ref}
                 onChange={handleChange}
                 onBlur={e => e.target.value = e.target.value.trim()}
+                onKeyDown={handleOnEnter}
                 defaultValue={defaultValue}
                 spellcheck={disableSpellCheck ? 'false' : ''}
                 {...textInputProps}
@@ -83,9 +96,16 @@ export const NumberInput = React.forwardRef((props: NumberInputProps, ref) => {
     }
 
     function handleOnEnter(e: KeyboardEvent<HTMLInputElement>) {
-        if (e.key === 'Enter' && onEnter)
-            onEnter(e)
+        if (onEnter && e.key === 'Enter') {
+            const value = parseInt((e.target as HTMLInputElement).value)
+            onEnter(value)
+        }
     }
+
+    useEffect(() => {
+        if (ref && ref.current.value !== value)
+            setValue(ref.current.value)
+    }, [ref?.current.value])
 
 	return (
         <div className={className ? 'form-input ' + className : 'form-input'}>

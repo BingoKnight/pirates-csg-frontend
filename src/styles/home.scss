@@ -210,7 +210,8 @@ $raritiesColors: (
 }
 
 .advanced-filters-row {
-    padding: 0 40px;
+    width: 80%;
+    margin-top: 20px;
 
     .advanced-filters-title .col {
         text-align: right;
@@ -234,11 +235,8 @@ $raritiesColors: (
             height: 15px;
             width: 15px;
             padding-right: 10px;
-            margin-bottom: -1px 
-
-            path {
-                fill: #ff6600;
-            }
+            margin-bottom: -2px;
+            fill: #ff6600;
         }
     }
 
@@ -279,6 +277,8 @@ $raritiesColors: (
 
     .input-filter-row {
         align-items: stretch;
+        flex-wrap: wrap;
+        margin-top: 20px;
 
         .number-inputs {
             display: flex;
@@ -287,6 +287,21 @@ $raritiesColors: (
 
             .masts-input, .cargo-input {
                 height: 22px;
+            }
+        }
+
+        .multi-dropdown-row {
+            margin: 0;
+
+            .multi-dropdown-col:first-child {
+                .row {
+                    margin: 0;
+                }
+
+                & > .row {
+                    margin-bottom: 25px;
+
+                }
             }
         }
     }
@@ -421,10 +436,28 @@ $raritiesColors: (
             padding: 10px 0;
             margin: 0 15px;
         }
+
+        @include breakpoint(phone) {
+            justify-content: center;
+        }
+    }
+
+    .name-ability-row {
+        flex-wrap: wrap;
+
+        .name-filter {
+            flex: 5;
+            min-width: 276px;
+        }
+
+        .ability-filter {
+            flex: 5;
+            min-width: 276px;
+        }
     }
 
     .name-filter, .ability-filter, .flavor-text-filter {
-        padding-top: 17px;
+        padding: 10px 0;
     }
 }
 

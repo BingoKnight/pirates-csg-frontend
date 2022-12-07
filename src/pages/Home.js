@@ -191,8 +191,16 @@ function sortList(piratesCsgList, sort) {
     return (sort.field in sortHandlers ? sortHandlers[sort.field] : defaultSort)(piratesCsgList, sort.order, sort.field)
 }
 
-function queryTextField(piratesCsgList, fieldText) {
-    return piratesCsgList.filter(item => item.name.toLowerCase().includes(fieldText.toLowerCase()))
+function queryName(piratesCsgList, name) {
+    return piratesCsgList.filter(item => item.name.toLowerCase().includes(name.toLowerCase()))
+}
+
+function queryAbility(piratesCsgList, ability) {
+    return piratesCsgList.filter(item => item.ability.toLowerCase().includes(ability.toLowerCase()))
+}
+
+function queryFlavorText(piratesCsgList, flavorText) {
+    return piratesCsgList.filter(item => item.flavorText.toLowerCase().includes(flavorText.toLowerCase()))
 }
 
 function queryMaxPointCost(piratesCsgList, maxPointCost) {
@@ -247,15 +255,15 @@ function updateQuery(piratesCsgList, query, sort = null, setSorted = null, setFi
         },
         name: {
             isEmpty: nameFilter => !nameFilter,
-            query: queryTextField
+            query: queryName
         },
         ability: {
             isEmpty: abilityFilter => !abilityFilter,
-            query: queryTextField
+            query: queryAbility
         },
         flavorText: {
             isEmpty: flavorTextFilter => !flavorTextFilter,
-            query: queryTextField
+            query: queryFlavorText
         },
         minCargo: {
             isEmpty: cargo => !(cargo || cargo === 0),
@@ -489,22 +497,16 @@ function BaseMoveFilter({ defaultValue, onChange }) {
         return defaultValue.map(value => value.replaceAll('+', '').toLowerCase()).includes(id)
     })
 
-    return (
-        <div className="row">
-            <div className="col">
-                <MultiItemDropdown
-                    label="Base Move"
-                    content={baseMoveLabels}
-                    width="250px"
-                    toggledListClass="selected-base-movement"
-                    defaultSelected={defaultSelected}
-                    dropdownContentClass="base-movement"
-                    onChange={onChange}
-                    comparisonFunc={(value, option) => value.props.id === option.props.id}
-                />
-            </div>
-        </div>
-    )
+    return <MultiItemDropdown
+        label="Base Move"
+        content={baseMoveLabels}
+        width="250px"
+        toggledListClass="selected-base-movement"
+        defaultSelected={defaultSelected}
+        dropdownContentClass="base-movement"
+        onChange={onChange}
+        comparisonFunc={(value, option) => value.props.id === option.props.id}
+    />
 }
 
 function CsgTypeFilter({ defaultValue, onChange }) {
@@ -522,21 +524,15 @@ function CsgTypeFilter({ defaultValue, onChange }) {
 
     const defaultSelected = defaultValue.map(value => capitalize(value))
 
-    return (
-        <div className="row">
-            <div className="col">
-                <MultiItemDropdown
-                    label="Type"
-                    content={csgTypes}
-                    defaultSelected={defaultSelected}
-                    width="250px"
-                    toggledListClass="selected-type"
-                    dropdownContentClass="csg-type"
-                    onChange={onChange}
-                />
-            </div>
-        </div>
-    )
+    return <MultiItemDropdown
+        label="Type"
+        content={csgTypes}
+        defaultSelected={defaultSelected}
+        width="250px"
+        toggledListClass="selected-type"
+        dropdownContentClass="csg-type"
+        onChange={onChange}
+    />
 }
 
 function ExpansionSetFilter({ defaultValue, onChange }) {
@@ -574,22 +570,16 @@ function ExpansionSetFilter({ defaultValue, onChange }) {
         return defaultValue.map(value => value.toLowerCase()).includes(id)
     })
 
-    return (
-        <div className="row">
-            <div className="col">
-                <MultiItemDropdown
-                    label="Set"
-                    content={expansionSets}
-                    width="250px"
-                    toggledListClass="selected-set"
-                    defaultSelected={defaultSelected}
-                    dropdownContentClass="set"
-                    onChange={onChange}
-                    comparisonFunc={(value, option) => value.props.id === option.props.id}
-                />
-            </div>
-        </div>
-    )
+    return <MultiItemDropdown
+        label="Set"
+        content={expansionSets}
+        width="250px"
+        toggledListClass="selected-set"
+        defaultSelected={defaultSelected}
+        dropdownContentClass="set"
+        onChange={onChange}
+        comparisonFunc={(value, option) => value.props.id === option.props.id}
+    />
 }
 
 function RarityFilter({ defaultValue, onChange }) {
@@ -611,22 +601,16 @@ function RarityFilter({ defaultValue, onChange }) {
         return defaultValue.includes(id)
     })
 
-    return (
-        <div className="row">
-            <div className="col">
-                <MultiItemDropdown
-                    label="Rarity"
-                    content={rarityLabels}
-                    width="250px"
-                    toggledListClass="icons-only"
-                    defaultSelected={defaultSelected}
-                    dropdownContentClass="rarities"
-                    onChange={onChange}
-                    comparisonFunc={(value, option) => value.props.id === option.props.id}
-                />
-            </div>
-        </div>
-    )
+    return <MultiItemDropdown
+        label="Rarity"
+        content={rarityLabels}
+        width="250px"
+        toggledListClass="icons-only"
+        defaultSelected={defaultSelected}
+        dropdownContentClass="rarities"
+        onChange={onChange}
+        comparisonFunc={(value, option) => value.props.id === option.props.id}
+    />
 }
 
 // TODO: add keyword multi-dropdown filter
@@ -758,6 +742,10 @@ function AdvancedFilters({ query, setQuery, piratesCsgList }) {
         setBaseMoveKey(uuid4())
         setTypeKey(uuid4())
         setExpansionKey(uuid4())
+
+        nameRef.current.value = ''
+        abilityRef.current.value = ''
+        flavorTextRef.current.value = ''
     }
 
     function handleSearch() {
@@ -785,8 +773,8 @@ function AdvancedFilters({ query, setQuery, piratesCsgList }) {
                                 !showContent
                                 && queryHasActiveAdvancedFilter(query)
                                 && <Alert
-                                        className='active-filter-alert-icon'
-                                        title='Advanced filters are affecting search results'
+                                    className='active-filter-alert-icon'
+                                    title='Advanced filters are affecting search results'
                                 />
                             }
                             <span className="title-text noselect">Advanced Filters</span>
@@ -796,24 +784,24 @@ function AdvancedFilters({ query, setQuery, piratesCsgList }) {
                 </div>
                 <div className={'row advanced-filters-content' + (showContent ? ' show': '')} ref={contentRef}>
                     <div className="col">
-                        <div className="row">
+                        <div className="row name-ability-row">
                             <div className="col name-filter">
                                 <TextInput
                                     label={'Name'}
                                     id={'name'}
                                     ref={nameRef}
                                     defaultValue={query.name || ''}
+                                    onEnter={handleSearch}
                                     disableSpellCheck
                                 />
                             </div>
-                        </div>
-                        <div className="row">
                             <div className="col ability-filter">
                                 <TextInput
                                     label={'Ability'}
                                     id={'ability'}
                                     ref={abilityRef}
                                     defaultValue={query.ability || ''}
+                                    onEnter={handleSearch}
                                     disableSpellCheck
                                 />
                             </div>
@@ -877,19 +865,20 @@ function AdvancedFilters({ query, setQuery, piratesCsgList }) {
                                     id={'flavor-text-filter'}
                                     ref={flavorTextRef}
                                     defaultValue={query.flavorText || ''}
+                                    onEnter={handleSearch}
                                     disableSpellCheck
                                 />
                             </div>
                         </div>
                         <div className="row input-filter-row">
-                            <div className="row">
-                                <div className="col">
+                            <div className="row multi-dropdown-row">
+                                <div className="col multi-dropdown-col">
                                     <RarityFilter key={rarityKey} defaultValue={stagedQuery.rarity} onChange={handleRarityChange} />
                                     <BaseMoveFilter key={baseMoveKey} defaultValue={stagedQuery.baseMove} onChange={handleBaseMoveChange} />
                                 </div>
                             </div>
-                            <div className="row">
-                                <div className="col">
+                            <div className="row multi-dropdown-row">
+                                <div className="col multi-dropdown-col">
                                     <CsgTypeFilter key={typeKey} defaultValue={stagedQuery.type} onChange={handleCsgTypeChange} />
                                     <ExpansionSetFilter key={expansionKey} defaultValue={stagedQuery.set} onChange={handleExpansionSetChange} />
                                 </div>
