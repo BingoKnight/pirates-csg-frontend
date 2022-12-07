@@ -995,8 +995,6 @@ function Content({ windowWidth }) {
             )
             setCompleteCsgList(filtered)
             updateQuery(filtered, query, sort, setSortedCsgList, setFilteredCsgList)
-            // setFilteredCsgList(filterCsgList(filtered, query))
-            // setSortedCsgList(sortList(filtered, sort))
         }
 
         async function fetchData() {
