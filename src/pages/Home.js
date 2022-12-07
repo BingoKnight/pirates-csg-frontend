@@ -819,7 +819,7 @@ function AdvancedFilters({ query, setQuery, piratesCsgList }) {
                             </div>
                         </div>
                         <fieldset className="row point-cost-container">
-                            <legend>Points</legend>
+                            <legend className='slider-title'>Points</legend>
                             <div className="col point-cost-slider">
                                 <Slider
                                     key={pointCostKey}
@@ -839,7 +839,7 @@ function AdvancedFilters({ query, setQuery, piratesCsgList }) {
                             </div>
                         </fieldset>
                         <fieldset className="row masts-container">
-                            <legend>Masts</legend>
+                            <legend className='slider-title'>Masts</legend>
                             <div className="col masts-slider">
                                 <Slider
                                     key={mastsKey}
@@ -855,7 +855,7 @@ function AdvancedFilters({ query, setQuery, piratesCsgList }) {
                             </div>
                         </fieldset>
                         <fieldset className="row cargo-container">
-                            <legend>Cargo</legend>
+                            <legend className='slider-title'>Cargo</legend>
                             <div className="col cargo-slider">
                                 <Slider
                                     key={cargoKey}
