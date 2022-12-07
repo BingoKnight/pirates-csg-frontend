@@ -12,7 +12,6 @@
         background-color: transparent;
         color: white;
         font-size: 1rem;
-        width: 50px;
         padding: 5px;
         border: none;
         cursor: pointer;
@@ -30,7 +29,6 @@
         display: none;
         margin: 0;
         padding: 0;
-        width: 46px;
         position: absolute;
         background-color: transparent;
         border-left: 2px solid $button-border-hover-color;
@@ -58,6 +56,16 @@
         }
     }
 
+    .multi-select-content {
+        li {
+            padding: 0;
+        }
+
+        button {
+            padding: 5px;
+        }
+    }
+
     &.active {
         .content {
             display: block;
@@ -66,6 +74,32 @@
         .dropdown-button {
             border-color: $button-border-hover-color;
         }
+    }
+
+    .down-arrow {
+        flex: 1;
+        text-align: right;
+    }
+
+    .toggled-checkmark {
+        padding-right: 4px;
+    }
+
+    .dropdown-toggle {
+        width: 100%;
+        text-align: left;
+        font-size: 1rem;
+    }
+
+    .toggled-items-list {
+        display: flex;
+        flex: 9;
+        flex-wrap: wrap;
+        text-align: left;
+    }
+
+    .toggled-item {
+        margin: 2px 5px;
     }
 }
 

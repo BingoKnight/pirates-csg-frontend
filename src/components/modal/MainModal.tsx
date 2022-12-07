@@ -1,5 +1,4 @@
 import React, {useEffect, useState} from 'react'
-import { useNavigate } from 'react-router-dom'
 
 import Button from '../Button.tsx'
 import CannonImage from '../CannonImages.tsx'
@@ -22,6 +21,7 @@ function ModalOverlay({ closeModal, children }) {
 }
 
 function CsgItemImage({ csgItem }) {
+    const rarityClass = csgItem.rarity === '1 of 1' ? 'one-of-one' : csgItem.rarity.toLowerCase()
     return (
         <div id="image-container">
             <img
@@ -35,7 +35,7 @@ function CsgItemImage({ csgItem }) {
                     currentTarget.src = noImage
                 }}
             />
-            <div className={csgItem.rarity.toLowerCase()} id='rarity-tab'>
+            <div className={rarityClass} id='rarity-tab'>
                 <div className="id-num">
                     {csgItem.id}
                 </div>

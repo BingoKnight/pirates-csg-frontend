@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, MouseEventHandler } from 'react'
+import React, { useEffect, useRef, MouseEventHandler } from 'react'
 
 import CannonImage from './CannonImages.tsx'
 import RouterLinkButton from './RouterLinkButton.tsx'

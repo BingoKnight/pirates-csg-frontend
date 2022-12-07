@@ -10,12 +10,12 @@ $raritiesColors: (
     "pr": linear-gradient(90deg, rgba(20,74,3,1) 20%, rgba(76,166,48,1) 40%, rgba(142,199,126,1) 50%, rgba(76,166,48,1) 60%, rgba(20,74,3,1) 80%),
     "se": linear-gradient(90deg, rgba(20,74,3,1) 20%, rgba(76,166,48,1) 40%, rgba(175,219,163,1) 50%, rgba(76,166,48,1) 60%, rgba(20,74,3,1) 80%),
     "special": blue,
-    "one-of-one": #fff
+    "one-of-one": linear-gradient(90deg, rgba(35,216,218,1) 20%, rgba(26,126,126,1) 40%, rgba(20,98,98,1) 50%, rgba(26,126,126,1) 60%, rgba(35,216,218,1) 80%)
 );
 
 @each $rarity, $color in $raritiesColors {
     .#{$rarity} {
-        @if $rarity == common or $rarity == super-rare or $rarity == special or $rarity == one-of-one {
+        @if $rarity == common or $rarity == super-rare or $rarity == special {
             background-color: $color;
         } @else {
             background-image: $color;

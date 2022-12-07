@@ -1,0 +1,38 @@
+@import 'variables';
+
+.slider {
+    width: 100%;
+    height: 3px;
+}
+
+.slider-track {
+    top: 0;
+    bottom: 0;
+    border-radius: 999px;
+
+    &.slider-track-0 {
+        background-color: #333;
+    }
+
+    &.slider-track-1 {
+        background-color: #bbb;
+    }
+
+    &.slider-track-2 {
+        background-color: #333;
+    }
+}
+
+.slider-thumb {
+    top: -16px;
+    height: 30px;
+    line-height: 30px;
+    width: 30px;
+    text-align: center;
+    background-color: transparent;
+    backdrop-filter: blur(25px);
+    border: 2px solid #bbb;
+    color: #bbb;
+    border-radius: 50%;
+    cursor: grab;
+}

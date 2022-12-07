@@ -5,20 +5,24 @@
     display: flex;
     height: 22px;
 
-    input[type="text"], input[type="password"] {
+    input {
         background-color: transparent;
         border: none;
         border-bottom: 1px solid $button-border-color;
-        color: $button-border-color;
+        color: $button-border-hover-color;
         outline: none;
         font-size: 1.1rem;
         font-family: "Ubuntu Mono";
         margin-bottom: 1px;
 	    width: 100%;
 
-        &:focus {
+        &:focus, &.active {
             border-bottom: 2px solid $button-border-hover-color;
             margin-bottom: 0px;
+        }
+
+        &::-webkit-inner-spin-button {
+            opacity: 0.3;
         }
 
         + label {
