@@ -52,7 +52,7 @@ export const TextInput = React.forwardRef((props: TextInputProps, ref) => {
     useEffect(() => {
         if (ref && ref.current.value !== text)
             setText(ref.current.value)
-    }, [ref?.current.value])
+    }, [ref?.current?.value])
 
 	return (
         <div className={className ? 'form-input ' + className : 'form-input'}>
@@ -105,7 +105,7 @@ export const NumberInput = React.forwardRef((props: NumberInputProps, ref) => {
     useEffect(() => {
         if (ref && ref.current.value !== value)
             setValue(ref.current.value)
-    }, [ref?.current.value])
+    }, [ref?.current?.value])
 
 	return (
         <div className={className ? 'form-input ' + className : 'form-input'}>
