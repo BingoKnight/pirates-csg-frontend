@@ -22,7 +22,7 @@ import Layout from '../components/Layout.tsx'
 import Loading from '../components/Loading.tsx'
 import PiratesCsgList from '../components/PiratesCsgList.tsx';
 import Slider from '../components/Slider.tsx'
-import { TextInput, NumberInput } from '../components/TextInput.tsx'
+import { TextInput } from '../components/TextInput.tsx'
 import ToggleButton from '../components/ToggleButton.tsx'
 
 import { TABLET_VIEW, PHONE_VIEW } from '../constants.js'
