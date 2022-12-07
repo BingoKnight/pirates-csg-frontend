@@ -29,6 +29,7 @@ import { TABLET_VIEW, PHONE_VIEW } from '../constants.js'
 import { ReactComponent as DownArrow } from '../images/angle-down-solid.svg'
 import { ReactComponent as Arrow } from '../images/arrow-solid.svg'
 import { ReactComponent as Alert } from '../images/circle-exclamation-solid.svg'
+import {ReactComponent as QuestionMark } from '../images/circle-question-regular.svg'
 import noImage from '../images/no-image.jpg'
 import setIconMapper from '../utils/setIconMapper.tsx'
 import { capitalize } from '../utils/string.tsx'
@@ -247,6 +248,14 @@ function queryMinMasts(piratesCsgList, masts) {
     return piratesCsgList.filter(item => masts <= item.masts)
 }
 
+function queryKeywords(piratesCsgList, keywords) {
+    return piratesCsgList.filter(item =>
+        keywords.every(keyword =>
+            item.keywords.some(itemKeyword => itemKeyword.toLowerCase().includes(keyword))
+        )
+    )
+}
+
 function updateQuery(piratesCsgList, query, sort = null, setSorted = null, setFiltered = null) {
     const queryFunctionMapper = {
         search: {
@@ -308,6 +317,10 @@ function updateQuery(piratesCsgList, query, sort = null, setSorted = null, setFi
         type: {
             isEmpty: type => type.length === 0,
             query: queryType
+        },
+        keywords: {
+            isEmpty: keywords => keywords.length === 0 || (keywords.length === 1 && keywords[0] === ''),
+            query: queryKeywords
         }
     }
 
@@ -613,10 +626,16 @@ function RarityFilter({ defaultValue, onChange }) {
     />
 }
 
-// TODO: add keyword multi-dropdown filter
 function AdvancedFilters({ query, setQuery, piratesCsgList }) {
     const [ showContent, setShowContent ] = useState(false)
     const [ isShowContentDisabled, setIsShowContentDisabled ] = useState(false)
+
+    const initialInfoModalState = {
+        title: null,
+        content: null
+    }
+
+    const [ infoModal, setInfoModal ] = useState(initialInfoModalState)
 
     const initialState = {
         name: '',
@@ -631,7 +650,8 @@ function AdvancedFilters({ query, setQuery, piratesCsgList }) {
         rarity: [],
         type: [],
         baseMove: [],
-        set: []
+        set: [],
+        keywords: []
     }
 
     function isKeyInSessionStorage(key) {
@@ -661,12 +681,19 @@ function AdvancedFilters({ query, setQuery, piratesCsgList }) {
     const nameRef = useRef(null)
     const abilityRef = useRef(null)
     const flavorTextRef = useRef(null)
+    const keywordRef = useRef(null)
 
     const maxPointCost = Math.max(...piratesCsgList.map(csgItem => csgItem.pointCost))
     const maxMasts = Math.max(...piratesCsgList.map(csgItem => csgItem.masts))
     const maxCargo = Math.max(...piratesCsgList.map(csgItem => csgItem.cargo))
 
     let timer = null
+
+    function isInfoModalActive() {
+        return infoModal
+            && infoModal.title
+            && infoModal.content
+    }
 
     function queryHasActiveAdvancedFilter(query) {
         return query.name
@@ -752,6 +779,7 @@ function AdvancedFilters({ query, setQuery, piratesCsgList }) {
         const name = nameRef.current.value.trim()
         const ability = abilityRef.current.value.trim()
         const flavorText = flavorTextRef.current.value.trim()
+        const keywords = keywordRef.current.value.split(',').map(keyword => keyword.trim().toLowerCase())
 
         setStagedQuery({...stagedQuery, name, ability, flavorText})
         setQuery({
@@ -759,139 +787,182 @@ function AdvancedFilters({ query, setQuery, piratesCsgList }) {
             ...stagedQuery,
             name,
             ability,
-            flavorText
+            flavorText,
+            keywords
         })
     }
 
     return (
-        <div className="row advanced-filters-row">
-            <div className="col">
-                <div className="row advanced-filters-title">
-                    <div className="col">
-                        <span onClick={handleShowContent}>
-                            {
-                                !showContent
-                                && queryHasActiveAdvancedFilter(query)
-                                && <Alert
-                                    className='active-filter-alert-icon'
-                                    title='Advanced filters are affecting search results'
-                                />
-                            }
-                            <span className="title-text noselect">Advanced Filters</span>
-                            <span><DownArrow className={'down-arrow noselect' + (showContent ? ' active' : '')} /></span>
-                        </span>
+        <>
+            {
+                isInfoModalActive()
+                &&
+                    <div className="info-modal-overlay" onClick={() => setInfoModal(initialInfoModalState)}>
+                        <div className="info-modal" onClick={e => e.stopPropagation()}>
+                            <div className="row title-row">
+                                <div className="col">{infoModal.title}</div>
+                            </div>
+                            <div className="row content-row">
+                                <div className="col">{infoModal.content}</div>
+                            </div>
+                            <div className="row close-button-row">
+                                <div className="col">
+                                    <Button className="close-button" onClick={() => setInfoModal(initialInfoModalState)}>Close</Button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div className={'row advanced-filters-content' + (showContent ? ' show': '')} ref={contentRef}>
-                    <div className="col">
-                        <div className="row name-ability-row">
-                            <div className="col name-filter">
-                                <TextInput
-                                    label={'Name'}
-                                    id={'name'}
-                                    ref={nameRef}
-                                    defaultValue={query.name || ''}
-                                    onEnter={handleSearch}
-                                    disableSpellCheck
-                                />
-                            </div>
-                            <div className="col ability-filter">
-                                <TextInput
-                                    label={'Ability'}
-                                    id={'ability'}
-                                    ref={abilityRef}
-                                    defaultValue={query.ability || ''}
-                                    onEnter={handleSearch}
-                                    disableSpellCheck
-                                />
-                            </div>
+            }
+            <div className="row advanced-filters-row">
+                <div className="col">
+                    <div className="row advanced-filters-title">
+                        <div className="col">
+                            <span onClick={handleShowContent}>
+                                {
+                                    !showContent
+                                    && queryHasActiveAdvancedFilter(query)
+                                    && <Alert
+                                        className='active-filter-alert-icon'
+                                        title='Advanced filters are affecting search results'
+                                    />
+                                }
+                                <span className="title-text noselect">Advanced Filters</span>
+                                <span><DownArrow className={'down-arrow noselect' + (showContent ? ' active' : '')} /></span>
+                            </span>
                         </div>
-                        <fieldset className="row point-cost-container">
-                            <legend className='slider-title'>Points</legend>
-                            <div className="col point-cost-slider">
-                                <Slider
-                                    key={pointCostKey}
-                                    defaultValue={[stagedQuery.minPointCost || 0, stagedQuery.maxPointCost || maxPointCost]}
-                                    min={0}
-                                    max={maxPointCost}
-                                    renderThumb={(props, state) => <div {...props}>{state.valueNow}</div>}
-                                    onChange={
-                                        ([min, max]) =>
-                                            setStagedQuery({
-                                                ...stagedQuery,
-                                                minPointCost: min || null,
-                                                maxPointCost: max === maxPointCost ? null : max
-                                            })
-                                    }
-                                />
-                            </div>
-                        </fieldset>
-                        <fieldset className="row masts-container">
-                            <legend className='slider-title'>Masts</legend>
-                            <div className="col masts-slider">
-                                <Slider
-                                    key={mastsKey}
-                                    defaultValue={[stagedQuery.minMasts || 0, stagedQuery.maxMasts || maxMasts]}
-                                    min={0}
-                                    max={maxMasts}
-                                    renderThumb={(props, state) => <div {...props}>{state.valueNow}</div>}
-                                    onChange={
-                                        ([min, max]) =>
-                                            setStagedQuery({...stagedQuery, minMasts: min || null, maxMasts: max === maxMasts ? null : max})
-                                    }
-                                />
-                            </div>
-                        </fieldset>
-                        <fieldset className="row cargo-container">
-                            <legend className='slider-title'>Cargo</legend>
-                            <div className="col cargo-slider">
-                                <Slider
-                                    key={cargoKey}
-                                    defaultValue={[stagedQuery.minCargo || 0, stagedQuery.maxCargo || maxCargo]}
-                                    min={0}
-                                    max={maxCargo}
-                                    renderThumb={(props, state) => <div {...props}>{state.valueNow}</div>}
-                                    onChange={
-                                        ([min, max]) =>
-                                            setStagedQuery({...stagedQuery, minCargo: min || null, maxCargo: max === maxCargo ? null : max})
-                                    }
-                                />
-                            </div>
-                        </fieldset>
-                        <div className="row">
-                            <div className="col flavor-text-filter">
-                                <TextInput
-                                    label={'Flavor Text'}
-                                    id={'flavor-text-filter'}
-                                    ref={flavorTextRef}
-                                    defaultValue={query.flavorText || ''}
-                                    onEnter={handleSearch}
-                                    disableSpellCheck
-                                />
-                            </div>
-                        </div>
-                        <div className="row input-filter-row">
-                            <div className="row multi-dropdown-row">
-                                <div className="col multi-dropdown-col">
-                                    <RarityFilter key={rarityKey} defaultValue={stagedQuery.rarity} onChange={handleRarityChange} />
-                                    <BaseMoveFilter key={baseMoveKey} defaultValue={stagedQuery.baseMove} onChange={handleBaseMoveChange} />
+                    </div>
+                    <div className={'row advanced-filters-content' + (showContent ? ' show': '')} ref={contentRef}>
+                        <div className="col">
+                            <div className="row name-ability-row">
+                                <div className="col name-filter">
+                                    <TextInput
+                                        label={'Name'}
+                                        id={'name'}
+                                        ref={nameRef}
+                                        defaultValue={query.name || ''}
+                                        onEnter={handleSearch}
+                                        disableSpellCheck
+                                    />
+                                </div>
+                                <div className="col ability-filter">
+                                    <TextInput
+                                        label={'Ability'}
+                                        id={'ability'}
+                                        ref={abilityRef}
+                                        defaultValue={query.ability || ''}
+                                        onEnter={handleSearch}
+                                        disableSpellCheck
+                                    />
                                 </div>
                             </div>
-                            <div className="row multi-dropdown-row">
-                                <div className="col multi-dropdown-col">
-                                    <CsgTypeFilter key={typeKey} defaultValue={stagedQuery.type} onChange={handleCsgTypeChange} />
-                                    <ExpansionSetFilter key={expansionKey} defaultValue={stagedQuery.set} onChange={handleExpansionSetChange} />
+                            <fieldset className="row point-cost-container">
+                                <legend className='slider-title'>Points</legend>
+                                <div className="col point-cost-slider">
+                                    <Slider
+                                        key={pointCostKey}
+                                        defaultValue={[stagedQuery.minPointCost || 0, stagedQuery.maxPointCost || maxPointCost]}
+                                        min={0}
+                                        max={maxPointCost}
+                                        renderThumb={(props, state) => <div {...props}>{state.valueNow}</div>}
+                                        onChange={
+                                            ([min, max]) =>
+                                                setStagedQuery({
+                                                    ...stagedQuery,
+                                                    minPointCost: min || null,
+                                                    maxPointCost: max === maxPointCost ? null : max
+                                                })
+                                        }
+                                    />
+                                </div>
+                            </fieldset>
+                            <fieldset className="row masts-container">
+                                <legend className='slider-title'>Masts</legend>
+                                <div className="col masts-slider">
+                                    <Slider
+                                        key={mastsKey}
+                                        defaultValue={[stagedQuery.minMasts || 0, stagedQuery.maxMasts || maxMasts]}
+                                        min={0}
+                                        max={maxMasts}
+                                        renderThumb={(props, state) => <div {...props}>{state.valueNow}</div>}
+                                        onChange={
+                                            ([min, max]) =>
+                                                setStagedQuery({...stagedQuery, minMasts: min || null, maxMasts: max === maxMasts ? null : max})
+                                        }
+                                    />
+                                </div>
+                            </fieldset>
+                            <fieldset className="row cargo-container">
+                                <legend className='slider-title'>Cargo</legend>
+                                <div className="col cargo-slider">
+                                    <Slider
+                                        key={cargoKey}
+                                        defaultValue={[stagedQuery.minCargo || 0, stagedQuery.maxCargo || maxCargo]}
+                                        min={0}
+                                        max={maxCargo}
+                                        renderThumb={(props, state) => <div {...props}>{state.valueNow}</div>}
+                                        onChange={
+                                            ([min, max]) =>
+                                                setStagedQuery({...stagedQuery, minCargo: min || null, maxCargo: max === maxCargo ? null : max})
+                                        }
+                                    />
+                                </div>
+                            </fieldset>
+                            <div className="row">
+                                <div className="col flavor-text-filter">
+                                    <TextInput
+                                        label={'Keyword(s)'}
+                                        id={'keyword-filter'}
+                                        ref={keywordRef}
+                                        defaultValue={query.keywords.join(',') || ''}
+                                        onEnter={handleSearch}
+                                        disableSpellCheck
+                                    />
+                                    <div className='keyword-info'>
+                                        <QuestionMark
+                                            className='keyword-icon'
+                                            onClick={() => setInfoModal({
+                                                title: 'Keywords Search',
+                                                content: 'Multiple keywords may be specified by comma delimitation. Eg. captain, helmsman'
+                                            })}
+                                        />
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div className="row buttons-row">
-                            <Button className="clear-button" onClick={clearState} >Clear</Button>
-                            <Button className="search-button" onClick={handleSearch}>Search</Button>
+                            <div className="row">
+                                <div className="col flavor-text-filter">
+                                    <TextInput
+                                        label={'Flavor Text'}
+                                        id={'flavor-text-filter'}
+                                        ref={flavorTextRef}
+                                        defaultValue={query.flavorText || ''}
+                                        onEnter={handleSearch}
+                                        disableSpellCheck
+                                    />
+                                </div>
+                            </div>
+                            <div className="row input-filter-row">
+                                <div className="row multi-dropdown-row">
+                                    <div className="col multi-dropdown-col">
+                                        <RarityFilter key={rarityKey} defaultValue={stagedQuery.rarity} onChange={handleRarityChange} />
+                                        <BaseMoveFilter key={baseMoveKey} defaultValue={stagedQuery.baseMove} onChange={handleBaseMoveChange} />
+                                    </div>
+                                </div>
+                                <div className="row multi-dropdown-row">
+                                    <div className="col multi-dropdown-col">
+                                        <CsgTypeFilter key={typeKey} defaultValue={stagedQuery.type} onChange={handleCsgTypeChange} />
+                                        <ExpansionSetFilter key={expansionKey} defaultValue={stagedQuery.set} onChange={handleExpansionSetChange} />
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="row buttons-row">
+                                <Button className="clear-button" onClick={clearState} >Clear</Button>
+                                <Button className="search-button" onClick={handleSearch}>Search</Button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </>
     )
 
 }
@@ -914,7 +985,8 @@ function Content({ windowWidth }) {
         minCargo: sessionStorageQuery?.minCargo || null,
         maxCargo: sessionStorageQuery?.maxCargo || null,
         baseMove: sessionStorageQuery?.baseMove || [],
-        set: sessionStorageQuery?.set || []
+        set: sessionStorageQuery?.set || [],
+        keywords: sessionStorageQuery?.keywords || []
     })
 
     const [completeCsgList, setCompleteCsgList] = useState(JSON.parse(sessionStorage.getItem('piratesCsgList')) || [])
