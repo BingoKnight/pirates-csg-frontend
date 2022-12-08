@@ -709,6 +709,7 @@ function AdvancedFilters({ query, setQuery, piratesCsgList }) {
             || query.type.length > 0
             || query.baseMove.length > 0
             || query.set.length > 0
+            || query.keywords.length > 0
     }
 
     function handleShowContent() {
@@ -773,6 +774,7 @@ function AdvancedFilters({ query, setQuery, piratesCsgList }) {
         nameRef.current.value = ''
         abilityRef.current.value = ''
         flavorTextRef.current.value = ''
+        keywordRef.current.value = ''
     }
 
     function handleSearch() {
