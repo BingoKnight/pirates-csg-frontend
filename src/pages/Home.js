@@ -781,7 +781,10 @@ function AdvancedFilters({ query, setQuery, piratesCsgList }) {
         const name = nameRef.current.value.trim()
         const ability = abilityRef.current.value.trim()
         const flavorText = flavorTextRef.current.value.trim()
-        const keywords = keywordRef.current.value.split(',').map(keyword => keyword.trim().toLowerCase())
+        const keywords = keywordRef.current.value
+            .split(',')
+            .filter(keyword => keyword)
+            .map(keyword => keyword.trim().toLowerCase())
 
         setStagedQuery({...stagedQuery, name, ability, flavorText})
         setQuery({
