@@ -1,0 +1,64 @@
+.registration-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    min-width: 300px;
+
+    height: 350px;
+
+    .registration-header {
+        font-size: 1.6rem;
+        font-family: windlass, serif;
+    }
+
+    .registration-content {
+        display: flex;
+
+        .username-password-row {
+            flex-wrap: wrap;
+            .username-input-col,
+            .password-input-col {
+                margin: 0 10px 30px 10px;
+                min-width: 180px;
+                width: 250px;
+            }
+        }
+
+        .email-input-col {
+            margin: 0 10px 30px 10px;
+            flex: 1 1 100%;
+        }
+
+        #register-button {
+            min-width: 180px;
+            width: 250px;
+            padding: 10px 0;
+            margin-bottom: 20px;
+        }
+    }
+}
+
+.registration-overlay {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+    height: 100%;
+    width: 100%;
+
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 10;
+
+    background: rgba(0, 0, 0, 0.3);
+
+    .loading-container {
+        flex: 3;
+    }
+
+    .empty-row {
+        flex: 1;
+    }
+}

@@ -47,5 +47,16 @@
 	        transition: none !important;
         }
     }
+
+    .password-input {
+        padding-right: 25px;
+    }
+
+    .eye-icon {
+        fill: #fff;
+        width: 20px;
+        margin-left: -18px;
+        z-index: 1;
+    }
 }
 

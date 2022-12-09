@@ -6,6 +6,8 @@ import ReactDOM from 'react-dom/client';
 
 import CsgModal from './components/modal/CsgModal.tsx';
 import Home from './pages/Home';
+import Login from './pages/Login.tsx';
+import Registration from './pages/Registration.tsx';
 import NotFoundPage from './pages/NotFoundPage.tsx';
 
 import reportWebVitals from './reportWebVitals';
@@ -19,6 +21,8 @@ root.render(
                 <Route path='/' element={<Home />}>
                     <Route path='details/:id' element={<CsgModal />} />
                 </Route>
+                <Route path='/login' element={<Login />} />
+                <Route path='/register' element={<Registration />} />
                 <Route path='*' element={<NotFoundPage />} />
             </Routes>
         </Router>

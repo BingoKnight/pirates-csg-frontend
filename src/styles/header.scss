@@ -6,8 +6,9 @@
     min-width: 600px;
 
     .header-title {
+        flex: 0 1 $max-content-width - 70px;
         display: flex;
-        justify-content: center;
+        justify-content: space-between;
 
         font-family: windlass, serif;
         font-size: 2rem;
@@ -21,7 +22,6 @@
         }
 
         .title-link {
-            flex: 0 1 $max-content-width - 70px;
             margin-left: 25px;
             color: #fff;
             text-decoration: none;
@@ -36,6 +36,11 @@
                 flex: 0 0 auto;
             }
         }
+    }
+
+    .login-button {
+        padding: 10px 15px;
+        margin-right: 25px;
     }
 
     @include breakpoint(tablet) {
