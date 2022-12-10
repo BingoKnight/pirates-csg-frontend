@@ -1,22 +1,28 @@
+$container-min-width: 250px;
+
 .login-container {
-    .username-input, .password-input {
-        margin-bottom: 30px;
+    width: 100%;
+    & > .col {
+        flex: 0 1 450px;
     }
 
-    #username-input,
-    #password-input {
-        width: 250px;
+    .username-login-input, .password-login-input {
+        margin-bottom: 30px;
+        width: 100%;
+    }
+
+    .form-button {
+        width: 100%;
     }
 
     #login-button {
-        width: 250px;
+        width: 100%;
         padding: 10px 0;
         margin-bottom: 20px;
     }
 
     #register-button {
         display: block;
-        width: 246px;
         text-align: center;
         padding: 10px 0;
         margin-bottom: 20px;
