@@ -1,3 +1,5 @@
+import 'cross-fetch/polyfill'
+
 export async function getPiratesCsgList() {
     const sessionPiratesList = sessionStorage.getItem('piratesCsgList')
     if (sessionPiratesList)
@@ -20,5 +22,24 @@ export async function getKeywordsDictionary() {
     ).then(res => res.json())
     sessionStorage.setItem('keywordsDictionary', JSON.stringify(keywordsDictionary.keywords))
     return keywordsDictionary.keywords
+}
+
+export async function registerUser(userCreds) {
+    const options = {
+        method: 'POST',
+        body: JSON.stringify(userCreds),
+        headers: {'Content-Type': 'application/json'}
+    }
+    return await fetch(`${process.env.REACT_APP_PIRATE_CSG_API_BASE_URL}/v1/user/register`, options)
+}
+
+export async function loginUser(userCreds) {
+    const options = {
+        credentials: 'include',
+        method: 'POST',
+        body: JSON.stringify(userCreds),
+        headers: {'Content-Type': 'application/json'}
+    }
+    return await fetch(`${process.env.REACT_APP_PIRATE_CSG_API_BASE_URL}/v1/user/login`, options)
 }
 

@@ -1,5 +1,7 @@
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
+import { registerUser } from '../api'
 import Layout from '../components/Layout.tsx'
 import { TextInput, PasswordInput } from '../components/TextInput.tsx'
 import Button from '../components/Button.tsx'
@@ -18,11 +20,33 @@ function RegistrationLoadingOverlay() {
 
 // TODO: if logged in redirect to previous page
 function Registration() {
-    const [isCreatingAccount, setIsCreatingAccount] = useState(false)
+    const [isCreatingAccount, setIsCreatingAccount] = useState<boolean>(false)
+    const [validationError, setValidationError] = useState<string | null>(null)
 
+    const navigate = useNavigate()
+
+    const emailRef = useRef(null)
+    const usernameRef = useRef(null)
+    const passwordRef = useRef(null)
+
+    // TODO: validate fields aren't empty
     function createAccount() {
         setIsCreatingAccount(true)
-        console.log('Creating account...')
+        const user = {
+            email: emailRef.current.value,
+            username: usernameRef.current.value,
+            password: passwordRef.current.value
+        }
+        registerUser(user)
+            .then(async res => {
+                if (res.ok) {
+                    navigate('/')
+                } else {
+                    setValidationError('error')
+                }
+            })
+            .catch(err => console.log(err))
+            .finally(() => setIsCreatingAccount(false))
     }
 
     return (
@@ -38,15 +62,15 @@ function Registration() {
                     <div className="col">
                         <div className="row">
                             <div className="col email-input-col">
-                                <TextInput id="email-input" label="Email" />
+                                <TextInput ref={emailRef} id="email-input" label="Email" />
                             </div>
                         </div>
                         <div className="row username-password-row">
                             <div className="col username-input-col">
-                                <TextInput id="username-input" label="Username" />
+                                <TextInput ref={usernameRef} id="username-input" label="Username" />
                             </div>
                             <div className="col password-input-col">
-                                <PasswordInput id="password-input" label="Password"/>
+                                <PasswordInput ref={passwordRef} id="password-input" label="Password"/>
                             </div>
                         </div>
                         <div className="row">
