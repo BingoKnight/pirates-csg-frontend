@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import ReactDOM from 'react-dom/client';
 
 import CsgModal from './components/modal/CsgModal.tsx';
+import ForgotUsername from './pages/ForgotUsername.tsx';
 import Home from './pages/Home';
 import Login from './pages/Login.tsx';
 import Registration from './pages/Registration.tsx';
@@ -23,6 +24,7 @@ root.render(
                 </Route>
                 <Route path='/login' element={<Login />} />
                 <Route path='/register' element={<Registration />} />
+                {/* <Route path='/forgot-username' element={<ForgotUsername />} /> */}
                 <Route path='*' element={<NotFoundPage />} />
             </Routes>
         </Router>

@@ -10,7 +10,6 @@
         display: flex;
         justify-content: space-between;
 
-        font-family: windlass, serif;
         font-size: 2rem;
         border: none;
 
@@ -22,6 +21,7 @@
         }
 
         .title-link {
+            font-family: windlass, serif;
             margin-left: 25px;
             color: #fff;
             text-decoration: none;
@@ -39,6 +39,7 @@
     }
 
     .login-button {
+        font-family: windlass, serif;
         padding: 10px 15px;
         margin-right: 25px;
     }
@@ -68,7 +69,69 @@
     padding-left: 20px;
 }
 
-#empty-col {
-    flex: 1;
+.user-dropdown {
+    margin-right: 30px;
+
+    .user-dropdown-header {
+        font-size: 1.2rem;
+        -webkit-text-stroke-width: 0.5px;
+        -webkit-text-stroke-color: #fff;
+        position: relative;
+        z-index: 5;
+
+        cursor: pointer;
+
+        border: 1px solid transparent;
+        padding: 2px 5px;
+
+        font-family: windlass, serif;
+
+        &.active {
+            border: 1px solid #333;
+            backdrop-filter: blur(5px);
+        }
+
+        .dropdown-arrow {
+            &.active {
+                transform: rotate(180deg);
+            }
+        }
+    }
+
+    .user-dropdown-content {
+        display: none;
+        position: relative;
+        z-index: 4;
+        font-size: 1rem;
+
+        ul {
+            position: absolute;
+            top: -17px;
+            right: 0px;
+            padding: 3px 8px;
+            border: 1px solid #333;
+
+            backdrop-filter: blur(25px);
+            box-shadow: 1px 3px 4px 0 rgba(0, 0, 0, 0.3);
+
+            .user-dropdown-button {
+                padding: 5px;
+                list-style: none;
+                cursor: pointer;
+
+                &:hover {
+                    text-decoration: underline;
+                }
+            }
+
+            li + li {
+                border-top: 1px solid #333;
+            }
+        }
+
+        &.active {
+            display: block;
+        }
+    }
 }
 

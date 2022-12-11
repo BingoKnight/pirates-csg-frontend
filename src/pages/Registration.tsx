@@ -3,25 +3,16 @@ import { useNavigate } from 'react-router-dom'
 
 import { registerUser } from '../api'
 import Layout from '../components/Layout.tsx'
+import { ValidationErrors, LoadingOverlay } from '../components/LoginRegistration.tsx'
 import { TextInput, PasswordInput } from '../components/TextInput.tsx'
 import Button from '../components/Button.tsx'
-import Loading from '../components/Loading.tsx'
 
 import '../styles/registration.scss'
-
-function RegistrationLoadingOverlay() {
-    return (
-        <div className="registration-overlay">
-            <Loading />
-            <div className="empty-row"></div>
-        </div>
-    )
-}
 
 // TODO: if logged in redirect to previous page
 function Registration() {
     const [isCreatingAccount, setIsCreatingAccount] = useState<boolean>(false)
-    const [validationError, setValidationError] = useState<string | null>(null)
+    const [validationErrors, setValidationErrors] = useState<string[]>([])
 
     const navigate = useNavigate()
 
@@ -29,7 +20,6 @@ function Registration() {
     const usernameRef = useRef(null)
     const passwordRef = useRef(null)
 
-    // TODO: validate fields aren't empty
     function createAccount() {
         setIsCreatingAccount(true)
         const user = {
@@ -40,37 +30,69 @@ function Registration() {
         registerUser(user)
             .then(async res => {
                 if (res.ok) {
+                    setValidationErrors([])
                     navigate('/')
                 } else {
-                    setValidationError('error')
+                    const body = await res.json()
+                    const errorMessages = body.details?.body.map(error => error.message) || [body.error]
+                    console.log(errorMessages)
+                    setValidationErrors(errorMessages)
                 }
             })
             .catch(err => console.log(err))
             .finally(() => setIsCreatingAccount(false))
     }
 
+    function closeValidationErrors(errorIndex) {
+        setValidationErrors(validationErrors.filter((_, index) => index !== errorIndex))
+    }
+
     return (
         <Layout>
-            { isCreatingAccount && <RegistrationLoadingOverlay /> }
+            { isCreatingAccount && <LoadingOverlay /> }
             <div className="registration-container">
                 <div className="row registration-header">
                     <div className="col">
                         Create an account
                     </div>
                 </div>
+                <div className="row">
+                    {
+                        validationErrors.length > 0
+                        && <ValidationErrors
+                            validationErrors={validationErrors}
+                            closeHandler={closeValidationErrors}
+                        />
+                    }
+                </div>
                 <div className="row registration-content">
                     <div className="col">
                         <div className="row">
                             <div className="col email-input-col">
-                                <TextInput ref={emailRef} id="email-input" label="Email" />
+                                <TextInput
+                                    ref={emailRef}
+                                    id="email-input"
+                                    label="Email"
+                                    onEnter={createAccount}
+                                />
                             </div>
                         </div>
                         <div className="row username-password-row">
                             <div className="col username-input-col">
-                                <TextInput ref={usernameRef} id="username-input" label="Username" />
+                                <TextInput
+                                    ref={usernameRef}
+                                    id="username-input"
+                                    label="Username"
+                                    onEnter={createAccount}
+                                />
                             </div>
                             <div className="col password-input-col">
-                                <PasswordInput ref={passwordRef} id="password-input" label="Password"/>
+                                <PasswordInput
+                                    ref={passwordRef}
+                                    id="password-input"
+                                    label="Password"
+                                    onEnter={createAccount}
+                                />
                             </div>
                         </div>
                         <div className="row">

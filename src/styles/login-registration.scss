@@ -1,0 +1,47 @@
+.validation-errors {
+    margin: 20px 0 30px 0;
+    // width: 95%;
+
+    .error-item {
+        padding: 10px;
+        margin-bottom: 10px;
+
+        border-radius: 5px;
+        background-color: rgba(255, 0, 0, 0.6);
+
+        .error-message {
+            flex: 99;
+            margin-right: 15px;
+        }
+    
+        .close-icon {
+            font-size: 1.4rem;
+            cursor: pointer;
+        }
+    }
+}
+
+.loading-overlay {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+    height: 100%;
+    width: 100%;
+
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 10;
+
+    background: rgba(0, 0, 0, 0.3);
+
+    .loading-container {
+        flex: 3;
+    }
+
+    .empty-row {
+        flex: 1;
+    }
+}

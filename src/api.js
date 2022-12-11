@@ -1,4 +1,7 @@
 import 'cross-fetch/polyfill'
+import { deleteCookie } from './utils/cookies.ts'
+
+const defaultPostOptions = process.env.NODE_ENV === 'development' ? { credentials: 'include' } : {}
 
 export async function getPiratesCsgList() {
     const sessionPiratesList = sessionStorage.getItem('piratesCsgList')
@@ -26,20 +29,48 @@ export async function getKeywordsDictionary() {
 
 export async function registerUser(userCreds) {
     const options = {
+        ...defaultPostOptions,
         method: 'POST',
         body: JSON.stringify(userCreds),
         headers: {'Content-Type': 'application/json'}
     }
-    return await fetch(`${process.env.REACT_APP_PIRATE_CSG_API_BASE_URL}/v1/user/register`, options)
+    return fetch(`${process.env.REACT_APP_PIRATE_CSG_API_BASE_URL}/v1/user/register`, options)
+        .then(async res => {
+            sessionStorage.setItem('user', JSON.stringify(await res.clone().json()))
+            return res
+        })
 }
 
 export async function loginUser(userCreds) {
     const options = {
-        credentials: 'include',
+        ...defaultPostOptions,
         method: 'POST',
         body: JSON.stringify(userCreds),
         headers: {'Content-Type': 'application/json'}
     }
-    return await fetch(`${process.env.REACT_APP_PIRATE_CSG_API_BASE_URL}/v1/user/login`, options)
+    return fetch(`${process.env.REACT_APP_PIRATE_CSG_API_BASE_URL}/v1/user/login`, options)
+        .then(async res => {
+            sessionStorage.setItem('user', JSON.stringify(await res.clone().json()))
+            return res
+        })
 }
 
+export async function logoutUser(token) {
+    const options = {
+        ...defaultPostOptions,
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    }
+
+    return fetch(`${process.env.REACT_APP_PIRATE_CSG_API_BASE_URL}/v1/user/login`, options)
+        .then(() => {
+            sessionStorage.removeItem('user')
+            deleteCookie('x-token')
+        })
+        .catch(err => {
+            console.log(err)
+        })
+}
