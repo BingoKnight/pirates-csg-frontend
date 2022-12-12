@@ -1,7 +1,7 @@
 import 'cross-fetch/polyfill'
 import { deleteCookie } from './utils/cookies.ts'
 
-const defaultPostOptions = process.env.NODE_ENV === 'development' ? { credentials: 'include' } : {}
+const defaultPostOptions = { credentials: 'include' }
 
 export async function getPiratesCsgList() {
     const sessionPiratesList = sessionStorage.getItem('piratesCsgList')
@@ -65,12 +65,12 @@ export async function logoutUser(token) {
         }
     }
 
-    return fetch(`${process.env.REACT_APP_PIRATE_CSG_API_BASE_URL}/v1/user/login`, options)
-        .then(() => {
-            sessionStorage.removeItem('user')
-            deleteCookie('x-token')
-        })
+    return fetch(`${process.env.REACT_APP_PIRATE_CSG_API_BASE_URL}/v1/user/logout`, options)
         .catch(err => {
             console.log(err)
+        })
+        .finally(() => {
+            sessionStorage.removeItem('user')
+            deleteCookie('x-token')
         })
 }

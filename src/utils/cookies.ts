@@ -7,10 +7,10 @@ export function getAllCookies() {
     }, {})
 }
 
-export function getCookie(cookieName: string) {
-    return document.cookie.split(';').some(cookie => {
+export function getCookie(cookieName: string): string | undefined {
+    return document.cookie.split(';').find(cookie => {
         return cookie.trim().startsWith(cookieName + '=')
-    })
+    })?.split('=')[1]
 }
 
 export function deleteCookie(cookieName: string) {
