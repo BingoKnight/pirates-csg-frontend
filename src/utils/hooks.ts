@@ -5,11 +5,12 @@ export function useStatefulNavigate(): CallableFunction {
     const location = useLocation()
 
     function statefulNavigate(to: string | number, replace?: boolean): void {
-        console.log(`to: ${to}`)
         if(typeof to === 'string') {
+            const { from } = location.state
             const options = {
                 state: {
-                    from: location.pathname
+                    // Prevent redirecting back to same page
+                    from: location.pathname === to ? from : location.pathname
                 },
                 replace
             }

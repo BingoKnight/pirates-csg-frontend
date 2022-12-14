@@ -30,9 +30,12 @@ export function LinkButton(props: LinkButtonProps) {
     const { id, to, onClick, children, ...buttonProps } = props
     const location = useLocation()
 
+    // Prevent redirecting back to same page
+    const from = location.pathname === to ? location.state?.from : location.pathname
+
     return (
         <div className="form-button">
-            <Link id={id} to={to} state={{ from: location.pathname }} onClick={onClick} {...buttonProps}>{children}</Link>
+            <Link id={id} to={to} state={{ from }} onClick={onClick} {...buttonProps}>{children}</Link>
         </div>
     )
 }
