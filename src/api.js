@@ -1,19 +1,23 @@
 import 'cross-fetch/polyfill'
 import { deleteCookie, getCookie } from './utils/cookies.ts'
 
-const authPostOptions = {
-    credentials: 'include',
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${getCookie('x-token')}`
+function authPostOptions(token) {
+    return {
+        credentials: 'include',
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
     }
 }
 
-const authGetOptions = {
-    method: 'GET',
-    headers: {
-        'Authorization': `Bearer ${getCookie('x-token')}`
+function authGetOptions(token) {
+    return {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
     }
 }
 
@@ -43,7 +47,7 @@ export async function getKeywordsDictionary() {
 
 export async function registerUser(userCreds) {
     const options = {
-        ...authPostOptions,
+        ...authPostOptions(getCookie('x-token')),
         body: JSON.stringify(userCreds)
     }
 
@@ -56,7 +60,7 @@ export async function registerUser(userCreds) {
 
 export async function loginUser(userCreds) {
     const options = {
-        ...authPostOptions,
+        ...authPostOptions(getCookie('x-token')),
         body: JSON.stringify(userCreds)
     }
 
@@ -68,7 +72,7 @@ export async function loginUser(userCreds) {
 }
 
 export async function logoutUser() {
-    return fetch(`${process.env.REACT_APP_PIRATE_CSG_API_BASE_URL}/v1/user/logout`, authPostOptions)
+    return fetch(`${process.env.REACT_APP_PIRATE_CSG_API_BASE_URL}/v1/user/logout`, authPostOptions(getCookie('x-token')))
         .catch(console.log)
         .finally(() => {
             sessionStorage.removeItem('user')
@@ -77,7 +81,7 @@ export async function logoutUser() {
 }
 
 export async function getUser() {
-    return fetch(`${process.env.REACT_APP_PIRATE_CSG_API_BASE_URL}/v1/user`, authGetOptions)
+    return fetch(`${process.env.REACT_APP_PIRATE_CSG_API_BASE_URL}/v1/user`, authGetOptions(getCookie('x-token')))
         .then(async res => {
             sessionStorage.setItem('user', JSON.stringify(await res.clone().json()))
             return res
@@ -86,7 +90,7 @@ export async function getUser() {
 
 export async function updateEmail(email) {
     const options = {
-        ...authPostOptions,
+        ...authPostOptions(getCookie('x-token')),
         body: JSON.stringify({ email })
     }
 

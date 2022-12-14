@@ -14,8 +14,9 @@ export function getCookie(cookieName: string): string | undefined {
 }
 
 export function deleteCookie(cookieName: string) {
+    const domain = process.env.REACT_APP_PIRATE_CSG_DOMAIN
     if (getCookie(cookieName)) {
-        document.cookie = cookieName + "=;expires=Thu, 01 Jan 1970 00:00:01 GMT";
+        document.cookie = `${cookieName}=;path=/;domain=${domain};expires=Thu, 01 Jan 1970 00:00:01 GMT`
     }
 }
 
