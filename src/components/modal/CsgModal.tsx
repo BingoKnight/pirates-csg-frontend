@@ -1,17 +1,18 @@
 import React, { useEffect, useState } from 'react'
-import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom'
+import { Navigate, useLocation, useParams } from 'react-router-dom'
 
 import MainModal from './MainModal.tsx'
 import MobileModal from './MobileModal.tsx'
 
 import { getPiratesCsgList, getKeywordsDictionary } from '../../api.js'
 import { TABLET_VIEW } from '../../constants.js'
+import { useStatefulNavigate } from '../../utils/hooks.ts'
 
 
 function CsgModal() {
     const { id } = useParams()
     const location = useLocation()
-    const navigate = useNavigate()
+    const navigate = useStatefulNavigate()
 
     const sessionStoragePiratesList = JSON.parse(sessionStorage.getItem('piratesCsgList'))
     const sessionStorageKeywordsDictionary = JSON.parse(sessionStorage.getItem('keywordsDictionary'))
@@ -21,7 +22,8 @@ function CsgModal() {
 
     const csgItem = piratesCsgList.filter(csgItem => csgItem._id === id)[0]
 
-    const closeModal = location.state?.from ? () => navigate(-1) : () => navigate('/')
+    const { from } = location.state || { from: '/' }
+    const closeModal = () => navigate(from, true)
 
     useEffect(() => {
         async function fetchData() {

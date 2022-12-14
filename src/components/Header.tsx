@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
 import { logoutUser } from '../api.js'
 import { LinkButton } from  './Button.tsx'
@@ -8,6 +8,7 @@ import { ReactComponent as DownArrow } from '../images/angle-down-solid.svg'
 import ShipImage from '../images/ship-logo.png'
 import { PHONE_VIEW, TABLET_VIEW } from '../constants.js'
 import { getCookie } from '../utils/cookies.ts'
+import { useStatefulNavigate } from '../utils/hooks.ts'
 
 import '../styles/header.scss'
 
@@ -29,14 +30,14 @@ function UserDropDown({ username }) {
 
     const dropdownContentRef = useRef(null)
 
-    const navigate = useNavigate()
+    const navigate = useStatefulNavigate()
 
     function toggleIsActive() {
         setIsActive(!isActive)
     }
 
     function handleLogout() {
-        logoutUser(getCookie('x-token'))
+        logoutUser()
         navigate(0)
     }
 
@@ -61,7 +62,7 @@ function UserDropDown({ username }) {
             </div>
             <div className={'user-dropdown-content' + (isActive ? ' active': '')}>
                 <ul>
-                    <li className='user-dropdown-button' onClick={() => navigate('/account-settings')}>Settings</li>
+                    <li className='user-dropdown-button' onClick={() => navigate('/user/account-settings')}>Settings</li>
                     <li className='user-dropdown-button' onClick={handleLogout}>Log out</li>
                 </ul>
             </div>

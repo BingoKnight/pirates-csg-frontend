@@ -1,20 +1,22 @@
 import React, { useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 
 import { registerUser } from '../api'
 import Layout from '../components/Layout.tsx'
 import { ValidationErrors, LoadingOverlay } from '../components/LoginRegistration.tsx'
 import { TextInput, PasswordInput } from '../components/TextInput.tsx'
 import Button from '../components/Button.tsx'
+import { useStatefulNavigate } from '../utils/hooks.ts'
 
 import '../styles/registration.scss'
 
 // TODO: if logged in redirect to previous page
+// TODO: add feedback after successful registration then ask user to click something to acknowledge
+// and maybe take to home page
 function Registration() {
     const [isCreatingAccount, setIsCreatingAccount] = useState<boolean>(false)
     const [validationErrors, setValidationErrors] = useState<string[]>([])
 
-    const navigate = useNavigate()
+    const navigate = useStatefulNavigate()
 
     const emailRef = useRef(null)
     const usernameRef = useRef(null)
@@ -31,7 +33,7 @@ function Registration() {
             .then(async res => {
                 if (res.ok) {
                     setValidationErrors([])
-                    navigate('/')
+                    navigate('/', true)
                 } else {
                     const body = await res.json()
                     const errorMessages = body.details?.body.map(error => error.message) || [body.error]

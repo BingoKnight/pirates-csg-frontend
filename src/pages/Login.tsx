@@ -1,11 +1,13 @@
-import React, { useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { useEffect, useRef, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 
 import { loginUser } from '../api.js'
 import Layout from '../components/Layout.tsx'
 import { ValidationErrors, LoadingOverlay } from '../components/LoginRegistration.tsx'
 import { TextInput, PasswordInput } from '../components/TextInput.tsx'
 import Button, { LinkButton } from '../components/Button.tsx'
+import { getCookie } from '../utils/cookies.ts'
+import { useStatefulNavigate } from '../utils/hooks.ts'
 
 import '../styles/login.scss'
 
@@ -14,11 +16,14 @@ import '../styles/login.scss'
 function Login() {
     const [isLoggingIn, setIsLoggingIn] = useState<boolean>(false)
     const [validationErrors, setValidationErrors] = useState<string[]>([])
-
-    const navigate = useNavigate()
+    const location = useLocation()
+    const navigate = useStatefulNavigate()
 
     const usernameRef = useRef(null)
     const passwordRef = useRef(null)
+
+    const user = JSON.parse(sessionStorage.getItem('user') || "{}")
+    const isLoggedIn = getCookie('x-token') && user.username && user.email
 
     function login() {
         setIsLoggingIn(true)
@@ -28,12 +33,12 @@ function Login() {
         }
         loginUser(user)
             .then(async res => {
-                console.log(res)
                 if (res.ok) {
                     // TODO: try to check history to route back if it doesn't take user away from
                     // page
                     setValidationErrors([])
-                    navigate('/')
+                    const { from } = location.state || { from: '/' }
+                    navigate(from)
                 } else {
                     const body = await res.json()
                     const errorMessages = body.details?.body.map(error => error.message) || [body.error]
@@ -41,13 +46,20 @@ function Login() {
                     setValidationErrors(errorMessages)
                 }
             })
-            .catch(err => console.log(err))
+            .catch(console.log)
             .finally(() => setIsLoggingIn(false))
     }
 
     function closeValidationErrors(errorIndex) {
         setValidationErrors(validationErrors.filter((_, index) => index !== errorIndex))
     }
+
+    useEffect(() => {
+        if(isLoggedIn) {
+            const { from } = location.state || { from: '/' }
+            navigate(from, true)
+        }
+    }, [])
 
     return (
         <Layout>

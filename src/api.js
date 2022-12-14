@@ -1,7 +1,21 @@
 import 'cross-fetch/polyfill'
-import { deleteCookie } from './utils/cookies.ts'
+import { deleteCookie, getCookie } from './utils/cookies.ts'
 
-const defaultPostOptions = { credentials: 'include' }
+const authPostOptions = {
+    credentials: 'include',
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${getCookie('x-token')}`
+    }
+}
+
+const authGetOptions = {
+    method: 'GET',
+    headers: {
+        'Authorization': `Bearer ${getCookie('x-token')}`
+    }
+}
 
 export async function getPiratesCsgList() {
     const sessionPiratesList = sessionStorage.getItem('piratesCsgList')
@@ -29,11 +43,10 @@ export async function getKeywordsDictionary() {
 
 export async function registerUser(userCreds) {
     const options = {
-        ...defaultPostOptions,
-        method: 'POST',
-        body: JSON.stringify(userCreds),
-        headers: {'Content-Type': 'application/json'}
+        ...authPostOptions,
+        body: JSON.stringify(userCreds)
     }
+
     return fetch(`${process.env.REACT_APP_PIRATE_CSG_API_BASE_URL}/v1/user/register`, options)
         .then(async res => {
             sessionStorage.setItem('user', JSON.stringify(await res.clone().json()))
@@ -43,11 +56,10 @@ export async function registerUser(userCreds) {
 
 export async function loginUser(userCreds) {
     const options = {
-        ...defaultPostOptions,
-        method: 'POST',
-        body: JSON.stringify(userCreds),
-        headers: {'Content-Type': 'application/json'}
+        ...authPostOptions,
+        body: JSON.stringify(userCreds)
     }
+
     return fetch(`${process.env.REACT_APP_PIRATE_CSG_API_BASE_URL}/v1/user/login`, options)
         .then(async res => {
             sessionStorage.setItem('user', JSON.stringify(await res.clone().json()))
@@ -55,22 +67,34 @@ export async function loginUser(userCreds) {
         })
 }
 
-export async function logoutUser(token) {
-    const options = {
-        ...defaultPostOptions,
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        }
-    }
-
-    return fetch(`${process.env.REACT_APP_PIRATE_CSG_API_BASE_URL}/v1/user/logout`, options)
-        .catch(err => {
-            console.log(err)
-        })
+export async function logoutUser() {
+    return fetch(`${process.env.REACT_APP_PIRATE_CSG_API_BASE_URL}/v1/user/logout`, authPostOptions)
+        .catch(console.log)
         .finally(() => {
             sessionStorage.removeItem('user')
             deleteCookie('x-token')
         })
 }
+
+export async function getUser() {
+    return fetch(`${process.env.REACT_APP_PIRATE_CSG_API_BASE_URL}/v1/user`, authGetOptions)
+        .then(async res => {
+            sessionStorage.setItem('user', JSON.stringify(await res.clone().json()))
+            return res
+        })
+}
+
+export async function updateEmail(email) {
+    const options = {
+        ...authPostOptions,
+        body: JSON.stringify({ email })
+    }
+
+    return fetch(`${process.env.REACT_APP_PIRATE_CSG_API_BASE_URL}/v1/user/change-email`, options)
+        .then(async res => {
+            const user = JSON.parse(sessionStorage.getItem('user'))
+            sessionStorage.setItem('user', JSON.stringify({ ...user, email }))
+            return res
+        })
+}
+
