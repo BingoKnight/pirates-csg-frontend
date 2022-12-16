@@ -1,8 +1,8 @@
 import 'cross-fetch/polyfill'
+import _ from 'lodash'
 
 import {pushNotification} from './services/notificationService.ts'
 import { deleteCookie, getCookie } from './utils/cookies.ts'
-import { capitalize } from './utils/string.tsx'
 
 async function jsonOrContent(res) {
     const text = await res.text()
@@ -28,7 +28,7 @@ function standardizeError(err) {
     }
 
     console.log(errorBody)
-    return errorBody.map(error => capitalize(error.replaceAll('"', '').replaceAll('\'', '')))
+    return errorBody.map(error => _.capitalize(error.replaceAll('"', '').replaceAll('\'', '')))
 }
 
 class WebError extends Error {

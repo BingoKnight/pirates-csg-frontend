@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import React, { useEffect, useRef, MouseEventHandler } from 'react'
 
 import CannonImage from './CannonImages.tsx'
@@ -6,7 +7,6 @@ import {ReactComponent as Arrow} from '../images/angle-down-solid.svg'
 import factionImageMapper from '../utils/factionImageMapper.tsx'
 import fieldIconMapper from '../utils/fieldIconMapper.tsx'
 import setIconMapper from '../utils/setIconMapper.tsx'
-import {capitalize} from '../utils/string.tsx'
 
 import '../styles/piratesCsgList.scss'
 
@@ -177,7 +177,7 @@ function HeaderRow({ sort, setSort }) {
                     pointCost: 'Points'
                 }
 
-                const prettyName = prettyNameMapper[fieldName] || capitalize(fieldName)
+                const prettyName = prettyNameMapper[fieldName] || _.capitalize(fieldName)
                 let onClick : undefined | MouseEventHandler<HTMLDivElement> = () => handleSort(fieldName)
                 let sortableHeaderClass : undefined | string = 'sortable-header'
 

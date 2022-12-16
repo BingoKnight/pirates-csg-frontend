@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import React, { useEffect, useRef, useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import { v4 as uuid4 } from 'uuid'
@@ -32,7 +33,6 @@ import { ReactComponent as Alert } from '../images/circle-exclamation-solid.svg'
 import {ReactComponent as QuestionMark } from '../images/circle-question-regular.svg'
 import noImage from '../images/no-image.jpg'
 import setIconMapper from '../utils/setIconMapper.tsx'
-import { capitalize } from '../utils/string.tsx'
 
 import '../styles/home.scss';
 
@@ -535,7 +535,7 @@ function CsgTypeFilter({ defaultValue, onChange }) {
         'Treasure'
     ]
 
-    const defaultSelected = defaultValue.map(value => capitalize(value))
+    const defaultSelected = defaultValue.map(value => _.capitalize(value))
 
     return <MultiItemDropdown
         label="Type"
