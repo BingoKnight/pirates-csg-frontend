@@ -1,5 +1,8 @@
 import React, { ChangeEvent, KeyboardEvent, useEffect, useState } from 'react'
 
+import { ReactComponent as EyeIcon } from '../images/eye-regular.svg'
+import { ReactComponent as EyeSlashIcon } from '../images/eye-slash-regular.svg'
+
 import '../styles/textInput.scss'
 
 interface InputProps {
@@ -73,6 +76,65 @@ export const TextInput = React.forwardRef((props: TextInputProps, ref) => {
 	)
 })
 
+export const PasswordInput = React.forwardRef((props: TextInputProps, ref) => {
+    const {
+        id,
+        className,
+        label,
+        defaultValue,
+        disableSpellCheck,
+        onChange,
+        onEnter,
+        ...passwordInputProps
+    } = props
+    const [password, setPassword] = useState(defaultValue || '');
+    const [isPasswordVisible, togglePasswordVisible] = useState(false)
+
+    function handlePasswordVisibilityClick() {
+        togglePasswordVisible(!isPasswordVisible)
+    }
+
+    function handleChange(e: ChangeEvent<HTMLInputElement>) {
+        const value = e.target.value
+        setPassword(value.trim())
+        if(onChange)
+            onChange(value.trim())
+    }
+
+    function handleOnEnter(e: KeyboardEvent<HTMLInputElement>) {
+        if (onEnter && e.key === 'Enter') {
+            const value = parseInt((e.target as HTMLInputElement).value)
+            onEnter(value)
+        }
+    }
+
+    useEffect(() => {
+        if (ref && ref.current.value !== password)
+            setPassword(ref.current.value)
+    }, [ref?.current?.value])
+
+	return (
+        <div className={className ? 'form-input ' + className : 'form-input'}>
+            <input
+                type={isPasswordVisible ? 'text' : 'password'}
+                id={id}
+                className={password ? 'password-input active' : 'password-input'}
+                ref={ref}
+                onChange={handleChange}
+                onBlur={e => e.target.value = e.target.value.trim()}
+                onKeyDown={handleOnEnter}
+                defaultValue={defaultValue}
+                {...passwordInputProps}
+            />
+			<label htmlFor={id} className={password ? 'active' : null}>{label}</label>
+            {
+                 isPasswordVisible ?
+                 <EyeSlashIcon className='eye-icon' onClick={handlePasswordVisibilityClick}/>
+                 : <EyeIcon className='eye-icon' onClick={handlePasswordVisibilityClick}/>
+             }
+		</div>
+	)
+})
 
 export const NumberInput = React.forwardRef((props: NumberInputProps, ref) => {
     const {

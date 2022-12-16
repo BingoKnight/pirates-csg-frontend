@@ -1,0 +1,22 @@
+.forgot-username-container {
+    & > * {
+        margin-bottom: 20px;
+    }
+
+    .title {
+        font-size: 1.6rem;
+    }
+
+    .subtitle {
+        font-size: 1.1rem;
+    }
+
+    .email-input {
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    .submit-button {
+        padding: 7px 15px;
+    }
+}

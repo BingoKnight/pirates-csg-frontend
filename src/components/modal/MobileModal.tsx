@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react'
-import { Navigate, useNavigate, useParams } from 'react-router-dom'
 
 import Button from '../Button.tsx'
 import CannonImage from '../CannonImages.tsx'
 import Layout from '../Layout.tsx'
-import Loading from '../Loading.tsx'
 
 import { ReactComponent as DownArrow } from '../../images/angle-down-solid.svg'
-import { ReactComponent as CircleCheck } from '../../images/circle-check-regular.svg'
+import { ReactComponent as CircleCheck } from '../../images/check-circle.svg'
 import { ReactComponent as Copy } from '../../images/copy-regular.svg'
 import noImage from '../../images/no-image.jpg'
 import factionImageMapper from '../../utils/factionImageMapper.tsx'
@@ -15,7 +13,6 @@ import fieldIconMapper from '../../utils/fieldIconMapper.tsx'
 import setIconMapper from '../../utils/setIconMapper.tsx'
 
 import '../../styles/mobileModal.scss'
-import {getPiratesCsgList} from '../../api'
 
 function CsgItemLink({ link }) {
     return (

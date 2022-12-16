@@ -1,0 +1,84 @@
+.account-settings-container {
+    .title {
+        font-family: windlass, serif;
+        font-size: 1.6rem;
+        text-align: left;
+        margin-bottom: 10px;
+    }
+
+    .subtitle {
+        padding: 0 10px;
+    }
+
+    .input-field {
+        justify-content: center;
+        display: flex;
+
+        .form-input {
+            width: 60%;
+            min-width: 250px;
+        }
+    }
+
+    .settings-button-row {
+        margin-bottom: 0 !important;
+
+        .settings-button {
+            padding: 10px 15px;
+        }
+    }
+
+    .change-email-container {
+        margin-bottom: 40px;
+        border: 1px solid #333;
+        padding: 20px 10px;
+        backdrop-filter: blur(25px);
+
+        & > * {
+            margin-bottom: 30px;
+        }
+
+        .current-email-container-col {
+            display: flex;
+            justify-content: center;
+
+            .current-email-container {
+                border: 1px solid #333;
+                max-width: 60%;
+                width: 60%;
+                min-width: 250px;
+
+                .header {
+                    justify-content: start;
+                    padding: 5px;
+
+                    .col {
+                        display: flex;
+                        font-size: 0.9rem;
+                    }
+                }
+
+                .content {
+                    padding: 5px;
+
+                    .col {
+                        width: 150px;
+                        padding-bottom: 10px;
+                        font-size: 1.1rem;
+                        overflow-x: auto;
+                    }
+                }
+            }
+        }
+    }
+    
+    .change-password-container {
+        border: 1px solid #333;
+        padding: 20px 10px;
+        backdrop-filter: blur(25px);
+
+        & > * {
+            margin-bottom: 30px;
+        }
+    }
+}
