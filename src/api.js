@@ -36,7 +36,7 @@ class WebError extends Error {
         super(`${status} error`)
         Error.captureStackTrace(this, this.constructor)
 
-        this.name = this.constructor.name
+        this.name = 'WebError'
         this.body = body
         this.status = status
     }
@@ -48,6 +48,7 @@ function clearLocalUser() {
 }
 
 function handleResponseError(err) {
+    console.log(err)
     if(err.name === 'WebError') {
         if(err.status === 401) {
             clearLocalUser()
@@ -64,7 +65,6 @@ function handleResponseError(err) {
         console.log(errorBody)
         errorBody.forEach(message => pushNotification({type: 'error', message}))
     } else {
-        console.log(err)
         pushNotification({type: 'error', message: 'Unexpected error occurred'})
     }
     throw err

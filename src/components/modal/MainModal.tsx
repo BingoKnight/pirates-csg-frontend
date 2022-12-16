@@ -21,7 +21,9 @@ function ModalOverlay({ closeModal, children }) {
 }
 
 function CsgItemImage({ csgItem }) {
-    const rarityClass = csgItem.rarity === '1 of 1' ? 'one-of-one' : csgItem.rarity.toLowerCase()
+    const rarityClass = csgItem.rarity.toLowerCase()
+        .replaceAll(' ', '-')
+        .replaceAll('1', 'one')
     return (
         <div id="image-container">
             <img

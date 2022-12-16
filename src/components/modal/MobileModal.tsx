@@ -23,6 +23,10 @@ function CsgItemLink({ link }) {
 }
 
 function CsgItemImage({ csgItem }) {
+    const rarityClass = csgItem.rarity.toLowerCase()
+        .replaceAll(' ', '-')
+        .replaceAll('1', 'one')
+
     return (
         <div className="image-container">
             <img
@@ -37,7 +41,7 @@ function CsgItemImage({ csgItem }) {
                 }}
             />
             <div className="rarity-tab-container">
-                <div className={csgItem.rarity.toLowerCase()} id='rarity-tab'>
+                <div className={rarityClass} id='rarity-tab'>
                     <div className="id-num">
                         {csgItem.id}
                     </div>
