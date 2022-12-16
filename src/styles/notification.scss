@@ -19,18 +19,18 @@
         border-radius: 5px;
 
         &.error {
-            background-color: rgba(246, 92, 92, 0.6);
-            border: 1px solid rgba(183, 17, 17, 0.6);
+            background-color: rgb(246, 92, 92);
+            border: 1px solid rgb(183, 17, 17);
         }
     
         &.info {
-            background-color: rgba(48, 157, 218, 0.6);
-            border: 1px solid rgba(0, 114, 177, 0.6);
+            background-color: rgb(48, 157, 218);
+            border: 1px solid rgb(0, 114, 177);
         }
 
         &.success {
-            background-color: rgba(82, 189, 48, 0.6);
-            border: 1px solid rgba(49, 168, 13, 0.6);
+            background-color: rgb(82, 189, 48);
+            border: 1px solid rgb(49, 168, 13);
         }
 
         .icon {
