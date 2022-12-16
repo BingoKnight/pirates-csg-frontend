@@ -1,21 +1,18 @@
 import React, { useRef, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 
 import { registerUser } from '../api'
 import Layout from '../components/Layout.tsx'
-import { ValidationErrors, LoadingOverlay } from '../components/LoginRegistration.tsx'
+import { LoadingOverlay } from '../components/LoginRegistration.tsx'
 import { TextInput, PasswordInput } from '../components/TextInput.tsx'
 import Button from '../components/Button.tsx'
 import { useStatefulNavigate } from '../utils/hooks.ts'
 
 import '../styles/registration.scss'
 
-// TODO: if logged in redirect to previous page
-// TODO: add feedback after successful registration then ask user to click something to acknowledge
-// and maybe take to home page
 function Registration() {
     const [isCreatingAccount, setIsCreatingAccount] = useState<boolean>(false)
-    const [validationErrors, setValidationErrors] = useState<string[]>([])
-
+    const location = useLocation()
     const navigate = useStatefulNavigate()
 
     const emailRef = useRef(null)
@@ -30,23 +27,12 @@ function Registration() {
             password: passwordRef.current.value
         }
         registerUser(user)
-            .then(async res => {
-                if (res.ok) {
-                    setValidationErrors([])
-                    navigate('/', true)
-                } else {
-                    const body = await res.json()
-                    const errorMessages = body.details?.body.map(error => error.message) || [body.error]
-                    console.log(errorMessages)
-                    setValidationErrors(errorMessages)
-                }
+            .then(() => {
+                const { from } = ['/login', '/register'].includes(location.state?.from) ? { from: '/' } : location.state || { from: '/' }
+                navigate(from, true)
             })
-            .catch(err => console.log(err))
+            .catch(console.log)
             .finally(() => setIsCreatingAccount(false))
-    }
-
-    function closeValidationErrors(errorIndex) {
-        setValidationErrors(validationErrors.filter((_, index) => index !== errorIndex))
     }
 
     return (
@@ -57,15 +43,6 @@ function Registration() {
                     <div className="col">
                         Create an account
                     </div>
-                </div>
-                <div className="row">
-                    {
-                        validationErrors.length > 0
-                        && <ValidationErrors
-                            validationErrors={validationErrors}
-                            closeHandler={closeValidationErrors}
-                        />
-                    }
                 </div>
                 <div className="row registration-content">
                     <div className="col">

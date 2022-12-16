@@ -6,7 +6,7 @@ export function useStatefulNavigate(): CallableFunction {
 
     function statefulNavigate(to: string | number, replace?: boolean): void {
         if(typeof to === 'string') {
-            const { from } = location.state
+            const { from } = location.state || { from: '/' }
             const options = {
                 state: {
                     // Prevent redirecting back to same page

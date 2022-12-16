@@ -13,16 +13,3 @@ export function LoadingOverlay() {
     )
 }
 
-export function ValidationErrors({ validationErrors, closeHandler }) {
-    return (
-        <div className="validation-errors">
-            {validationErrors.map((error: string, index: number) => {
-                return <div className='row error-item'>
-                    <div className="col error-message">{error}</div>
-                    <div className="col close-icon" onClick={() => closeHandler(index)}>&times;</div>
-                </div>
-            })}
-        </div>
-    )
-}
-

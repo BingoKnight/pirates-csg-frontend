@@ -1,37 +1,58 @@
 import React, { useEffect, useRef, useState } from 'react'
 
-import { getUser, updateEmail } from '../api.js'
+import { getUser, updateEmail, updatePassword } from '../api.js'
 import Button from '../components/Button.tsx'
 import Layout from '../components/Layout.tsx'
 import { TextInput, PasswordInput } from '../components/TextInput.tsx'
+import { useStatefulNavigate } from '../utils/hooks.ts'
 
 import '../styles/account-settings.scss'
 
 function AccountSettings() {
     const [currentEmail, setCurrentEmail] = useState(JSON.parse(sessionStorage.getItem('user') || '{}')?.email)
+
     const emailRef = useRef(null)
     const currentPasswordRef = useRef(null)
     const newPasswordRef = useRef(null)
 
+    const navigate = useStatefulNavigate()
+
+    // TODO: if 401 handle removing session storage user and x-token
     function handleEmailUpdate() {
         const email = emailRef?.current?.value.trim()
         updateEmail(email)
-            .then(res => {
-                if (res.ok) {
-                    setCurrentEmail(email)
-                    emailRef.current.value = null
-                }
+            .then(() => {
+                setCurrentEmail(email)
+                emailRef.current.value = null
+            })
+            .catch(err => {
+                if(err.status === 401)
+                    navigate('/login', true)
             })
     }
 
     function changePassword() {
-        console.log('Change password')
+        updatePassword(currentPasswordRef.current.value, newPasswordRef.current.value)
+            .then(() => {
+                currentPasswordRef.current.value = ''
+                newPasswordRef.current.value = ''
+            })
+            .catch(err => {
+                if(err.status === 401)
+                    navigate('/login', true)
+            })
     }
 
     useEffect(() => {
         async function getCurrentEmail() {
-            const user = await (await getUser()).json()
-            setCurrentEmail(user.email)
+            const sessionUser = sessionStorage.getItem('user')
+            if(sessionUser && JSON.parse(sessionUser).email) {
+                setCurrentEmail(JSON.parse(sessionUser).email)
+            } else {
+                getUser()
+                    .then(res => res.json())
+                    .then(json => setCurrentEmail(json.email))
+            }
         }
 
         getCurrentEmail()
@@ -92,7 +113,7 @@ function AccountSettings() {
                             <PasswordInput
                                 ref={currentPasswordRef}
                                 onEnter={changePassword}
-                                id="password-input"
+                                id="current-password-input"
                                 label="Current password"
                             />
                         </div>
@@ -102,7 +123,7 @@ function AccountSettings() {
                             <PasswordInput
                                 ref={newPasswordRef}
                                 onEnter={changePassword}
-                                id="password-input"
+                                id="new-password-input"
                                 label="New password"
                             />
                         </div>

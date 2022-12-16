@@ -1,0 +1,50 @@
+.notification-container {
+    position: absolute;
+    align-self: end;
+    top: 100px;
+    width: 250px;
+    margin-right: 35px;
+
+    min-height: 100px;
+
+    .notification {
+        position: relative;
+        z-index: 99;
+
+        display: flex;
+        align-items: center;
+
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+
+        &.error {
+            background-color: rgba(246, 92, 92, 0.6);
+            border: 1px solid rgba(183, 17, 17, 0.6);
+        }
+    
+        &.info {
+            background-color: rgba(48, 157, 218, 0.6);
+            border: 1px solid rgba(0, 114, 177, 0.6);
+        }
+
+        &.success {
+            background-color: rgba(82, 189, 48, 0.6);
+            border: 1px solid rgba(49, 168, 13, 0.6);
+        }
+
+        .icon {
+            flex: 1;
+            
+            svg {
+                height: 25px;
+                fill: #fff;
+            }
+        }
+
+        .message {
+            flex: 8;
+            padding: 0 5px;
+        }
+    }
+}

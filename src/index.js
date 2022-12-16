@@ -17,6 +17,11 @@ import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
+// TODO: add redux to hold user state to include logged in status
+//       whenever logged in status is called if user state doesn't exist check sessionStorage and
+//       cookies if something is missing then ensure user is fully logged out.
+//       With user in redux state PrivateRoute can listen to changes and redirect users to the
+//       login page
 root.render(
     <React.StrictMode>
         <Router>
