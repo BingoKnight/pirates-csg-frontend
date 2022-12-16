@@ -17,7 +17,6 @@ function AccountSettings() {
 
     const navigate = useStatefulNavigate()
 
-    // TODO: if 401 handle removing session storage user and x-token
     function handleEmailUpdate() {
         const email = emailRef?.current?.value.trim()
         updateEmail(email)
