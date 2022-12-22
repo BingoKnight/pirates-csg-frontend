@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 
-import { logoutUser } from '../api.js'
+import { getUser, logoutUser } from '../api.js'
 import { LinkButton } from  './Button.tsx'
 import Image from './Image.tsx'
 import { ReactComponent as DownArrow } from '../images/angle-down-solid.svg'
@@ -95,9 +95,7 @@ function NavBar() {
 
 export default function Header() {
     const [ windowWidth, setWindowWidth ] = useState(window.innerWidth)
-
-    const user = JSON.parse(sessionStorage.getItem('user') || "{}")
-    const isLoggedIn = getCookie('x-token') && user.username && user.email
+    const [user, setUser] = useState(undefined)
 
     function updateWindowWidth() {
         setWindowWidth(window.innerWidth)
@@ -108,6 +106,10 @@ export default function Header() {
         return () => window.removeEventListener('resize', updateWindowWidth)
     })
 
+    useEffect(() => {
+        getUser().then(setUser)
+    }, [])
+
     return (
         <>
             <div className="row header-row">
@@ -117,7 +119,7 @@ export default function Header() {
                         <Image src={ShipImage} alt="Logo" height="50px"/>
                     </Link>
                     <NavBar />
-                    { isLoggedIn ?
+                    { user ?
                         <UserDropDown username={user.username} />
                         : <LinkButton className="login-button" to="/login">Login</LinkButton>
                     }

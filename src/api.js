@@ -44,6 +44,7 @@ class WebError extends Error {
 
 function clearLocalUser() {
     sessionStorage.removeItem('user')
+    sessionStorage.removeItem('userCollection')
     deleteCookie('x-token')
 }
 
@@ -89,7 +90,6 @@ async function get(path, headers = {}) {
             }
             return res
         })
-        .catch(handleResponseError)
 }
 
 async function post(path, payload = {}, headers = {}) {
@@ -166,17 +166,26 @@ export async function logoutUser() {
 }
 
 export async function getUser() {
+    const sessionUser = sessionStorage.getItem('user')
+    if (getCookie('x-token') && sessionUser)
+        return JSON.parse(sessionUser)
+
     return get('/v1/user')
-        .then(async res => {
-            sessionStorage.setItem('user', JSON.stringify(await res.clone().json()))
-            return res
+        .then(res => res.json())
+        .then(json => {
+            sessionStorage.setItem('user', JSON.stringify(json))
+            return json
+        })
+        .catch(() => {
+            clearLocalUser()
+            return
         })
 }
 
 export async function updateEmail(email) {
     return post('/v1/user/change-email', { email })
         .then(async res => {
-            const user = JSON.parse(sessionStorage.getItem('user'))
+            const user = await getUser()
             sessionStorage.setItem('user', JSON.stringify({ ...user, email }))
             pushNotification({ type: 'success', message: 'Email updated!' })
             return res
@@ -202,15 +211,17 @@ export async function getUserCollection() {
         return JSON.parse(sessionUserCollection)
 
     return get('/v1/collection')
-        .then(res => res.json())
-        .then(json => {
-            const userCollection = json.collection.map(obj => ({
-                ...obj.item,
-                count: obj.count
-            }))
-            sessionStorage.setItem('userCollection', JSON.stringify(userCollection))
-            return json
+        .then(async res => {
+            if(res.ok) {
+                const json = await res.json()
+                const userCollection = json.collection.map(obj => ({
+                    ...obj.item,
+                    count: obj.count
+                }))
+                sessionStorage.setItem('userCollection', JSON.stringify(userCollection))
+                return userCollection
+            }
         })
-    
+        .catch(handleResponseError)
 }
 

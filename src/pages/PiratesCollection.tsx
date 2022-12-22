@@ -12,6 +12,7 @@ function PiratesCollection() {
             <PiratesCsgSearch
                 getPiratesCsgList={getUserCollection}
                 sessionStoragePiratesCsgListKey="userCollection"
+                sessionStorageQueryKey="collectionQuery"
             />
         </Layout>
     )

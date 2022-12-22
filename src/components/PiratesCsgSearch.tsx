@@ -970,8 +970,8 @@ function AdvancedFilters({ query, setQuery, piratesCsgList }) {
 
 }
 
-function PiratesCsgSearch({ getPiratesCsgList, sessionStoragePiratesCsgListKey }) {
-    const sessionStorageQuery = JSON.parse(sessionStorage.getItem('query'))
+function PiratesCsgSearch({ getPiratesCsgList, sessionStoragePiratesCsgListKey, sessionStorageQueryKey }) {
+    const sessionStorageQuery = JSON.parse(sessionStorage.getItem(sessionStorageQueryKey))
 
     const [query, setQuery] = useState({
         search: sessionStorageQuery?.search || '',
@@ -1096,7 +1096,7 @@ function PiratesCsgSearch({ getPiratesCsgList, sessionStoragePiratesCsgListKey }
 
     useEffect(() => {
         updateQuery(completeCsgList, query, sort, setSortedCsgList, setFilteredCsgList)
-        sessionStorage.setItem('query', JSON.stringify(query))
+        sessionStorage.setItem(sessionStorageQueryKey, JSON.stringify(query))
 
         const timer = setTimeout(() => {
             preloadImages()

@@ -14,6 +14,7 @@ function Home() {
         <PiratesCsgSearch
             getPiratesCsgList={getPiratesCsgList}
             sessionStoragePiratesCsgListKey="piratesCsgList"
+            sessionStorageQueryKey="query"
         />
     </Layout>
     ) 
