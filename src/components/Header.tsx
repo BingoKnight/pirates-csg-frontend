@@ -70,25 +70,31 @@ function UserDropDown({ username }) {
     )
 }
 
-function NavBar() {
+function NavBar({ user }) {
     const location = useLocation()
 
     const links = [
         {
             name: 'Home',
-            path: '/'
+            path: '/',
+            isVisible: true
         },
         {
             name: 'Collection',
-            path: '/collection'
+            path: '/collection',
+            isVisible: Boolean(user)
         }
     ]
 
     return (
         <div className="nav-bar row">
-            {links.map(link => (
-                <LinkButton to={link.path} className={'nav-link' + (location.pathname === link.path ? ' active' : '')}>{link.name}</LinkButton>
-            ))}
+            {
+                links
+                    .filter(link => link.isVisible)
+                    .map(link => (
+                        <LinkButton to={link.path} className={'nav-link' + (location.pathname === link.path ? ' active' : '')}>{link.name}</LinkButton>
+                    ))
+            }
         </div>
     )
 }
@@ -118,7 +124,7 @@ export default function Header() {
                         { windowWidth > PHONE_VIEW && <span>Pirates CSG Database</span> }
                         <Image src={ShipImage} alt="Logo" height="50px"/>
                     </Link>
-                    <NavBar />
+                    <NavBar user={user} />
                     { user ?
                         <UserDropDown username={user.username} />
                         : <LinkButton className="login-button" to="/login">Login</LinkButton>
