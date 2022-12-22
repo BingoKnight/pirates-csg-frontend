@@ -135,3 +135,24 @@
     }
 }
 
+.nav-bar {
+    .nav-link {
+        margin: 0 10px;
+        padding: 4px 2px;
+        font-size: 1.2rem;
+        font-family: windlass, serif;
+        border: none;
+        border-bottom: 2px solid transparent;
+        box-shadow: none;
+
+        &:hover {
+            border-bottom: 2px solid white;
+        }
+
+        &.active {
+            border-bottom: 2px solid orange;
+        }
+
+    }
+}
+

@@ -15,10 +15,15 @@ function NotificationItem({ id, type, message }) {
         success: <CircleCheck />,
         info: <InfoCircle />
     }
+
+    //TODO: add timer that is a progress bar that gets smaller as notification ages towards removal
+    //      should be able to achieve this with setting the timer width with a transformation
+    //      towards a width of 0 over the course of 7 seconds
     return (
         <div className={'row notification ' + type} onClick={() => popNotification(id)}>
             <div className="col icon">{notificationTypeIconMapper[type]}</div>
             <div className="col message">{message}</div>
+            <div className="timer"></div>
         </div>
     )
 }

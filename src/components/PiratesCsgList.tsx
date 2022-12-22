@@ -2,8 +2,8 @@ import _ from 'lodash'
 import React, { useEffect, useRef, MouseEventHandler } from 'react'
 
 import CannonImage from './CannonImages.tsx'
-import RouterLinkButton from './RouterLinkButton.tsx'
-import {ReactComponent as Arrow} from '../images/angle-down-solid.svg'
+import { LinkButton } from './Button.tsx'
+import { ReactComponent as Arrow } from '../images/angle-down-solid.svg'
 import factionImageMapper from '../utils/factionImageMapper.tsx'
 import fieldIconMapper from '../utils/fieldIconMapper.tsx'
 import setIconMapper from '../utils/setIconMapper.tsx'
@@ -124,16 +124,16 @@ function CsgItemColumns({ csgItem }) {
     })
 }
 
-function CsgItemRows({ piratesCsgList, setActive }) {
+function CsgItemRows({ piratesCsgList }) {
     if (piratesCsgList.length === 0)
         return <div className="row csg-row no-items">
             No results found
         </ div>
 
     return piratesCsgList.map((csgItem: CsgItem) => (
-        <RouterLinkButton to={'/details/' + csgItem._id} state={{ from: '/'  }} className={'row csg-row csg-item-row noselect'}>
+        <LinkButton to={'details/' + csgItem._id} className={'row csg-row csg-item-row noselect'}>
             <CsgItemColumns csgItem={csgItem} />
-        </ RouterLinkButton>
+        </ LinkButton>
     ))
 }
 
@@ -205,11 +205,11 @@ function HeaderRow({ sort, setSort }) {
     )
 }
 
-function PiratesCsgList({ piratesCsgList, setActiveCsgItem, sort, setSort }) {
+function PiratesCsgList({ piratesCsgList, sort, setSort }) {
     return (
         <div id='csg-list'>
             <HeaderRow sort={sort} setSort={setSort} />
-            <CsgItemRows piratesCsgList={piratesCsgList} setActive={setActiveCsgItem} />
+            <CsgItemRows piratesCsgList={piratesCsgList} />
         </div>
     )
 }

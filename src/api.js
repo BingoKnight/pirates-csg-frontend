@@ -75,6 +75,7 @@ async function get(path, headers = {}) {
     const tokenHeaders = token ? { 'Authorization': `Bearer ${token}` } : {}
 
     const options = {
+        credentials: 'include',
         method: 'GET',
         headers: {
             ...tokenHeaders,
@@ -193,5 +194,23 @@ export async function updatePassword(currentPassword, newPassword) {
             pushNotification({ type: 'success', message: 'Password updated!' })
             return res
         })
+}
+
+export async function getUserCollection() {
+    const sessionUserCollection = sessionStorage.getItem('userCollection')
+    if (sessionUserCollection)
+        return JSON.parse(sessionUserCollection)
+
+    return get('/v1/collection')
+        .then(res => res.json())
+        .then(json => {
+            const userCollection = json.collection.map(obj => ({
+                ...obj.item,
+                count: obj.count
+            }))
+            sessionStorage.setItem('userCollection', JSON.stringify(userCollection))
+            return json
+        })
+    
 }
 

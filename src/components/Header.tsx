@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 
 import { logoutUser } from '../api.js'
 import { LinkButton } from  './Button.tsx'
@@ -70,6 +70,29 @@ function UserDropDown({ username }) {
     )
 }
 
+function NavBar() {
+    const location = useLocation()
+
+    const links = [
+        {
+            name: 'Home',
+            path: '/'
+        },
+        {
+            name: 'Collection',
+            path: '/collection'
+        }
+    ]
+
+    return (
+        <div className="nav-bar row">
+            {links.map(link => (
+                <LinkButton to={link.path} className={'nav-link' + (location.pathname === link.path ? ' active' : '')}>{link.name}</LinkButton>
+            ))}
+        </div>
+    )
+}
+
 export default function Header() {
     const [ windowWidth, setWindowWidth ] = useState(window.innerWidth)
 
@@ -86,18 +109,21 @@ export default function Header() {
     })
 
     return (
-        <div className="row header-row">
-            <div className="col header-title">
-                <Link className="title-link" to="/">
-                    { windowWidth > PHONE_VIEW && <span>Pirates CSG Database</span> }
-                    <Image src={ShipImage} alt="Logo" height="50px"/>
-                </Link>
-                { isLoggedIn ? 
-                    <UserDropDown username={user.username} />
-                    : <LinkButton className="login-button" to="/login">Login</LinkButton>
-                }
+        <>
+            <div className="row header-row">
+                <div className="col header-title">
+                    <Link className="title-link" to="/">
+                        { windowWidth > PHONE_VIEW && <span>Pirates CSG Database</span> }
+                        <Image src={ShipImage} alt="Logo" height="50px"/>
+                    </Link>
+                    <NavBar />
+                    { isLoggedIn ?
+                        <UserDropDown username={user.username} />
+                        : <LinkButton className="login-button" to="/login">Login</LinkButton>
+                    }
+                </div>
             </div>
-        </div>
+        </>
     )
 }
 

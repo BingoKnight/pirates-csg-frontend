@@ -10,6 +10,7 @@ import AccountSettings from './pages/AccountSettings.tsx';
 import ForgotUsername from './pages/ForgotUsername.tsx';
 import Home from './pages/Home';
 import Login from './pages/Login.tsx';
+import PiratesCollection from './pages/PiratesCollection.tsx';
 import Registration from './pages/Registration.tsx';
 import NotFoundPage from './pages/NotFoundPage.tsx';
 
@@ -35,6 +36,9 @@ root.render(
                     <Route path='account-settings' element={<AccountSettings />} />
                 </Route>
                 {/* <Route path='/forgot-username' element={<ForgotUsername />} /> */}
+                <Route path='/collection' element={<PiratesCollection />}>
+                    <Route path='details/:id' element={<CsgModal />} />
+                </Route>
                 <Route path='*' element={<NotFoundPage />} />
             </Routes>
         </Router>
