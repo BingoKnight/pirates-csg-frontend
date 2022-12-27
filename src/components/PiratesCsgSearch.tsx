@@ -2,7 +2,7 @@ import _ from 'lodash'
 import React, { useEffect, useRef, useState } from 'react'
 import { v4 as uuid4 } from 'uuid'
 
-import { getKeywordsDictionary } from '../api.js'
+import { getKeywordsDictionary, getUserCollection } from '../api.js'
 import Button from '../components/Button.tsx'
 import Dropdown, { MultiItemDropdown } from '../components/Dropdown.tsx'
 import {
@@ -44,6 +44,8 @@ const SortOrder = {
 // TODO: fix tablet view to be more like computer view
 // TODO: preload image on faction query change
 // TODO: replace spinning wheel with empty rows with moving gradient to signify loading
+// TODO: add redux, right now sorting by owned items count is based on session storage
+//       which could be a problem if someone clears their session storage
 
 function FactionToggles({ factionList, filterFactions, queriedFactions }) {
     const [filteredFactions, setFilteredFactions] = useState(new Set(queriedFactions))
@@ -168,6 +170,37 @@ function sortIgnoreNull(csgList, sortOrder, sortField) {
     return [...sortedWithoutFalsy, ...csgList.filter(val => isNaN(val[sortField]))]
 }
 
+function sortNumerically(csgList, sortOrder, sortField) {
+    const unownedItems = csgList.filter(item => !item[sortField])
+    const numericallySortedList = [...csgList]
+        .filter(item => item[sortField])
+        .sort((a, b) => {
+            return sortCompare(a[sortField], b[sortField], sortOrder)
+        })
+
+    if(sortOrder === SortOrder.ascending) {
+        return [...unownedItems, ...numericallySortedList]
+    }
+
+    return [...numericallySortedList, ...unownedItems]
+}
+
+function sortOwnedItems(csgList, sortOrder, _) {
+    const userCollection = JSON.parse(sessionStorage.getItem('userCollection') || '[]')
+    const csgListWithCount = csgList.map(item => {
+        const matchingItem = userCollection.find(collectionItem => collectionItem._id === item._id)
+        if(matchingItem) {
+            return {
+                ...item,
+                count: matchingItem.count
+            }
+        }
+        return item
+    })
+
+    return sortNumerically(csgListWithCount, sortOrder, 'count')
+}
+
 function defaultSort(csgList, sortOrder, sortField) {
     return [...csgList].sort((a, b) =>
         sortCompare(a[sortField], b[sortField], sortOrder)
@@ -184,7 +217,8 @@ function sortList(piratesCsgList, sort) {
         masts: sortIgnoreNull,
         cargo: sortIgnoreNull,
         link: sortIgnoreNull,
-        id: sortIgnoreNull
+        id: sortIgnoreNull,
+        owned: sortOwnedItems
     }
 
     return (sort.field in sortHandlers ? sortHandlers[sort.field] : defaultSort)(piratesCsgList, sort.order, sort.field)

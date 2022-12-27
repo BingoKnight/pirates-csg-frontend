@@ -1,12 +1,14 @@
 import _ from 'lodash'
-import React, { useEffect, useRef, MouseEventHandler } from 'react'
+import React, { MouseEventHandler, useEffect, useRef, useState } from 'react'
 
+import { getUserCollection } from '../api.js'
 import CannonImage from './CannonImages.tsx'
 import { LinkButton } from './Button.tsx'
 import { ReactComponent as Arrow } from '../images/angle-down-solid.svg'
 import factionImageMapper from '../utils/factionImageMapper.tsx'
 import fieldIconMapper from '../utils/fieldIconMapper.tsx'
 import setIconMapper from '../utils/setIconMapper.tsx'
+import { isLoggedIn } from '../utils/user.ts'
 
 import '../styles/piratesCsgList.scss'
 
@@ -27,6 +29,7 @@ enum OrderedCsgFields {
     link = 'link',
     set = 'set',
     id = 'id',
+    owned = 'owned'
     // flavorText = 'flavorText',
     // teasureValues = 'teasureValues'
 }
@@ -55,82 +58,101 @@ function truncate(str: string, len = 40) {
 }
 
 function CsgItemColumns({ csgItem }) {
-    return Object.keys(OrderedCsgFields).map(fieldName => {
-        if (fieldName === 'ability') {
-            let abilityText = truncate(csgItem[fieldName])
+    return Object.keys(OrderedCsgFields)
+        .filter(fieldName => fieldName !== 'owned' || isLoggedIn())
+        .map(fieldName => {
+            if(fieldName === 'ability') {
+                let abilityText = truncate(csgItem[fieldName])
 
-            return <div className={`col csg-col ${fieldName}-col`}>{abilityText}</div>
-        }
-        if (fieldName === 'image') {
-            return <div className="col csg-col">
-                <img src={csgItem.image} height="100px" alt={csgItem.name}/>
-            </div>
-        }
+                return <div className={`col csg-col ${fieldName}-col`}>{abilityText}</div>
+            }
+            if(fieldName === 'image') {
+                return <div className="col csg-col">
+                    <img src={csgItem.image} height="100px" alt={csgItem.name}/>
+                </div>
+            }
 
-        if (fieldName === 'rarity') {
-            const className = csgItem.rarity
-                .toLowerCase()
-                .replaceAll(' ', '-')
-                .replaceAll('1', 'one')  // Handle 1 of 1 rarity
+            if(fieldName === 'rarity') {
+                const className = csgItem.rarity
+                    .toLowerCase()
+                    .replaceAll(' ', '-')
+                    .replaceAll('1', 'one')  // Handle 1 of 1 rarity
 
-            return <div className={`rarity-col ${className}-col`}>
-                <div className={className} />
-            </div>
-        }
+                return <div className={`rarity-col ${className}-col`}>
+                    <div className={className} />
+                </div>
+            }
 
-        if (fieldName === 'faction') {
-            const lowerCaseFaction = csgItem.faction.toLowerCase()
-            const colClassName = lowerCaseFaction.replaceAll(' ', '-',).replaceAll('\'', '')
-            return <div className={`col csg-col faction-col ${colClassName}-col`}>
-                {factionImageMapper[lowerCaseFaction] ? factionImageMapper[lowerCaseFaction]() : null}
-            </div>
-        }
+            if(fieldName === 'faction') {
+                const lowerCaseFaction = csgItem.faction.toLowerCase()
+                const colClassName = lowerCaseFaction.replaceAll(' ', '-',).replaceAll('\'', '')
+                return <div className={`col csg-col faction-col ${colClassName}-col`}>
+                    {factionImageMapper[lowerCaseFaction] ? factionImageMapper[lowerCaseFaction]() : null}
+                </div>
+            }
 
-        if (fieldName === 'baseMove') {
-            const baseMoveText = csgItem[fieldName].split('+')
-                .map(letter => {
-                    if (letter === 'L') {
-                        return <span style={{color: 'red'}}>{letter}</span>
-                    }
-                    return <span>{letter}</span>
-                }).reduce((prev, curr) => [prev, ' + ', curr])
+            if(fieldName === 'baseMove') {
+                const baseMoveText = csgItem[fieldName].split('+')
+                    .map(letter => {
+                        if (letter === 'L') {
+                            return <span style={{color: 'red'}}>{letter}</span>
+                        }
+                        return <span>{letter}</span>
+                    }).reduce((prev, curr) => [prev, ' + ', curr])
 
-            return <div className={`col csg-col windlass-font ${fieldName}-col`}>
-                {baseMoveText}
-            </div>
-        }
+                return <div className={`col csg-col windlass-font ${fieldName}-col`}>
+                    {baseMoveText}
+                </div>
+            }
 
-        if (fieldName === 'cannons') {
-            const cannonsList = csgItem[fieldName]
-                .split('-')
-                .map(cannon => <CannonImage cannon={cannon} />)
-                .reduce((prev, curr) => [prev, ' ', curr])
+            if(fieldName === 'cannons') {
+                const cannonsList = csgItem[fieldName]
+                    .split('-')
+                    .map(cannon => <CannonImage cannon={cannon} />)
+                    .reduce((prev, curr) => [prev, ' ', curr])
 
-            return <div className={`col csg-col ${fieldName}-col`}>{cannonsList}</div>
-        }
+                return <div className={`col csg-col ${fieldName}-col`}>{cannonsList}</div>
+            }
 
-        if (fieldName === 'link') {
-            const linkText = truncate(csgItem[fieldName], 25)
-            return <div className={`col csg-col ${fieldName}-col`}>{linkText}</div>
-        }
+            if(fieldName === 'link') {
+                const linkText = truncate(csgItem[fieldName], 25)
+                return <div className={`col csg-col ${fieldName}-col`}>{linkText}</div>
+            }
 
-        if (fieldName === 'set') {
-            return <div className={`col csg-col ${fieldName}-col`} title={csgItem[fieldName]}>
-                {setIconMapper[csgItem[fieldName]]({height: '25px'})}
-            </div>
-        }
+            if(fieldName === 'set') {
+                return <div className={`col csg-col ${fieldName}-col`} title={csgItem[fieldName]}>
+                    {setIconMapper[csgItem[fieldName]]({height: '25px'})}
+                </div>
+            }
 
-        return <div className={`col csg-col ${fieldName}-col`}>{csgItem[fieldName]}</div>
-    })
+            if(fieldName === 'owned' && !csgItem[fieldName]) {
+                return <div className="col csg-col owned-col">
+                    <span className="not-owned">X</span>
+                </div>
+            }
+
+            return <div className={`col csg-col ${fieldName}-col`}>{csgItem[fieldName]}</div>
+        })
 }
 
-function CsgItemRows({ piratesCsgList }) {
-    if (piratesCsgList.length === 0)
+function CsgItemRows({ piratesCsgList, userCollection }) {
+    if(piratesCsgList.length === 0)
         return <div className="row csg-row no-items">
             No results found
         </ div>
 
-    return piratesCsgList.map((csgItem: CsgItem) => (
+    let updatedPiratesCsgList = [...piratesCsgList]
+
+    if(userCollection.length > 0) {
+        updatedPiratesCsgList = piratesCsgList.map((item: CsgItem) => {
+            return {
+                ...item,
+                owned: userCollection.find(collectionItem => collectionItem._id === item._id)?.count
+            }
+        })
+    }
+
+    return updatedPiratesCsgList.map((csgItem: CsgItem) => (
         <LinkButton to={'details/' + csgItem._id} className={'row csg-row csg-item-row noselect'}>
             <CsgItemColumns csgItem={csgItem} />
         </ LinkButton>
@@ -169,47 +191,60 @@ function HeaderRow({ sort, setSort }) {
 
     return (
         <div className='row csg-row' id='header-row' ref={headerRowRef} >
-        {
-            Object.keys(OrderedCsgFields).map(fieldName => {
-                const defaultClassName = `noselect${fieldName === 'rarity' ? ' header-col csg-col' : ' header-col col csg-col'}`
-                const prettyNameMapper = {
-                    id: 'ID',
-                    pointCost: 'Points'
-                }
+            {
+                Object.keys(OrderedCsgFields)
+                    .filter(fieldName => fieldName !== 'owned' || isLoggedIn())
+                    .map(fieldName => {
+                    const defaultClassName = `noselect${fieldName === 'rarity' ? ' header-col csg-col' : ' header-col col csg-col'}`
+                    const prettyNameMapper = {
+                        id: 'ID',
+                        pointCost: 'Points'
+                    }
 
-                const prettyName = prettyNameMapper[fieldName] || _.capitalize(fieldName)
-                let onClick : undefined | MouseEventHandler<HTMLDivElement> = () => handleSort(fieldName)
-                let sortableHeaderClass : undefined | string = 'sortable-header'
+                    const prettyName = prettyNameMapper[fieldName] || _.capitalize(fieldName)
+                    let onClick : undefined | MouseEventHandler<HTMLDivElement> = () => handleSort(fieldName)
+                    let sortableHeaderClass : undefined | string = 'sortable-header'
 
-                if (fieldName === 'cannons') {
-                    onClick = undefined
-                    sortableHeaderClass = undefined
-                }
+                    if (fieldName === 'cannons') {
+                        onClick = undefined
+                        sortableHeaderClass = undefined
+                    }
 
-                return (
-                    <div className={defaultClassName + ' ' + fieldName + '-col'} onClick={onClick}>
-                        <div className={"sort-order ascending" + (sort.field === fieldName && sort.order === 'ascending' ? ' show': '')}>
-                            <Arrow width="15px" />
+                    return (
+                        <div className={defaultClassName + ' ' + fieldName + '-col'} onClick={onClick}>
+                            <div className={"sort-order ascending" + (sort.field === fieldName && sort.order === 'ascending' ? ' show': '')}>
+                                <Arrow width="15px" />
+                            </div>
+                            <span className={sortableHeaderClass}>
+                                {Object.keys(fieldIconMapper).includes(fieldName) ? fieldIconMapper[fieldName]() : prettyName}
+                            </span>
+                            <div className={"sort-order descending" + (sort.field === fieldName && sort.order === 'descending' ? ' show': '')}>
+                                <Arrow width="15px" />
+                            </div>
                         </div>
-                        <span className={sortableHeaderClass}>
-                            {Object.keys(fieldIconMapper).includes(fieldName) ? fieldIconMapper[fieldName]() : prettyName}
-                        </span>
-                        <div className={"sort-order descending" + (sort.field === fieldName && sort.order === 'descending' ? ' show': '')}>
-                            <Arrow width="15px" />
-                        </div>
-                    </div>
-                )
-            })
-        }
+                    )
+                })
+            }
         </ div>
     )
 }
 
 function PiratesCsgList({ piratesCsgList, sort, setSort }) {
+    const [userCollection, setUserCollection] = useState([])
+
+    useEffect(() => {
+        async function fetchUserCollection() {
+            setUserCollection(await getUserCollection())
+        }
+
+        if(isLoggedIn())
+            fetchUserCollection()
+    }, [])
+
     return (
         <div id='csg-list'>
             <HeaderRow sort={sort} setSort={setSort} />
-            <CsgItemRows piratesCsgList={piratesCsgList} />
+            <CsgItemRows piratesCsgList={piratesCsgList} userCollection={userCollection} />
         </div>
     )
 }

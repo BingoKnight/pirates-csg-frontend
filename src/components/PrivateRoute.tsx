@@ -1,19 +1,24 @@
 import React, {useEffect} from 'react'
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
+import {getUser, getUserCollection} from '../api'
 
-import { getCookie } from '../utils/cookies.ts'
 import { useStatefulNavigate } from '../utils/hooks.ts'
+import { isLoggedIn } from '../utils/user.ts'
 
 function PrivateRoute() {
     const location = useLocation()
     const navigate = useStatefulNavigate()
 
-    const user = JSON.parse(sessionStorage.getItem('user') || "{}")
-    const isLoggedIn = getCookie('x-token') && user.username && user.email
-
     useEffect(() => {
-        if(!isLoggedIn)
+        async function fetchUser() {
+            await Promise.all([getUserCollection(), getUser()])
+        }
+
+        if(isLoggedIn()) {
+            fetchUser()
+        } else {
             navigate('/login', true)
+        }
     }, [])
 
     return isLoggedIn

@@ -36,8 +36,10 @@ root.render(
                     <Route path='account-settings' element={<AccountSettings />} />
                 </Route>
                 {/* <Route path='/forgot-username' element={<ForgotUsername />} /> */}
-                <Route path='/collection' element={<PiratesCollection />}>
-                    <Route path='details/:id' element={<CsgModal />} />
+                <Route path='/collection' element={<PrivateRoute />}>
+                    <Route path='' element={<PiratesCollection />}>
+                        <Route path='details/:id' element={<CsgModal />} />
+                    </Route>
                 </Route>
                 <Route path='*' element={<NotFoundPage />} />
             </Routes>
