@@ -25,6 +25,7 @@ import Slider from '../components/Slider.tsx'
 import { TextInput } from '../components/TextInput.tsx'
 import ToggleButton from '../components/ToggleButton.tsx'
 import { isEditing$, toggleIsEditing } from '../services/editCollectionService.ts'
+import { CsgItem } from '../types/csgItem.ts'
 
 import { TABLET_VIEW, PHONE_VIEW } from '../constants.js'
 import { ReactComponent as DownArrow } from '../images/angle-down-solid.svg'
@@ -1005,7 +1006,7 @@ function AdvancedFilters({ query, setQuery, piratesCsgList }) {
 
 }
 
-function EditCollectionButtons({ isEditingCollection }) {
+function EditCollectionButtons({ isEditingCollection, saveEdits, discardEdits }) {
     if (!isLoggedIn())
         return null
 
@@ -1029,7 +1030,7 @@ function EditCollectionButtons({ isEditingCollection }) {
     )
 }
 
-function PiratesCsgSearch({ getPiratesCsgList, sessionStoragePiratesCsgListKey, sessionStorageQueryKey }) {
+function PiratesCsgSearch({ csgListSubscription, sessionStoragePiratesCsgListKey, sessionStorageQueryKey }) {
     const sessionStorageQuery = JSON.parse(sessionStorage.getItem(sessionStorageQueryKey))
 
     const [query, setQuery] = useState({
@@ -1051,7 +1052,7 @@ function PiratesCsgSearch({ getPiratesCsgList, sessionStoragePiratesCsgListKey, 
         keywords: sessionStorageQuery?.keywords || []
     })
 
-    const [completeCsgList, setCompleteCsgList] = useState(JSON.parse(sessionStorage.getItem(sessionStoragePiratesCsgListKey) || '[]'))
+    const completeCsgList = useObservableState<CsgItem[]>(csgListSubscription, [])
 
     // filteredCsgList should be used to determine size because sortedCsgList doesn't affect maxPages
     const [filteredCsgList, setFilteredCsgList] = useState(updateQuery(completeCsgList, query))
@@ -1163,28 +1164,11 @@ function PiratesCsgSearch({ getPiratesCsgList, sessionStoragePiratesCsgListKey, 
     })
 
     useEffect(() => {
-        function updateCsgLists(csgList) {
-            const filtered = csgList.filter(
-                csgItem => csgItem.ability || !csgItem.set.toLowerCase() === 'unreleased'
-            )
-            setCompleteCsgList(filtered)
-            updateQuery(filtered, query, sort, setSortedCsgList, setFilteredCsgList)
-        }
-
-        async function fetchData() {
-            updateCsgLists(await getPiratesCsgList())
-            await getKeywordsDictionary()
-
-            if (isLoggedIn()) {
-                await getUserCollection()  // Just populate session storage
-            }
-
+        if (completeCsgList.length > 0) {
+            updateQuery(completeCsgList, query, sort, setSortedCsgList, setFilteredCsgList)
             setApiFetchComplete(true)
         }
-
-        if(!completeCsgList || completeCsgList.length === 0)
-            fetchData()
-    }, [])
+    }, [completeCsgList])
 
     useEffect(() => {
         updateQuery(completeCsgList, query, sort, setSortedCsgList, setFilteredCsgList)
@@ -1243,7 +1227,7 @@ function PiratesCsgSearch({ getPiratesCsgList, sessionStoragePiratesCsgListKey, 
             </div>
             <div className="page-edit-container">
                 <div className="edit-collection-button-group">
-                    <EditCollectionButtons isEditingCollection={isEditingCollection} />
+                    <EditCollectionButtons isEditingCollection={isEditingCollection} saveEdits={saveEdits} discardEdits={discardEdits} />
                 </div>
                 <PageControl
                     className="upper"

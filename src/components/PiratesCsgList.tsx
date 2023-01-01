@@ -6,6 +6,8 @@ import CannonImage from './CannonImages.tsx'
 import Button, { LinkButton } from './Button.tsx'
 import { ReactComponent as Arrow } from '../images/angle-down-solid.svg'
 import { isEditing$ } from '../services/editCollectionService.ts'
+import { userCollection$ } from '../services/globalState.ts'
+import { CsgItem } from '../types/csgItem.ts'
 import factionImageMapper from '../utils/factionImageMapper.tsx'
 import fieldIconMapper from '../utils/fieldIconMapper.tsx'
 import setIconMapper from '../utils/setIconMapper.tsx'
@@ -33,26 +35,6 @@ enum OrderedCsgFields {
     owned = 'owned'
     // flavorText = 'flavorText',
     // teasureValues = 'teasureValues'
-}
-
-interface CsgItem {
-    _id: string
-    id: string
-    image: string
-    faction: string
-    rarity: string
-    type: string
-    name: string
-    pointCost: number
-    masts: number
-    cargo: number
-    baseMove: string
-    cannons: string
-    link: string | null
-    ability: string | null
-    flavorText: string | null
-    teasureValues: [number] | null
-    owned: number | undefined
 }
 
 function truncate(str: string, len = 40) {
@@ -275,8 +257,9 @@ function HeaderRow({ sort, setSort }) {
 }
 
 function PiratesCsgList({ piratesCsgList, sort, setSort, setStagedCollectionAdds, setStagedCollectionRemoves }) {
+    const userCollection = useObservableState<CsgItem[]>(userCollection$, [])
+
     function getCsgListWithOwned() {
-        const userCollection = JSON.parse(sessionStorage.getItem('userCollection') || '[]')
         let updatedPiratesCsgList = [...piratesCsgList]
 
         if(userCollection.length > 0) {

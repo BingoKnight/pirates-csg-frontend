@@ -8,7 +8,7 @@ import CsgModal from './components/modal/CsgModal.tsx';
 import PrivateRoute from './components/PrivateRoute.tsx';
 import AccountSettings from './pages/AccountSettings.tsx';
 import ForgotUsername from './pages/ForgotUsername.tsx';
-import Home from './pages/Home';
+import Home from './pages/Home.tsx';
 import Login from './pages/Login.tsx';
 import PiratesCollection from './pages/PiratesCollection.tsx';
 import Registration from './pages/Registration.tsx';

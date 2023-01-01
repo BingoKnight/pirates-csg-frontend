@@ -8,10 +8,15 @@ import { getCookie } from '../utils/cookies.ts'
 import { useStatefulNavigate } from '../utils/hooks.ts'
 
 import '../styles/layout.scss'
+import { refreshKeywordsDictionary, refreshPiratesCsgList, refreshUser } from '../services/globalState.ts'
 
 function Layout({ children }) {
     const navigate = useStatefulNavigate()
     const location = useLocation()
+
+    refreshPiratesCsgList()
+    refreshKeywordsDictionary()
+    refreshUser()
 
     useEffect(() => {
         const invalidUserPaths = ['/login', '/register']
@@ -25,6 +30,7 @@ function Layout({ children }) {
             navigate(from, true)
         }
     }, [])
+
     return (
         <div>
             <div id="backdrops">
