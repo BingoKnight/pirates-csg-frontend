@@ -27,35 +27,57 @@ $raritiesColors: (
     width: 100%;
 }
 
-.page-control-container {
+.page-edit-container {
     display: flex;
+    justify-content: space-between;
+
     width: 100%;
+    margin-top: 30px;
 }
 
-.page-control-container.upper {
-    justify-content: end;
-    margin-top: 50px;
 
-    .page-control {
-        margin-right: 40px;
+.edit-collection-button-group {
+    display: flex;
+    flex-direction: row;
+
+    margin-left: 40px;
+
+    .edit-collection-button,
+    .discard-edit-button,
+    .save-edit-button {
+        height: 40px;
+        min-width: 90px;
+        padding: 0 10px;
     }
 
-    @include breakpoint(tablet) {
-        justify-content: center;
-        .page-control {
-            margin-right: 0px;
-        }
+    .discard-edit-button,
+    .save-edit-button {
+        margin-right: 20px;
     }
-}
-
-.page-control-container.lower {
-    justify-content: center;
-    margin-top: 20px;
 }
 
 .page-control {
     .col {
         flex: 0;
+    }
+
+    &.upper {
+        justify-content: end;
+        // margin-top: 50px;
+
+        margin-right: 40px;
+
+        @include breakpoint(tablet) {
+            justify-content: center;
+            .page-control {
+                margin-right: 0px;
+            }
+        }
+    }
+
+    &.lower {
+        justify-content: center;
+        margin-top: 20px;
     }
 
     .page-button {

@@ -71,7 +71,7 @@ function handleResponseError(err) {
     throw err
 }
 
-async function get(path, headers = {}) {
+async function _get(path, headers = {}) {
     const token = getCookie('x-token')
     const tokenHeaders = token ? { 'Authorization': `Bearer ${token}` } : {}
 
@@ -92,7 +92,7 @@ async function get(path, headers = {}) {
         })
 }
 
-async function post(path, payload = {}, headers = {}) {
+async function _post(path, payload = {}, headers = {}) {
     const token = getCookie('x-token')
     const tokenHeaders = token ? { 'Authorization': `Bearer ${token}` } : {}
 
@@ -117,12 +117,69 @@ async function post(path, payload = {}, headers = {}) {
         .catch(handleResponseError)
 }
 
+async function _put(path, payload = {}, headers = {}) {
+    const token = getCookie('x-token')
+    const tokenHeaders = token ? { 'Authorization': `Bearer ${token}` } : {}
+
+    const options = {
+        credentials: 'include',
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            ...tokenHeaders,
+            ...headers
+        },
+        body: typeof payload === 'string' ? payload : JSON.stringify(payload)
+    }
+
+    return fetch(process.env.REACT_APP_PIRATE_CSG_API_BASE_URL + path, options)
+        .then(async res => {
+            if(!res.ok) {
+                throw new WebError(await jsonOrContent(res), res.status)
+            }
+            return res
+        })
+        .catch(handleResponseError)
+}
+
+async function _delete(path, params = {}, headers = {}) {
+    const token = getCookie('x-token')
+    const tokenHeaders = token ? { 'Authorization': `Bearer ${token}` } : {}
+
+    const urlParams = '?' + Object.entries(params).map(([key, value]) => {
+        console.log(key)
+        console.log(value)
+        console.log(Array.isArray(value))
+        if (Array.isArray(value)) {
+            return value.map(v => {console.log(v); return`${encodeURIComponent(key)}=${encodeURIComponent(v)}`}).join('&')
+        }
+        return `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
+    }).join('&')
+
+    const options = {
+        credentials: 'include',
+        method: 'DELETE',
+        headers: {
+            ...tokenHeaders,
+            ...headers
+        }
+    }
+
+    return fetch(process.env.REACT_APP_PIRATE_CSG_API_BASE_URL + path + urlParams, options)
+        .then(async res => {
+            if(!res.ok) {
+                throw new WebError(await jsonOrContent(res), res.status)
+            }
+            return res
+        })
+}
+
 export async function getPiratesCsgList() {
     const sessionPiratesList = sessionStorage.getItem('piratesCsgList')
     if (sessionPiratesList)
         return JSON.parse(sessionPiratesList)
 
-    return get('/v1/pirates-csg')
+    return _get('/v1/pirates-csg')
         .then(res => res.json())
         .then(json => {
             sessionStorage.setItem('piratesCsgList', JSON.stringify(json.models))
@@ -135,7 +192,7 @@ export async function getKeywordsDictionary() {
     if (sessionKeywordsDictionary)
         return JSON.parse(sessionKeywordsDictionary)
 
-    return get('/v1/ability-keyword')
+    return _get('/v1/ability-keyword')
         .then(res => res.json())
         .then(json => {
             const keywords = json.keywords
@@ -145,7 +202,7 @@ export async function getKeywordsDictionary() {
 }
 
 export async function registerUser(userCreds) {
-    return post('/v1/user/register', userCreds)
+    return _post('/v1/user/register', userCreds)
         .then(async res => {
             sessionStorage.setItem('user', JSON.stringify(await res.clone().json()))
             return res
@@ -153,7 +210,7 @@ export async function registerUser(userCreds) {
 }
 
 export async function loginUser(userCreds) {
-    return post('/v1/user/login', userCreds)
+    return _post('/v1/user/login', userCreds)
         .then(async res => {
             sessionStorage.setItem('user', JSON.stringify(await res.clone().json()))
             return res
@@ -161,7 +218,7 @@ export async function loginUser(userCreds) {
 }
 
 export async function logoutUser() {
-    return post('/v1/user/logout')
+    return _post('/v1/user/logout')
         .finally(clearLocalUser)
 }
 
@@ -170,7 +227,7 @@ export async function getUser() {
     if (getCookie('x-token') && sessionUser)
         return JSON.parse(sessionUser)
 
-    return get('/v1/user')
+    return _get('/v1/user')
         .then(res => res.json())
         .then(json => {
             sessionStorage.setItem('user', JSON.stringify(json))
@@ -183,7 +240,7 @@ export async function getUser() {
 }
 
 export async function updateEmail(email) {
-    return post('/v1/user/change-email', { email })
+    return _post('/v1/user/change-email', { email })
         .then(async res => {
             const user = await getUser()
             sessionStorage.setItem('user', JSON.stringify({ ...user, email }))
@@ -198,7 +255,7 @@ export async function updatePassword(currentPassword, newPassword) {
         newPassword
     }
 
-    return post('/v1/user/change-password', payload)
+    return _post('/v1/user/change-password', payload)
         .then(async res => {
             pushNotification({ type: 'success', message: 'Password updated!' })
             return res
@@ -210,18 +267,47 @@ export async function getUserCollection() {
     if (sessionUserCollection)
         return JSON.parse(sessionUserCollection)
 
-    return get('/v1/collection')
-        .then(async res => {
-            if(res.ok) {
-                const json = await res.json()
-                const userCollection = json.collection.map(obj => ({
-                    ...obj.item,
-                    count: obj.count
-                }))
-                sessionStorage.setItem('userCollection', JSON.stringify(userCollection))
-                return userCollection
-            }
+    return _get('/v1/collection')
+        .then(res => res.json())
+        .then(json => {
+            const userCollection = json.collection.map(obj => ({
+                ...obj.item,
+                count: obj.count
+            }))
+            sessionStorage.setItem('userCollection', JSON.stringify(userCollection))
+            return userCollection
         })
         .catch(handleResponseError)
+}
+
+export async function addToCollection(itemIds) {
+    const payload = {
+        collection: itemIds.map(itemId => ({ itemId }))
+    }
+
+    return _put('/v1/collection/update', payload)
+        .then(res => res.json())
+        .then(json => {
+            const userCollection = json.collection.map(obj => ({
+                ...obj.item,
+                count: obj.count
+            }))
+            sessionStorage.setItem('userCollection', JSON.stringify(userCollection))
+            return userCollection
+        })
+}
+
+export async function removeFromCollection(itemIds) {
+    console.log({ id: itemIds })
+    return _delete('/v1/collection/remove', { id: itemIds })
+        .then(res => res.json())
+        .then(json => {
+            const userCollection = json.collection.map(obj => ({
+                ...obj.item,
+                count: obj.count
+            }))
+            sessionStorage.setItem('userCollection', JSON.stringify(userCollection))
+            return userCollection
+        })
 }
 

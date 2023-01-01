@@ -1,8 +1,9 @@
 import _ from 'lodash'
+import { useObservableState } from 'observable-hooks'
 import React, { useEffect, useRef, useState } from 'react'
 import { v4 as uuid4 } from 'uuid'
 
-import { getKeywordsDictionary, getUserCollection } from '../api.js'
+import { addToCollection, getKeywordsDictionary, getUserCollection, removeFromCollection } from '../api.js'
 import Button from '../components/Button.tsx'
 import Dropdown, { MultiItemDropdown } from '../components/Dropdown.tsx'
 import {
@@ -23,6 +24,7 @@ import PiratesCsgList from '../components/PiratesCsgList.tsx';
 import Slider from '../components/Slider.tsx'
 import { TextInput } from '../components/TextInput.tsx'
 import ToggleButton from '../components/ToggleButton.tsx'
+import { isEditing$, toggleIsEditing } from '../services/editCollectionService.ts'
 
 import { TABLET_VIEW, PHONE_VIEW } from '../constants.js'
 import { ReactComponent as DownArrow } from '../images/angle-down-solid.svg'
@@ -31,6 +33,7 @@ import { ReactComponent as Alert } from '../images/circle-exclamation-solid.svg'
 import {ReactComponent as QuestionMark } from '../images/circle-question-regular.svg'
 import noImage from '../images/no-image.jpg'
 import setIconMapper from '../utils/setIconMapper.tsx'
+import { isLoggedIn } from '../utils/user.ts'
 
 import '../styles/home.scss';
 
@@ -464,7 +467,7 @@ function PageControl(props) {
         setPageNumber(pageNumber - 1)
     }
 
-    const pageControlClass = 'page-control-container' + (className ? ` ${className}` : '')
+    const pageControlClass = 'row page-control' + (className ? ` ${className}` : '')
     let nextPageLabel = 'Next'
     let prevPageLabel = 'Previous'
 
@@ -474,8 +477,7 @@ function PageControl(props) {
     }
 
     return (
-        <div className={pageControlClass}>
-            <div className="row page-control">
+            <div className={pageControlClass}>
                 <div className="row">
                 <PageSizeSelect pageSize={pageSize} setPageSize={setPageSize} />
                 </div>
@@ -505,7 +507,6 @@ function PageControl(props) {
                     >{nextPageLabel}</PageButton>
                 </div></div>
             </div>
-        </div>
     )
 }
 
@@ -1026,15 +1027,17 @@ function PiratesCsgSearch({ getPiratesCsgList, sessionStoragePiratesCsgListKey, 
         keywords: sessionStorageQuery?.keywords || []
     })
 
-    const [completeCsgList, setCompleteCsgList] = useState(JSON.parse(sessionStorage.getItem(sessionStoragePiratesCsgListKey)) || [])
+    const [completeCsgList, setCompleteCsgList] = useState(JSON.parse(sessionStorage.getItem(sessionStoragePiratesCsgListKey) || '[]'))
 
     // filteredCsgList should be used to determine size because sortedCsgList doesn't affect maxPages
     const [filteredCsgList, setFilteredCsgList] = useState(updateQuery(completeCsgList, query))
 
     const sessionStorageSort = JSON.parse(sessionStorage.getItem('sort'))
     const [sort, setSort] = useState(sessionStorageSort || {field: null, order: null})
-
     const [sortedCsgList, setSortedCsgList] = useState(sortList(filteredCsgList, sort))
+
+    const [stagedCollectionAdds, setStagedCollectionAdds] = useState<string[]>([])
+    const [stagedCollectionRemoves, setStagedCollectionRemoves] = useState<string[]>([])
 
     const localStoragePageSize = parseInt(localStorage.getItem('pageSize'))
     const defaultPageSize = pageSizeOptions.includes(localStoragePageSize) ? localStoragePageSize : 25
@@ -1045,6 +1048,8 @@ function PiratesCsgSearch({ getPiratesCsgList, sessionStoragePiratesCsgListKey, 
 
     const [apiFetchComplete, setApiFetchComplete] = useState(sessionStorage.getItem(sessionStoragePiratesCsgListKey) !== null)
 
+    const isEditingCollection = useObservableState<boolean>(isEditing$, false)
+
     const searchRef = useRef(null)
 
     const factionList = [
@@ -1054,6 +1059,30 @@ function PiratesCsgSearch({ getPiratesCsgList, sessionStoragePiratesCsgListKey, 
                 .filter(faction => !['ut', 'none'].includes(faction.toLowerCase()))
         )
     ]
+
+    function saveEdits() {
+        setApiFetchComplete(false)
+        let requestPromises = []
+
+        if (stagedCollectionRemoves.length > 0)
+            requestPromises.push(removeFromCollection(stagedCollectionRemoves))
+
+        if (stagedCollectionAdds.length > 0)
+            requestPromises.push(addToCollection(stagedCollectionAdds))
+
+        Promise.all(requestPromises).finally(() => {
+            setApiFetchComplete(true)
+            setStagedCollectionAdds([])
+            setStagedCollectionRemoves([])
+            toggleIsEditing()
+        })
+    }
+
+    function discardEdits() {
+        toggleIsEditing()
+        setStagedCollectionAdds([])
+        setStagedCollectionRemoves([])
+    }
 
     function updatePageSize(value) {
         localStorage.setItem('pageSize', value)
@@ -1121,6 +1150,11 @@ function PiratesCsgSearch({ getPiratesCsgList, sessionStoragePiratesCsgListKey, 
         async function fetchData() {
             updateCsgLists(await getPiratesCsgList())
             await getKeywordsDictionary()
+
+            if (isLoggedIn()) {
+                await getUserCollection()  // Just populate session storage
+            }
+
             setApiFetchComplete(true)
         }
 
@@ -1160,6 +1194,8 @@ function PiratesCsgSearch({ getPiratesCsgList, sessionStoragePiratesCsgListKey, 
             piratesCsgList={getPiratesListPage(sortedCsgList, pageSize, pageNumber)}
             sort={sort}
             setSort={handleUpdatedSort}
+            setStagedCollectionAdds={setStagedCollectionAdds}
+            setStagedCollectionRemoves={setStagedCollectionRemoves}
         />
     }
 
@@ -1181,16 +1217,35 @@ function PiratesCsgSearch({ getPiratesCsgList, sessionStoragePiratesCsgListKey, 
                 </div>
                 { apiFetchComplete && <AdvancedFilters query={query} setQuery={setQuery} piratesCsgList={completeCsgList} /> }
             </div>
-            <PageControl
-                className="upper"
-                pageNumber={pageNumber}
-                maxPages={maxPages}
-                setPageNumber={setPageNumber}
-                lenPageNumbers={windowWidth <= TABLET_VIEW ? 3 : 5}
-                pageSize={pageSize}
-                setPageSize={updatePageSize}
-                windowWidth={windowWidth}
-            />
+            <div className="page-edit-container">
+                <div className="edit-collection-button-group">
+                    {
+                        isEditingCollection ?
+                            <>
+                                <Button className="save-edit-button" onClick={saveEdits}>
+                                    Save
+                                </Button>
+                                <Button className="discard-edit-button" onClick={discardEdits}>
+                                    Discard
+                                </Button>
+                            </>
+                        :
+                            <Button className="edit-collection-button" onClick={toggleIsEditing}>
+                                Edit Collection
+                            </Button>
+                    }
+                </div>
+                <PageControl
+                    className="upper"
+                    pageNumber={pageNumber}
+                    maxPages={maxPages}
+                    setPageNumber={setPageNumber}
+                    lenPageNumbers={windowWidth <= TABLET_VIEW ? 3 : 5}
+                    pageSize={pageSize}
+                    setPageSize={updatePageSize}
+                    windowWidth={windowWidth}
+                />
+            </div>
             <div className='result-content'>
                 {piratesList}
             </div>

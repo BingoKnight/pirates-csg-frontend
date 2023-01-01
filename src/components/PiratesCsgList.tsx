@@ -1,10 +1,11 @@
 import _ from 'lodash'
+import { useObservableState } from 'observable-hooks'
 import React, { MouseEventHandler, useEffect, useRef, useState } from 'react'
 
-import { getUserCollection } from '../api.js'
 import CannonImage from './CannonImages.tsx'
-import { LinkButton } from './Button.tsx'
+import Button, { LinkButton } from './Button.tsx'
 import { ReactComponent as Arrow } from '../images/angle-down-solid.svg'
+import { isEditing$ } from '../services/editCollectionService.ts'
 import factionImageMapper from '../utils/factionImageMapper.tsx'
 import fieldIconMapper from '../utils/fieldIconMapper.tsx'
 import setIconMapper from '../utils/setIconMapper.tsx'
@@ -51,6 +52,7 @@ interface CsgItem {
     ability: string | null
     flavorText: string | null
     teasureValues: [number] | null
+    owned: number | undefined
 }
 
 function truncate(str: string, len = 40) {
@@ -93,7 +95,7 @@ function CsgItemColumns({ csgItem }) {
 
             if(fieldName === 'baseMove') {
                 const baseMoveText = csgItem[fieldName].split('+')
-                    .map(letter => {
+                    .map((letter: string) => {
                         if (letter === 'L') {
                             return <span style={{color: 'red'}}>{letter}</span>
                         }
@@ -108,7 +110,7 @@ function CsgItemColumns({ csgItem }) {
             if(fieldName === 'cannons') {
                 const cannonsList = csgItem[fieldName]
                     .split('-')
-                    .map(cannon => <CannonImage cannon={cannon} />)
+                    .map((cannon: string) => <CannonImage cannon={cannon} />)
                     .reduce((prev, curr) => [prev, ' ', curr])
 
                 return <div className={`col csg-col ${fieldName}-col`}>{cannonsList}</div>
@@ -125,9 +127,15 @@ function CsgItemColumns({ csgItem }) {
                 </div>
             }
 
-            if(fieldName === 'owned' && !csgItem[fieldName]) {
+            if(fieldName === 'owned') {
+                if(csgItem[fieldName]) {
+                    return <div className="col csg-col owned-col">
+                        <span className="owned">✓</span>
+                    </div>
+                }
+
                 return <div className="col csg-col owned-col">
-                    <span className="not-owned">X</span>
+                    <span className="not-owned">×</span>
                 </div>
             }
 
@@ -135,25 +143,62 @@ function CsgItemColumns({ csgItem }) {
         })
 }
 
-function CsgItemRows({ piratesCsgList, userCollection }) {
+function CsgItemRows({ piratesCsgList, setStagedCollectionAdds, setStagedCollectionRemoves }) {
+    const isEditingCollection = useObservableState<boolean>(isEditing$, false)
+    const [csgItemsToUpdate, setCsgItemsToUpdate] = useState<string[]>([])
+
+    function toggleCsgItem(csgItem: CsgItem) {
+        const setStaged = csgItem.owned ? setStagedCollectionRemoves : setStagedCollectionAdds
+        const newStagedItems = csgItemsToUpdate.includes(csgItem._id)
+            ? csgItemsToUpdate.filter(id => id !== csgItem._id)
+            : [...csgItemsToUpdate, csgItem._id]
+
+        setCsgItemsToUpdate(newStagedItems)
+        setStaged(newStagedItems)
+    }
+
+    function getLinkButtonProps(csgItem: CsgItem) {
+        let backgroundColorClass = ''
+
+        if (isEditingCollection && csgItem.owned && csgItem.owned > 0) {
+            if(csgItemsToUpdate.includes(csgItem._id))
+                backgroundColorClass = 'edit-mode-red'
+            else
+                backgroundColorClass = 'edit-mode-green'
+        } else if (isEditingCollection && !csgItem.owned) {
+            if(csgItemsToUpdate.includes(csgItem._id))
+                backgroundColorClass = 'edit-mode-green'
+            else
+                backgroundColorClass = 'edit-mode-red'
+        }
+
+        const defaultProps = {
+            className: `row csg-row csg-item-row noselect ${backgroundColorClass}`
+        }
+        if(isEditingCollection)
+            return {
+                ...defaultProps,
+                onClick: () => toggleCsgItem(csgItem)
+            }
+
+        return {
+            ...defaultProps,
+            to: `details/${csgItem._id}`
+        }
+    }
+
+    useEffect(() => {
+        if (!isEditingCollection)
+            setCsgItemsToUpdate([])
+    }, [isEditingCollection])
+
     if(piratesCsgList.length === 0)
         return <div className="row csg-row no-items">
             No results found
         </ div>
 
-    let updatedPiratesCsgList = [...piratesCsgList]
-
-    if(userCollection.length > 0) {
-        updatedPiratesCsgList = piratesCsgList.map((item: CsgItem) => {
-            return {
-                ...item,
-                owned: userCollection.find(collectionItem => collectionItem._id === item._id)?.count
-            }
-        })
-    }
-
-    return updatedPiratesCsgList.map((csgItem: CsgItem) => (
-        <LinkButton to={'details/' + csgItem._id} className={'row csg-row csg-item-row noselect'}>
+    return piratesCsgList.map((csgItem: CsgItem) => (
+        <LinkButton {...getLinkButtonProps(csgItem)}>
             <CsgItemColumns csgItem={csgItem} />
         </ LinkButton>
     ))
@@ -229,22 +274,31 @@ function HeaderRow({ sort, setSort }) {
     )
 }
 
-function PiratesCsgList({ piratesCsgList, sort, setSort }) {
-    const [userCollection, setUserCollection] = useState([])
+function PiratesCsgList({ piratesCsgList, sort, setSort, setStagedCollectionAdds, setStagedCollectionRemoves }) {
+    function getCsgListWithOwned() {
+        const userCollection = JSON.parse(sessionStorage.getItem('userCollection') || '[]')
+        let updatedPiratesCsgList = [...piratesCsgList]
 
-    useEffect(() => {
-        async function fetchUserCollection() {
-            setUserCollection(await getUserCollection())
+        if(userCollection.length > 0) {
+            return piratesCsgList.map((item: CsgItem) => {
+                return {
+                    ...item,
+                    owned: userCollection.find(collectionItem => collectionItem._id === item._id)?.count
+                }
+            })
         }
 
-        if(isLoggedIn())
-            fetchUserCollection()
-    }, [])
+        return updatedPiratesCsgList
+    }
 
     return (
         <div id='csg-list'>
             <HeaderRow sort={sort} setSort={setSort} />
-            <CsgItemRows piratesCsgList={piratesCsgList} userCollection={userCollection} />
+            <CsgItemRows
+                piratesCsgList={getCsgListWithOwned()}
+                setStagedCollectionAdds={setStagedCollectionAdds}
+                setStagedCollectionRemoves={setStagedCollectionRemoves}
+            />
         </div>
     )
 }

@@ -12,6 +12,8 @@ import setIconMapper from '../../utils/setIconMapper.tsx'
 
 import '../../styles/mainModal.scss'
 
+// TODO: fort in modal doesn't show cannons like it should, same with mobile
+
 function ModalOverlay({ closeModal, children }) {
     return (
         <div className='fixed-overlay' onClick={closeModal}>
