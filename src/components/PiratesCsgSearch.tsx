@@ -1005,6 +1005,30 @@ function AdvancedFilters({ query, setQuery, piratesCsgList }) {
 
 }
 
+function EditCollectionButtons({ isEditingCollection }) {
+    if (!isLoggedIn())
+        return null
+
+    if (isEditingCollection) {
+        return (
+            <>
+                <Button className="save-edit-button" onClick={saveEdits}>
+                    Save
+                </Button>
+                <Button className="discard-edit-button" onClick={discardEdits}>
+                    Discard
+                </Button>
+            </>
+        )
+    }
+
+    return (
+        <Button className="edit-collection-button" onClick={toggleIsEditing}>
+            Edit Collection
+        </Button>
+    )
+}
+
 function PiratesCsgSearch({ getPiratesCsgList, sessionStoragePiratesCsgListKey, sessionStorageQueryKey }) {
     const sessionStorageQuery = JSON.parse(sessionStorage.getItem(sessionStorageQueryKey))
 
@@ -1219,21 +1243,7 @@ function PiratesCsgSearch({ getPiratesCsgList, sessionStoragePiratesCsgListKey, 
             </div>
             <div className="page-edit-container">
                 <div className="edit-collection-button-group">
-                    {
-                        isEditingCollection ?
-                            <>
-                                <Button className="save-edit-button" onClick={saveEdits}>
-                                    Save
-                                </Button>
-                                <Button className="discard-edit-button" onClick={discardEdits}>
-                                    Discard
-                                </Button>
-                            </>
-                        :
-                            <Button className="edit-collection-button" onClick={toggleIsEditing}>
-                                Edit Collection
-                            </Button>
-                    }
+                    <EditCollectionButtons isEditingCollection={isEditingCollection} />
                 </div>
                 <PageControl
                     className="upper"
