@@ -3,7 +3,7 @@ import { useObservableState } from 'observable-hooks'
 import React, { useEffect, useRef, useState } from 'react'
 import { v4 as uuid4 } from 'uuid'
 
-import { addToCollection, getKeywordsDictionary, getUserCollection, removeFromCollection } from '../api.js'
+import { addToCollection, removeFromCollection } from '../api.js'
 import Button from '../components/Button.tsx'
 import Dropdown, { MultiItemDropdown } from '../components/Dropdown.tsx'
 import {
@@ -1164,10 +1164,8 @@ function PiratesCsgSearch({ csgListSubscription, sessionStoragePiratesCsgListKey
     })
 
     useEffect(() => {
-        if (completeCsgList.length > 0) {
-            updateQuery(completeCsgList, query, sort, setSortedCsgList, setFilteredCsgList)
-            setApiFetchComplete(true)
-        }
+        updateQuery(completeCsgList, query, sort, setSortedCsgList, setFilteredCsgList)
+        setApiFetchComplete(true)
     }, [completeCsgList])
 
     useEffect(() => {
@@ -1202,6 +1200,8 @@ function PiratesCsgSearch({ csgListSubscription, sessionStoragePiratesCsgListKey
             piratesCsgList={getPiratesListPage(sortedCsgList, pageSize, pageNumber)}
             sort={sort}
             setSort={handleUpdatedSort}
+            stagedCollectionAdds={stagedCollectionAdds}
+            stagedCollectionRemoves={stagedCollectionRemoves}
             setStagedCollectionAdds={setStagedCollectionAdds}
             setStagedCollectionRemoves={setStagedCollectionRemoves}
         />

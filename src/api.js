@@ -2,6 +2,7 @@ import 'cross-fetch/polyfill'
 import _ from 'lodash'
 
 import {pushNotification} from './services/notificationService.ts'
+import { refreshUserCollection } from './services/globalState.ts'
 import { deleteCookie, getCookie } from './utils/cookies.ts'
 
 async function jsonOrContent(res) {
@@ -147,11 +148,8 @@ async function _delete(path, params = {}, headers = {}) {
     const tokenHeaders = token ? { 'Authorization': `Bearer ${token}` } : {}
 
     const urlParams = '?' + Object.entries(params).map(([key, value]) => {
-        console.log(key)
-        console.log(value)
-        console.log(Array.isArray(value))
         if (Array.isArray(value)) {
-            return value.map(v => {console.log(v); return`${encodeURIComponent(key)}=${encodeURIComponent(v)}`}).join('&')
+            return value.map(v => `${encodeURIComponent(key)}=${encodeURIComponent(v)}`).join('&')
         }
         return `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
     }).join('&')
@@ -293,12 +291,12 @@ export async function addToCollection(itemIds) {
                 count: obj.count
             }))
             sessionStorage.setItem('userCollection', JSON.stringify(userCollection))
+            refreshUserCollection()
             return userCollection
         })
 }
 
 export async function removeFromCollection(itemIds) {
-    console.log({ id: itemIds })
     return _delete('/v1/collection/remove', { id: itemIds })
         .then(res => res.json())
         .then(json => {
@@ -307,6 +305,7 @@ export async function removeFromCollection(itemIds) {
                 count: obj.count
             }))
             sessionStorage.setItem('userCollection', JSON.stringify(userCollection))
+            refreshUserCollection()
             return userCollection
         })
 }

@@ -125,17 +125,24 @@ function CsgItemColumns({ csgItem }) {
         })
 }
 
-function CsgItemRows({ piratesCsgList, setStagedCollectionAdds, setStagedCollectionRemoves }) {
+function CsgItemRows({
+    piratesCsgList,
+    stagedCollectionAddsList,
+    stagedCollectionRemovesList,
+    setStagedCollectionAdds,
+    setStagedCollectionRemoves
+}) {
     const isEditingCollection = useObservableState<boolean>(isEditing$, false)
-    const [csgItemsToUpdate, setCsgItemsToUpdate] = useState<string[]>([])
 
     function toggleCsgItem(csgItem: CsgItem) {
-        const setStaged = csgItem.owned ? setStagedCollectionRemoves : setStagedCollectionAdds
-        const newStagedItems = csgItemsToUpdate.includes(csgItem._id)
-            ? csgItemsToUpdate.filter(id => id !== csgItem._id)
-            : [...csgItemsToUpdate, csgItem._id]
+        const [stagedList, setStaged] = csgItem.owned
+            ? [stagedCollectionRemovesList, setStagedCollectionRemoves]
+            : [stagedCollectionAddsList, setStagedCollectionAdds]
 
-        setCsgItemsToUpdate(newStagedItems)
+        const newStagedItems = stagedList.includes(csgItem._id)
+            ? stagedList.filter(id => id !== csgItem._id)
+            : [...stagedList, csgItem._id]
+
         setStaged(newStagedItems)
     }
 
@@ -143,12 +150,12 @@ function CsgItemRows({ piratesCsgList, setStagedCollectionAdds, setStagedCollect
         let backgroundColorClass = ''
 
         if (isEditingCollection && csgItem.owned && csgItem.owned > 0) {
-            if(csgItemsToUpdate.includes(csgItem._id))
+            if([...stagedCollectionAddsList, ...stagedCollectionRemovesList].includes(csgItem._id))
                 backgroundColorClass = 'edit-mode-red'
             else
                 backgroundColorClass = 'edit-mode-green'
         } else if (isEditingCollection && !csgItem.owned) {
-            if(csgItemsToUpdate.includes(csgItem._id))
+            if([...stagedCollectionAddsList, ...stagedCollectionRemovesList].includes(csgItem._id))
                 backgroundColorClass = 'edit-mode-green'
             else
                 backgroundColorClass = 'edit-mode-red'
@@ -168,11 +175,6 @@ function CsgItemRows({ piratesCsgList, setStagedCollectionAdds, setStagedCollect
             to: `details/${csgItem._id}`
         }
     }
-
-    useEffect(() => {
-        if (!isEditingCollection)
-            setCsgItemsToUpdate([])
-    }, [isEditingCollection])
 
     if(piratesCsgList.length === 0)
         return <div className="row csg-row no-items">
@@ -256,7 +258,15 @@ function HeaderRow({ sort, setSort }) {
     )
 }
 
-function PiratesCsgList({ piratesCsgList, sort, setSort, setStagedCollectionAdds, setStagedCollectionRemoves }) {
+function PiratesCsgList({
+    piratesCsgList,
+    sort,
+    setSort,
+    stagedCollectionAdds,
+    stagedCollectionRemoves,
+    setStagedCollectionAdds,
+    setStagedCollectionRemoves
+}) {
     const userCollection = useObservableState<CsgItem[]>(userCollection$, [])
 
     function getCsgListWithOwned() {
@@ -279,6 +289,8 @@ function PiratesCsgList({ piratesCsgList, sort, setSort, setStagedCollectionAdds
             <HeaderRow sort={sort} setSort={setSort} />
             <CsgItemRows
                 piratesCsgList={getCsgListWithOwned()}
+                stagedCollectionAddsList={stagedCollectionAdds}
+                stagedCollectionRemovesList={stagedCollectionRemoves}
                 setStagedCollectionAdds={setStagedCollectionAdds}
                 setStagedCollectionRemoves={setStagedCollectionRemoves}
             />

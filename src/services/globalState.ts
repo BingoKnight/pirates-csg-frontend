@@ -21,6 +21,11 @@ export function refreshPiratesCsgList() {
 export function refreshUser() {
     if (isLoggedIn()) {
         getUser().then(user => user$.next(user))
+    }
+}
+
+export function refreshUserCollection() {
+    if (isLoggedIn()) {
         getUserCollection().then(userCollection => userCollection$.next(userCollection))
     }
 }

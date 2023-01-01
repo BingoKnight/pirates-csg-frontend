@@ -8,7 +8,7 @@ import { getCookie } from '../utils/cookies.ts'
 import { useStatefulNavigate } from '../utils/hooks.ts'
 
 import '../styles/layout.scss'
-import { refreshKeywordsDictionary, refreshPiratesCsgList, refreshUser } from '../services/globalState.ts'
+import { refreshKeywordsDictionary, refreshPiratesCsgList, refreshUser, refreshUserCollection } from '../services/globalState.ts'
 
 function Layout({ children }) {
     const navigate = useStatefulNavigate()
@@ -17,6 +17,7 @@ function Layout({ children }) {
     refreshPiratesCsgList()
     refreshKeywordsDictionary()
     refreshUser()
+    refreshUserCollection()
 
     useEffect(() => {
         const invalidUserPaths = ['/login', '/register']
