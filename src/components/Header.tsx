@@ -3,10 +3,15 @@ import { Link, useLocation } from 'react-router-dom'
 
 import { getUser, logoutUser } from '../api.js'
 import { LinkButton } from  './Button.tsx'
+import { PHONE_VIEW, TABLET_VIEW } from '../constants.js'
 import Image from './Image.tsx'
 import { ReactComponent as DownArrow } from '../images/angle-down-solid.svg'
+import { ReactComponent as HomeIcon } from '../images/home-solid.svg'
+import { ReactComponent as LogoutIcon } from '../images/logout-solid.svg'
+import { ReactComponent as LoginIcon } from '../images/login-solid.svg'
+import { ReactComponent as GearIcon } from '../images/gear-solid.svg'
+import { ReactComponent as CollectionIcon } from '../images/field-icons/cards.svg'
 import ShipImage from '../images/ship-logo.png'
-import { PHONE_VIEW, TABLET_VIEW } from '../constants.js'
 import { useStatefulNavigate } from '../utils/hooks.ts'
 
 import '../styles/header.scss'
@@ -36,31 +41,40 @@ function MobileMenuModal({ isActive, setIsActive, links }) {
     const elementRef = useOutsideClickRef(setIsActive)
 
     return (
-        <div className={'mobile-menu-modal' + (isActive ? ' active' : '')} ref={elementRef}>
-            {
-                links.filter(link => link.isVisible).map(link => {
-                    let linkProps = {}
+        <>
+            { isActive && <div className="mobile-menu-modal-overlay" /> }
+            <div className={'mobile-menu-modal row' + (isActive ? ' active' : '')} ref={elementRef}>
+                <div className="links-col col">
+                    {
+                        links.filter(link => link.isVisible).map(link => {
+                            let linkProps = {}
 
-                    if (link.path) {
-                        linkProps = {
-                            ...linkProps,
-                            to: link.path
-                        }
+                            if (link.path) {
+                                linkProps = {
+                                    ...linkProps,
+                                    to: link.path
+                                }
+                            }
+
+                            if (link.onClick) {
+                                linkProps = {
+                                    ...linkProps,
+                                    onClick: link.onClick
+                                }
+                            }
+
+                            return <li className={'mobile-link-button' + (location.pathname === link.path ? ' active' : '')}>
+                                <span className="link-icon">{link.icon}</span>
+                                <Link {...linkProps}>{link.name}</Link>
+                            </li>
+                        })
                     }
-
-                    if (link.onClick) {
-                        linkProps = {
-                            ...linkProps,
-                            onClick: link.onClick
-                        }
-                    }
-
-                    return <li className={'mobile-link-button' + (location.pathname === link.path ? ' active' : '')}>
-                        <Link {...linkProps}>{link.name}</Link>
-                    </li>
-                })
-            }
-        </div>
+                </div>
+                <div className="close-button-col col">
+                    <span onClick={() => setIsActive(false)}>×</span>
+                </div>
+            </div>
+        </>
     )
 }
 
@@ -123,11 +137,13 @@ function NavBar({ user, isMobileView }) {
         {
             name: 'Home',
             path: '/',
+            icon: <HomeIcon />,
             isVisible: true
         },
         {
             name: 'Collection',
             path: '/collection',
+            icon: <CollectionIcon />,
             isVisible: Boolean(user)
         }
     ]
@@ -136,16 +152,19 @@ function NavBar({ user, isMobileView }) {
         {
             name: 'Settings',
             path: '/user/account-settings',
+            icon: <GearIcon />,
             isVisible: Boolean(user)
         },
         {
             name: 'Logout',
             onClick: handleLogout,
+            icon: <LogoutIcon />,
             isVisible: Boolean(user)
         },
         {
             name: 'Login',
             path: '/login',
+            icon: <LoginIcon />,
             isVisible: !Boolean(user)
         }
     ]
