@@ -22,8 +22,7 @@ function CsgModal() {
 
     const csgItem = piratesCsgList.filter(csgItem => csgItem._id === id)[0]
 
-    const { from } = location.state || { from: '/' }
-    const closeModal = () => navigate(from, true)
+    const closeModal = () => navigate(location.state?.from ? -1 : '/', true)
 
     useEffect(() => {
         async function fetchData() {
