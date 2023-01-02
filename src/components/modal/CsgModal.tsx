@@ -22,9 +22,7 @@ function CsgModal() {
 
     const csgItem = piratesCsgList.filter(csgItem => csgItem._id === id)[0]
 
-    console.log(location)
     const { from } = location.state || { from: '/' }
-    console.log(from)
     const closeModal = () => navigate(from, true)
 
     useEffect(() => {

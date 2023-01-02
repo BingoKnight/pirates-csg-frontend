@@ -1022,7 +1022,7 @@ function EditCollectionButtons({ isEditingCollection, saveEdits, discardEdits })
                 </Button>
                 <Button className="discard-edit-button" onClick={discardEdits}>
                     <Trash width="15px" />
-                    <span className="discard-edit-button-text">Discard</span>
+                    <span className="discard-edit-button-text">Cancel</span>
                 </Button>
             </div>
         )
