@@ -31,7 +31,10 @@ import { TABLET_VIEW, PHONE_VIEW } from '../constants.js'
 import { ReactComponent as DownArrow } from '../images/angle-down-solid.svg'
 import { ReactComponent as Arrow } from '../images/arrow-solid.svg'
 import { ReactComponent as Alert } from '../images/circle-exclamation-solid.svg'
-import {ReactComponent as QuestionMark } from '../images/circle-question-regular.svg'
+import { ReactComponent as QuestionMark } from '../images/circle-question-regular.svg'
+import { ReactComponent as Pencil } from '../images/pencil-solid.svg'
+import { ReactComponent as Save } from '../images/save-solid.svg'
+import { ReactComponent as Trash } from '../images/trash-solid.svg'
 import noImage from '../images/no-image.jpg'
 import setIconMapper from '../utils/setIconMapper.tsx'
 import { isLoggedIn } from '../utils/user.ts'
@@ -1012,20 +1015,23 @@ function EditCollectionButtons({ isEditingCollection, saveEdits, discardEdits })
 
     if (isEditingCollection) {
         return (
-            <>
+            <div className='row'>
                 <Button className="save-edit-button" onClick={saveEdits}>
-                    Save
+                    <Save width="15px" />
+                    <span className="save-edit-button-text">Save</span>
                 </Button>
                 <Button className="discard-edit-button" onClick={discardEdits}>
-                    Discard
+                    <Trash width="15px" />
+                    <span className="discard-edit-button-text">Discard</span>
                 </Button>
-            </>
+            </div>
         )
     }
 
     return (
         <Button className="edit-collection-button" onClick={toggleIsEditing}>
-            Edit Collection
+            <Pencil width="15px" />
+            <span className="edit-button-text">Edit Collection</span>
         </Button>
     )
 }
@@ -1209,6 +1215,12 @@ function PiratesCsgSearch({ csgListSubscription, sessionStoragePiratesCsgListKey
 
     return (
         <>
+            {
+                windowWidth <= TABLET_VIEW
+                && <div className="edit-collection-button-group mobile">
+                    <EditCollectionButtons isEditingCollection={isEditingCollection} saveEdits={saveEdits} discardEdits={discardEdits} />
+                </div>
+            }
             <div className="row query-content">
                 <div className="row search-row">
                     <TextInput
@@ -1223,12 +1235,19 @@ function PiratesCsgSearch({ csgListSubscription, sessionStoragePiratesCsgListKey
                 <div className="row faction-row">
                     <FactionToggles factionList={factionList} filterFactions={filterFactions} queriedFactions={query.factions}/>
                 </div>
-                { apiFetchComplete && <AdvancedFilters query={query} setQuery={setQuery} piratesCsgList={completeCsgList} /> }
+                {
+                    completeCsgList.length > 0
+                    && apiFetchComplete
+                    && <AdvancedFilters query={query} setQuery={setQuery} piratesCsgList={completeCsgList} />
+                }
             </div>
             <div className="page-edit-container">
-                <div className="edit-collection-button-group">
-                    <EditCollectionButtons isEditingCollection={isEditingCollection} saveEdits={saveEdits} discardEdits={discardEdits} />
-                </div>
+                {
+                    windowWidth > TABLET_VIEW
+                    && <div className="edit-collection-button-group">
+                        <EditCollectionButtons isEditingCollection={isEditingCollection} saveEdits={saveEdits} discardEdits={discardEdits} />
+                    </div>
+                }
                 <PageControl
                     className="upper"
                     pageNumber={pageNumber}

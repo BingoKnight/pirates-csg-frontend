@@ -29,7 +29,6 @@ $raritiesColors: (
 
 .page-edit-container {
     display: flex;
-    justify-content: space-between;
 
     width: 100%;
     margin-top: 30px;
@@ -37,41 +36,94 @@ $raritiesColors: (
 
 
 .edit-collection-button-group {
-    display: flex;
-    flex-direction: row;
-
     margin-left: 40px;
+
+    @include breakpoint(tablet) {
+        margin-left: 10px;
+        bottom: 5px;
+    }
+
+    &.mobile {
+        position: fixed;
+        bottom: 10px;
+
+        align-self: flex-start;
+        margin-left: 10px;
+    }
 
     .edit-collection-button,
     .discard-edit-button,
     .save-edit-button {
-        height: 40px;
-        min-width: 90px;
-        padding: 0 10px;
+        display: flex;
+        align-content: center;
+
+        border-radius: 25px;
+        padding: 10px 10px;
+        backdrop-filter: blur(25px);
     }
 
-    .discard-edit-button,
+    .edit-collection-button {
+        svg {
+            fill: #fff;
+        }
+
+        .edit-button-text {
+            display: flex;
+            margin-left: 10px;
+
+            @include breakpoint(tablet) {
+                display: none;
+            }
+        }
+    }
+
     .save-edit-button {
-        margin-right: 20px;
+        margin-right: 10px;
+
+        svg {
+            fill: #7D88FC;
+        }
+
+        .save-edit-button-text {
+            display: flex;
+            margin-left: 10px;
+
+            @include breakpoint(tablet) {
+                display: none;
+            }
+        }
+    }
+
+    .discard-edit-button {
+        svg {
+            fill: #F65A5A;
+        }
+
+        .discard-edit-button-text {
+            display: flex;
+            margin-left: 10px;
+
+            @include breakpoint(tablet) {
+                display: none;
+            }
+        }
     }
 }
 
 .page-control {
+    flex: 1;
     .col {
         flex: 0;
     }
 
     &.upper {
         justify-content: end;
-        // margin-top: 50px;
 
         margin-right: 40px;
 
         @include breakpoint(tablet) {
             justify-content: center;
-            .page-control {
-                margin-right: 0px;
-            }
+            margin-right: 0px;
         }
     }
 

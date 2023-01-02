@@ -7,20 +7,69 @@ import Image from './Image.tsx'
 import { ReactComponent as DownArrow } from '../images/angle-down-solid.svg'
 import ShipImage from '../images/ship-logo.png'
 import { PHONE_VIEW, TABLET_VIEW } from '../constants.js'
-import { getCookie } from '../utils/cookies.ts'
 import { useStatefulNavigate } from '../utils/hooks.ts'
 
 import '../styles/header.scss'
 
-function MobileMenuModal() {
+function useOutsideClickRef(callback) {
+    const element = useRef(null)
+
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (element.current && !element.current.contains(event.target)) {
+                callback(false)
+            }
+        }
+
+        document.addEventListener('mouseup', handleClickOutside)
+
+        return () => {
+            document.removeEventListener('mouseup', handleClickOutside)
+        }
+    }, [element])
+
+    return element
 }
 
-function HamburgerMenu() {
+function MobileMenuModal({ isActive, setIsActive, links }) {
+    const location = useLocation()
+    const elementRef = useOutsideClickRef(setIsActive)
+
     return (
-        <svg viewBox="0 0 100 100">
-            <path id={'menu-path-1'} className={isMenuActive ? 'active' : ''} d="M20,25 l60,0 0,10 -60,0" />
-            <path id={'menu-path-2'} className={isMenuActive ? 'active' : ''} d="M20,45 l60,0 0,10 -60,0"/>
-            <path id={'menu-path-3'} className={isMenuActive ? 'active' : ''} d="M20,65 l60,0 0,10 -60,0"/>
+        <div className={'mobile-menu-modal' + (isActive ? ' active' : '')} ref={elementRef}>
+            {
+                links.filter(link => link.isVisible).map(link => {
+                    let linkProps = {}
+
+                    if (link.path) {
+                        linkProps = {
+                            ...linkProps,
+                            to: link.path
+                        }
+                    }
+
+                    if (link.onClick) {
+                        linkProps = {
+                            ...linkProps,
+                            onClick: link.onClick
+                        }
+                    }
+
+                    return <li className={'mobile-link-button' + (location.pathname === link.path ? ' active' : '')}>
+                        <Link {...linkProps}>{link.name}</Link>
+                    </li>
+                })
+            }
+        </div>
+    )
+}
+
+function HamburgerMenu({ isActive, toggleMenu }) {
+    return (
+        <svg className="mobile-menu-toggle" viewBox="0 0 100 100" width="35px" fill="#fff" onClick={toggleMenu}>
+            <path id={'menu-path-1'} className={isActive ? 'active' : ''} d="M20,25 l60,0 0,10 -60,0" />
+            <path id={'menu-path-2'} className={isActive ? 'active' : ''} d="M20,45 l60,0 0,10 -60,0"/>
+            <path id={'menu-path-3'} className={isActive ? 'active' : ''} d="M20,65 l60,0 0,10 -60,0"/>
         </svg>
     )
 }
@@ -28,7 +77,7 @@ function HamburgerMenu() {
 function UserDropDown({ username }) {
     const [isActive, setIsActive] = useState(false)
 
-    const dropdownContentRef = useRef(null)
+    const elementRef = useOutsideClickRef(setIsActive)
 
     const navigate = useStatefulNavigate()
 
@@ -41,22 +90,8 @@ function UserDropDown({ username }) {
         navigate(0)
     }
 
-    useEffect(() => {
-        function handleClickOutside(event) {
-            if (dropdownContentRef.current && !dropdownContentRef.current.contains(event.target)) {
-                setIsActive(false)
-            }
-        }
-
-        document.addEventListener('mouseup', handleClickOutside)
-
-        return () => {
-            document.removeEventListener('mouseup', handleClickOutside)
-        }
-    }, [dropdownContentRef])
-
     return (
-        <div ref={dropdownContentRef} className="user-dropdown noselect">
+        <div ref={elementRef} className="user-dropdown noselect">
             <div className={'user-dropdown-header' + (isActive ? ' active': '')} onClick={toggleIsActive}>
                 {username} <DownArrow className={'dropdown-arrow' + (isActive ? ' active': '')} />
             </div>
@@ -70,8 +105,19 @@ function UserDropDown({ username }) {
     )
 }
 
-function NavBar({ user }) {
+function NavBar({ user, isMobileView }) {
+    const [isActive, setIsActive] = useState(false)
     const location = useLocation()
+    const navigate = useStatefulNavigate()
+
+    function handleLogout() {
+        logoutUser()
+        navigate(0)
+    }
+
+    function toggleMenu() {
+        setIsActive(!isActive)
+    }
 
     const links = [
         {
@@ -86,16 +132,54 @@ function NavBar({ user }) {
         }
     ]
 
+    const mobileOnlyLinks = [
+        {
+            name: 'Settings',
+            path: '/user/account-settings',
+            isVisible: Boolean(user)
+        },
+        {
+            name: 'Logout',
+            onClick: handleLogout,
+            isVisible: Boolean(user)
+        },
+        {
+            name: 'Login',
+            path: '/login',
+            isVisible: !Boolean(user)
+        }
+    ]
+
+    if (isMobileView) {
+        return (
+            <>
+                <HamburgerMenu toggleMenu={toggleMenu} isActive={isActive} />
+                <MobileMenuModal isActive={isActive} setIsActive={setIsActive} links={[...links, ...mobileOnlyLinks]} />
+            </>
+        )
+    }
+
     return (
-        <div className="nav-bar row">
-            {
-                links
-                    .filter(link => link.isVisible)
-                    .map(link => (
-                        <LinkButton to={link.path} className={'nav-link' + (location.pathname === link.path ? ' active' : '')}>{link.name}</LinkButton>
-                    ))
+        <>
+            <div className="nav-bar row">
+                {
+                    links
+                        .filter(link => link.isVisible)
+                        .map(link => (
+                            <LinkButton
+                                to={link.path}
+                                className={'nav-link' + (location.pathname === link.path ? ' active' : '')}
+                            >
+                                {link.name}
+                            </LinkButton>
+                        ))
+                }
+            </div>
+            { user
+                ? <UserDropDown username={user.username} />
+                : <LinkButton className="login-button" to="/login">Login</LinkButton>
             }
-        </div>
+        </>
     )
 }
 
@@ -124,11 +208,7 @@ export default function Header() {
                         { windowWidth > PHONE_VIEW && <span>Pirates CSG Database</span> }
                         <Image src={ShipImage} alt="Logo" height="50px"/>
                     </Link>
-                    <NavBar user={user} />
-                    { user ?
-                        <UserDropDown username={user.username} />
-                        : <LinkButton className="login-button" to="/login">Login</LinkButton>
-                    }
+                    <NavBar user={user} isMobileView={TABLET_VIEW >= windowWidth} />
                 </div>
             </div>
         </>
