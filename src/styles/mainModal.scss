@@ -150,6 +150,10 @@
         }
     }
 
+    .modal-options-menu {
+        margin-top: -20px;
+    }
+
     .link-dropdown {
         display: inline-block;
     
@@ -324,86 +328,6 @@
         }
     }
 
-    .modal-options-button {
-        cursor: pointer;
-        flex: 1;
-        margin-top: -30px;
-
-        svg {
-            fill: #ddd;
-        }
-    }
-
-    .modal-options-menu {
-        .modal-options-menu-content {
-            position: absolute;
-            right: 5px;
-            z-index: 15;
-
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-
-            background-color: #111;
-            border-radius: $modal-border-radius;
-            border: 1px solid #333;
-            padding: 10px 15px;
-            margin: 10px;
-
-            color: #fff;
-            text-align: left;
-            font-size: 1rem;
-
-            .menu-button {
-                list-style: none;
-                margin: 5px 0;
-                cursor: pointer;
-
-                &:hover {
-                    text-decoration: underline;
-                }
-            }
-
-            .link-icon svg {
-                fill: #fff;
-                margin-right: 7px;
-            }
-        }
-    }
-    
-    .copy-button {
-        cursor: pointer;
-        flex: 1;
-    }
-    
-    .copy-tooltip {
-        position: absolute;
-        margin-left: -42px;
-        margin-top: 10px;
-        padding: 4px;
-        z-index: 15;
-    
-        border-radius: $modal-border-radius;
-    
-        background-color: #fff;
-        color: #000;
-    
-        font-size: 0.9rem;
-    
-        .circle-check-col {
-            margin-bottom: -3px;
-            svg {
-                fill: #28a443;
-            }
-        }
-    
-        .row{
-            .col {
-                padding: 0 3px;
-            }
-        }
-    }
-    
     .keywords-row {
         margin: 30px 0 0 45px;
         align-items: start;

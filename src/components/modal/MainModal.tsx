@@ -1,20 +1,13 @@
 import { useObservableState } from 'observable-hooks'
-import React, {useEffect, useState} from 'react'
+import React, { useState } from 'react'
 
-import { addToCollection, removeFromCollection } from '../../api.js'
 import Button from '../Button.tsx'
 import CannonImage from '../CannonImages.tsx'
 import { ReactComponent as DownArrow } from '../../images/angle-down-solid.svg'
-import { ReactComponent as Copy } from '../../images/copy-regular.svg'
-import { ReactComponent as CircleCheck } from '../../images/check-circle.svg'
-import { ReactComponent as Plus } from '../../images/plus-solid.svg'
-import { ReactComponent as Trash } from '../../images/trash-solid.svg'
-import { ReactComponent as VerticalEllipsis } from '../../images/ellipsis-vertical-solid.svg'
 import noImage from '../../images/no-image.jpg'
-import { user$, userCollection$ } from '../../services/globalState.ts'
-import { pushNotification } from '../../services/notificationService.ts'
+import { ModalOptions } from './ModalBase.tsx'
+import { userCollection$ } from '../../services/globalState.ts'
 import { CsgItem } from '../../types/csgItem.ts'
-import { NotificationType } from '../../types/notification.ts'
 import factionImageMapper from '../../utils/factionImageMapper.tsx'
 import fieldIconMapper from '../../utils/fieldIconMapper.tsx'
 import setIconMapper from '../../utils/setIconMapper.tsx'
@@ -124,100 +117,6 @@ function CsgShipStats({ csgItem }) {
     )
 }
 
-function ModalOptionsMenu({ csgItem, isInCollection }) {
-    const user = useObservableState(user$, {})
-    const [isUpdatingCollection, setIsUpdatingCollection] = useState(false)
-
-    const iconProps = {
-        height: '15px'
-    }
-
-    function handleCopyClick() {
-        navigator.clipboard.writeText(`${process.env.REACT_APP_PIRATE_CSG_FE_BASE_URL}/details/${csgItem._id}`)
-        pushNotification({
-            type: NotificationType.success,
-            message: `Copied ${csgItem.name}`
-        })
-    }
-
-    function handleAddToCollectionClick() {
-        if (!isUpdatingCollection) {
-            setIsUpdatingCollection(true)
-            addToCollection([csgItem._id])
-                .then(() => {
-                    setIsUpdatingCollection(false)
-                    pushNotification({
-                        type: NotificationType.success,
-                        message: `Added ${csgItem.name}`
-                    })
-                })
-        }
-    }
-
-    function handleRemoveFromCollectionClick() {
-        if (!isUpdatingCollection) {
-            setIsUpdatingCollection(true)
-            removeFromCollection([csgItem._id])
-                .then(() => {
-                    setIsUpdatingCollection(false)
-                    pushNotification({
-                        type: NotificationType.success,
-                        message: `Removed ${csgItem.name}`
-                    })
-                })
-        }
-    }
-
-    const links = [
-        {
-            name: 'Copy',
-            onClick: handleCopyClick,
-            icon: <Copy {...iconProps} />,
-            isVisible: true
-        },
-        {
-            name: 'Add to Collection',
-            onClick: handleAddToCollectionClick,
-            icon: <Plus {...iconProps} />,
-            isVisible: Boolean(user) && !isInCollection
-        },
-        {
-            name: 'Remove from Collection',
-            onClick: handleRemoveFromCollectionClick,
-            icon: <Trash {...iconProps} />,
-            isVisible: Boolean(user) && isInCollection
-        }
-    ]
-
-    return (
-        <div className="modal-options-menu">
-            <div className="modal-options-menu-content">
-                {
-                    links.filter(link => link.isVisible).map(link => {
-                        return <li className="menu-button" onClick={link.onClick}>
-                            <span className="link-icon">{link.icon}</span>
-                            <span className="link-text">{link.name}</span>
-                        </li>
-                    })
-                }
-            </div>
-        </div>
-    )
-}
-
-function ModalOptions({ csgItem, isInCollection }) {
-    const [isActive, setIsActive] = useState(false)
-
-    return (
-        <>
-            <div className="modal-options-button" onClick={() => setIsActive(!isActive)}>
-                <VerticalEllipsis height={'25px'} />
-            </div>
-            { isActive && <ModalOptionsMenu csgItem={csgItem} isInCollection={isInCollection} /> }
-        </>
-    )
-}
-
 function LinkIcon({ link }) {
     return (
         <div className="link-dropdown">
@@ -251,7 +150,6 @@ function CsgStats({ csgItem }) {
                 </div>
                 <ModalOptions csgItem={csgItem} isInCollection={isInCollection} />
             </div>
-
             { csgItem.type.toLowerCase() === 'ship' && <CsgShipStats csgItem={csgItem} /> }
         </div>
     )

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 
 import { getUser, logoutUser } from '../api.js'
@@ -12,29 +12,9 @@ import { ReactComponent as LoginIcon } from '../images/login-solid.svg'
 import { ReactComponent as GearIcon } from '../images/gear-solid.svg'
 import { ReactComponent as CollectionIcon } from '../images/field-icons/cards.svg'
 import ShipImage from '../images/ship-logo.png'
-import { useStatefulNavigate } from '../utils/hooks.ts'
+import { useStatefulNavigate, useOutsideClickRef } from '../utils/hooks.ts'
 
 import '../styles/header.scss'
-
-function useOutsideClickRef(callback) {
-    const element = useRef(null)
-
-    useEffect(() => {
-        function handleClickOutside(event) {
-            if (element.current && !element.current.contains(event.target)) {
-                callback(false)
-            }
-        }
-
-        document.addEventListener('mouseup', handleClickOutside)
-
-        return () => {
-            document.removeEventListener('mouseup', handleClickOutside)
-        }
-    }, [element])
-
-    return element
-}
 
 function MobileMenuModal({ isActive, setIsActive, links }) {
     const location = useLocation()

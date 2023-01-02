@@ -28,9 +28,8 @@ function NotificationItem({ id, type, message }) {
     )
 }
 
-function NotificationList() {
-    const notifications = useObservableState<NotificationObject[]>(notifications$, [])
-
+function NotificationList({ notifications }) {
+    console.log(notifications)
     return notifications.map(notification => {
         return (
             <NotificationItem {...notification} />
@@ -39,9 +38,14 @@ function NotificationList() {
 }
 
 function NotificationsContainer() {
+    const notifications = useObservableState<NotificationObject[]>(notifications$, [])
+
+    if (notifications.length === 0)
+        return null
+
     return (
         <div className="notification-container">
-            <NotificationList />
+            <NotificationList notifications={notifications} />
         </div>
     )
 }

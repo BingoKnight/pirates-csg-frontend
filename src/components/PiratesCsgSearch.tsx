@@ -36,6 +36,8 @@ import { ReactComponent as Pencil } from '../images/pencil-solid.svg'
 import { ReactComponent as Save } from '../images/save-solid.svg'
 import { ReactComponent as Trash } from '../images/trash-solid.svg'
 import noImage from '../images/no-image.jpg'
+import { pushNotification } from '../services/notificationService.ts'
+import { NotificationType } from '../types/notification.ts'
 import setIconMapper from '../utils/setIconMapper.tsx'
 import { isLoggedIn } from '../utils/user.ts'
 
@@ -48,6 +50,7 @@ const SortOrder = {
     descending: 'descending'
 }
 
+// TODO: fix sort, if sorting on masts it removes crew (could also be a problem for cargo/movement)
 // TODO: fix tablet view to be more like computer view
 // TODO: preload image on faction query change
 // TODO: replace spinning wheel with empty rows with moving gradient to signify loading
@@ -1092,7 +1095,6 @@ function PiratesCsgSearch({ csgListSubscription, sessionStoragePiratesCsgListKey
     ]
 
     function saveEdits() {
-        setApiFetchComplete(false)
         let requestPromises = []
 
         if (stagedCollectionRemoves.length > 0)
@@ -1102,7 +1104,38 @@ function PiratesCsgSearch({ csgListSubscription, sessionStoragePiratesCsgListKey
             requestPromises.push(addToCollection(stagedCollectionAdds))
 
         Promise.all(requestPromises).finally(() => {
-            setApiFetchComplete(true)
+            let notificationRemoveMessage = ''
+            let notificationAddMessage = ''
+
+            const itemsRemoved = completeCsgList.filter(item => stagedCollectionRemoves.includes(item._id))
+            const itemsAdded = completeCsgList.filter(item => stagedCollectionAdds.includes(item._id))
+
+            if (itemsRemoved.length > 2) {
+                notificationRemoveMessage += `Removed: ${itemsRemoved.length}`
+            } else if (stagedCollectionRemoves.length > 0) {
+                notificationRemoveMessage += `Removed ${itemsRemoved.map(item => item.name).join(' and ')}`
+            }
+
+            if (itemsAdded.length > 2) {
+                notificationAddMessage += `Added: ${itemsAdded.length}`
+            } else if (stagedCollectionAdds.length > 0) {
+                notificationAddMessage += `Added ${itemsAdded.map(item => item.name).join(' and ')}`
+            }
+
+            if (notificationRemoveMessage) {
+                pushNotification({
+                    type: NotificationType.success,
+                    message: notificationRemoveMessage
+                })
+            }
+
+            if (notificationAddMessage) {
+                pushNotification({
+                    type: NotificationType.success,
+                    message: notificationAddMessage
+                })
+            }
+
             setStagedCollectionAdds([])
             setStagedCollectionRemoves([])
             toggleIsEditing()

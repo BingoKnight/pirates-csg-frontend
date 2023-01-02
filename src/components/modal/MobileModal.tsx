@@ -1,13 +1,16 @@
+import { useObservableState } from 'observable-hooks'
 import React, { useState, useEffect } from 'react'
 
 import Button from '../Button.tsx'
 import CannonImage from '../CannonImages.tsx'
 import Layout from '../Layout.tsx'
-
 import { ReactComponent as DownArrow } from '../../images/angle-down-solid.svg'
 import { ReactComponent as CircleCheck } from '../../images/check-circle.svg'
 import { ReactComponent as Copy } from '../../images/copy-regular.svg'
 import noImage from '../../images/no-image.jpg'
+import { ModalOptions } from './ModalBase.tsx'
+import { userCollection$ } from '../../services/globalState.ts'
+import { CsgItem } from '../../types/csgItem.ts'
 import factionImageMapper from '../../utils/factionImageMapper.tsx'
 import fieldIconMapper from '../../utils/fieldIconMapper.tsx'
 import setIconMapper from '../../utils/setIconMapper.tsx'
@@ -123,6 +126,10 @@ function Faction({ faction }) {
 }
 
 function CsgItemHeader({ csgItem }) {
+    const userCollection = useObservableState(userCollection$, [])
+
+    const isInCollection = userCollection.map((item: CsgItem) => item._id).includes(csgItem._id)
+
     return (
         <div className="row csg-item-header">
             { (csgItem.pointCost || csgItem.pointCost === 0) && <CsgPoints pointCost={csgItem.pointCost} /> }
@@ -133,6 +140,9 @@ function CsgItemHeader({ csgItem }) {
                     </div>
                     <div className="col title-col">
                         {csgItem.name}
+                    </div>
+                    <div className="col">
+                        <ModalOptions csgItem={csgItem} isInCollection={isInCollection} />
                     </div>
                 </div>
             </div>
@@ -182,7 +192,6 @@ function Ability({ ability }) {
 }
 
 function FlavorText({ flavorText }) {
-
     return (
         <div id="flavor-text">{flavorText}</div>
     )
@@ -289,7 +298,6 @@ function CopyButton({ csgItemId }) {
 function DetailsContent({ csgItem, closeModal }) {
     return (
         <>
-            {/* <CopyButton csgItemId={csgItem._id} /> */}
             <CsgItemHeader csgItem={csgItem} />
             { csgItem.type.toLowerCase() === 'ship' && <CsgShipStats csgItem={csgItem} /> }
             <Ability ability={csgItem.ability} />
@@ -315,13 +323,11 @@ function MobileModal({ csgItem, closeModal }) {
     })
 
     return (
-        <Layout>
-            <div className="mobile-modal" onClick={e => e.stopPropagation()}>
-                <div className="mobile-modal-content">
-                    <DetailsContent csgItem={csgItem} closeModal={closeModal} />
-                </div>
+        <div className="mobile-modal" onClick={e => e.stopPropagation()}>
+            <div className="mobile-modal-content">
+                <DetailsContent csgItem={csgItem} closeModal={closeModal} />
             </div>
-        </Layout>
+        </div>
     )
 }
 
