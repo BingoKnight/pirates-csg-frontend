@@ -1,12 +1,17 @@
 import _ from 'lodash'
-import React, { useEffect, useRef, MouseEventHandler } from 'react'
+import { useObservableState } from 'observable-hooks'
+import React, { MouseEventHandler, useEffect, useRef, useState } from 'react'
 
 import CannonImage from './CannonImages.tsx'
-import RouterLinkButton from './RouterLinkButton.tsx'
-import {ReactComponent as Arrow} from '../images/angle-down-solid.svg'
+import Button, { LinkButton } from './Button.tsx'
+import { ReactComponent as Arrow } from '../images/angle-down-solid.svg'
+import { isEditing$ } from '../services/editCollectionService.ts'
+import { userCollection$ } from '../services/globalState.ts'
+import { CsgItem } from '../types/csgItem.ts'
 import factionImageMapper from '../utils/factionImageMapper.tsx'
 import fieldIconMapper from '../utils/fieldIconMapper.tsx'
 import setIconMapper from '../utils/setIconMapper.tsx'
+import { isLoggedIn } from '../utils/user.ts'
 
 import '../styles/piratesCsgList.scss'
 
@@ -27,27 +32,9 @@ enum OrderedCsgFields {
     link = 'link',
     set = 'set',
     id = 'id',
+    owned = 'owned'
     // flavorText = 'flavorText',
     // teasureValues = 'teasureValues'
-}
-
-interface CsgItem {
-    _id: string
-    id: string
-    image: string
-    faction: string
-    rarity: string
-    type: string
-    name: string
-    pointCost: number
-    masts: number
-    cargo: number
-    baseMove: string
-    cannons: string
-    link: string | null
-    ability: string | null
-    flavorText: string | null
-    teasureValues: [number] | null
 }
 
 function truncate(str: string, len = 40) {
@@ -55,85 +42,149 @@ function truncate(str: string, len = 40) {
 }
 
 function CsgItemColumns({ csgItem }) {
-    return Object.keys(OrderedCsgFields).map(fieldName => {
-        if (fieldName === 'ability') {
-            let abilityText = truncate(csgItem[fieldName])
+    return Object.keys(OrderedCsgFields)
+        .filter(fieldName => fieldName !== 'owned' || isLoggedIn())
+        .map(fieldName => {
+            if(fieldName === 'ability') {
+                let abilityText = truncate(csgItem[fieldName])
 
-            return <div className={`col csg-col ${fieldName}-col`}>{abilityText}</div>
-        }
-        if (fieldName === 'image') {
-            return <div className="col csg-col">
-                <img src={csgItem.image} height="100px" alt={csgItem.name}/>
-            </div>
-        }
+                return <div className={`col csg-col ${fieldName}-col`}>{abilityText}</div>
+            }
+            if(fieldName === 'image') {
+                return <div className="col csg-col">
+                    <img src={csgItem.image} height="100px" alt={csgItem.name}/>
+                </div>
+            }
 
-        if (fieldName === 'rarity') {
-            const className = csgItem.rarity
-                .toLowerCase()
-                .replaceAll(' ', '-')
-                .replaceAll('1', 'one')  // Handle 1 of 1 rarity
+            if(fieldName === 'rarity') {
+                const className = csgItem.rarity
+                    .toLowerCase()
+                    .replaceAll(' ', '-')
+                    .replaceAll('1', 'one')  // Handle 1 of 1 rarity
 
-            return <div className={`rarity-col ${className}-col`}>
-                <div className={className} />
-            </div>
-        }
+                return <div className={`rarity-col ${className}-col`}>
+                    <div className={className} />
+                </div>
+            }
 
-        if (fieldName === 'faction') {
-            const lowerCaseFaction = csgItem.faction.toLowerCase()
-            const colClassName = lowerCaseFaction.replaceAll(' ', '-',).replaceAll('\'', '')
-            return <div className={`col csg-col faction-col ${colClassName}-col`}>
-                {factionImageMapper[lowerCaseFaction] ? factionImageMapper[lowerCaseFaction]() : null}
-            </div>
-        }
+            if(fieldName === 'faction') {
+                const lowerCaseFaction = csgItem.faction.toLowerCase()
+                const colClassName = lowerCaseFaction.replaceAll(' ', '-',).replaceAll('\'', '')
+                return <div className={`col csg-col faction-col ${colClassName}-col`}>
+                    {factionImageMapper[lowerCaseFaction] ? factionImageMapper[lowerCaseFaction]() : null}
+                </div>
+            }
 
-        if (fieldName === 'baseMove') {
-            const baseMoveText = csgItem[fieldName].split('+')
-                .map(letter => {
-                    if (letter === 'L') {
-                        return <span style={{color: 'red'}}>{letter}</span>
-                    }
-                    return <span>{letter}</span>
-                }).reduce((prev, curr) => [prev, ' + ', curr])
+            if(fieldName === 'baseMove') {
+                const baseMoveText = csgItem[fieldName].split('+')
+                    .map((letter: string) => {
+                        if (letter === 'L') {
+                            return <span style={{color: 'red'}}>{letter}</span>
+                        }
+                        return <span>{letter}</span>
+                    }).reduce((prev, curr) => [prev, ' + ', curr])
 
-            return <div className={`col csg-col windlass-font ${fieldName}-col`}>
-                {baseMoveText}
-            </div>
-        }
+                return <div className={`col csg-col windlass-font ${fieldName}-col`}>
+                    {baseMoveText}
+                </div>
+            }
 
-        if (fieldName === 'cannons') {
-            const cannonsList = csgItem[fieldName]
-                .split('-')
-                .map(cannon => <CannonImage cannon={cannon} />)
-                .reduce((prev, curr) => [prev, ' ', curr])
+            if(fieldName === 'cannons') {
+                const cannonsList = csgItem[fieldName]
+                    .split('-')
+                    .map((cannon: string) => <CannonImage cannon={cannon} />)
+                    .reduce((prev, curr) => [prev, ' ', curr])
 
-            return <div className={`col csg-col ${fieldName}-col`}>{cannonsList}</div>
-        }
+                return <div className={`col csg-col ${fieldName}-col`}>{cannonsList}</div>
+            }
 
-        if (fieldName === 'link') {
-            const linkText = truncate(csgItem[fieldName], 25)
-            return <div className={`col csg-col ${fieldName}-col`}>{linkText}</div>
-        }
+            if(fieldName === 'link') {
+                const linkText = truncate(csgItem[fieldName], 25)
+                return <div className={`col csg-col ${fieldName}-col`}>{linkText}</div>
+            }
 
-        if (fieldName === 'set') {
-            return <div className={`col csg-col ${fieldName}-col`} title={csgItem[fieldName]}>
-                {setIconMapper[csgItem[fieldName]]({height: '25px'})}
-            </div>
-        }
+            if(fieldName === 'set') {
+                return <div className={`col csg-col ${fieldName}-col`} title={csgItem[fieldName]}>
+                    {setIconMapper[csgItem[fieldName]]({height: '25px'})}
+                </div>
+            }
 
-        return <div className={`col csg-col ${fieldName}-col`}>{csgItem[fieldName]}</div>
-    })
+            if(fieldName === 'owned') {
+                if(csgItem[fieldName]) {
+                    return <div className="col csg-col owned-col">
+                        <span className="owned">✓</span>
+                    </div>
+                }
+
+                return <div className="col csg-col owned-col">
+                    <span className="not-owned">×</span>
+                </div>
+            }
+
+            return <div className={`col csg-col ${fieldName}-col`}>{csgItem[fieldName]}</div>
+        })
 }
 
-function CsgItemRows({ piratesCsgList, setActive }) {
-    if (piratesCsgList.length === 0)
+function CsgItemRows({
+    piratesCsgList,
+    stagedCollectionAddsList,
+    stagedCollectionRemovesList,
+    setStagedCollectionAdds,
+    setStagedCollectionRemoves
+}) {
+    const isEditingCollection = useObservableState<boolean>(isEditing$, false)
+
+    function toggleCsgItem(csgItem: CsgItem) {
+        const [stagedList, setStaged] = csgItem.owned
+            ? [stagedCollectionRemovesList, setStagedCollectionRemoves]
+            : [stagedCollectionAddsList, setStagedCollectionAdds]
+
+        const newStagedItems = stagedList.includes(csgItem._id)
+            ? stagedList.filter(id => id !== csgItem._id)
+            : [...stagedList, csgItem._id]
+
+        setStaged(newStagedItems)
+    }
+
+    function getLinkButtonProps(csgItem: CsgItem) {
+        let backgroundColorClass = ''
+
+        if (isEditingCollection && csgItem.owned && csgItem.owned > 0) {
+            if([...stagedCollectionAddsList, ...stagedCollectionRemovesList].includes(csgItem._id))
+                backgroundColorClass = 'edit-mode-red'
+            else
+                backgroundColorClass = 'edit-mode-green'
+        } else if (isEditingCollection && !csgItem.owned) {
+            if([...stagedCollectionAddsList, ...stagedCollectionRemovesList].includes(csgItem._id))
+                backgroundColorClass = 'edit-mode-green'
+            else
+                backgroundColorClass = 'edit-mode-red'
+        }
+
+        const defaultProps = {
+            className: `row csg-row csg-item-row noselect ${backgroundColorClass}`
+        }
+        if(isEditingCollection)
+            return {
+                ...defaultProps,
+                onClick: () => toggleCsgItem(csgItem)
+            }
+
+        return {
+            ...defaultProps,
+            to: `details/${csgItem._id}`
+        }
+    }
+
+    if(piratesCsgList.length === 0)
         return <div className="row csg-row no-items">
             No results found
         </ div>
 
     return piratesCsgList.map((csgItem: CsgItem) => (
-        <RouterLinkButton to={'/details/' + csgItem._id} state={{ from: '/'  }} className={'row csg-row csg-item-row noselect'}>
+        <LinkButton {...getLinkButtonProps(csgItem)}>
             <CsgItemColumns csgItem={csgItem} />
-        </ RouterLinkButton>
+        </ LinkButton>
     ))
 }
 
@@ -169,47 +220,80 @@ function HeaderRow({ sort, setSort }) {
 
     return (
         <div className='row csg-row' id='header-row' ref={headerRowRef} >
-        {
-            Object.keys(OrderedCsgFields).map(fieldName => {
-                const defaultClassName = `noselect${fieldName === 'rarity' ? ' header-col csg-col' : ' header-col col csg-col'}`
-                const prettyNameMapper = {
-                    id: 'ID',
-                    pointCost: 'Points'
-                }
+            {
+                Object.keys(OrderedCsgFields)
+                    .filter(fieldName => fieldName !== 'owned' || isLoggedIn())
+                    .map(fieldName => {
+                    const defaultClassName = `noselect${fieldName === 'rarity' ? ' header-col csg-col' : ' header-col col csg-col'}`
+                    const prettyNameMapper = {
+                        id: 'ID',
+                        pointCost: 'Points'
+                    }
 
-                const prettyName = prettyNameMapper[fieldName] || _.capitalize(fieldName)
-                let onClick : undefined | MouseEventHandler<HTMLDivElement> = () => handleSort(fieldName)
-                let sortableHeaderClass : undefined | string = 'sortable-header'
+                    const prettyName = prettyNameMapper[fieldName] || _.capitalize(fieldName)
+                    let onClick : undefined | MouseEventHandler<HTMLDivElement> = () => handleSort(fieldName)
+                    let sortableHeaderClass : undefined | string = 'sortable-header'
 
-                if (fieldName === 'cannons') {
-                    onClick = undefined
-                    sortableHeaderClass = undefined
-                }
+                    if (fieldName === 'cannons') {
+                        onClick = undefined
+                        sortableHeaderClass = undefined
+                    }
 
-                return (
-                    <div className={defaultClassName + ' ' + fieldName + '-col'} onClick={onClick}>
-                        <div className={"sort-order ascending" + (sort.field === fieldName && sort.order === 'ascending' ? ' show': '')}>
-                            <Arrow width="15px" />
+                    return (
+                        <div className={defaultClassName + ' ' + fieldName + '-col'} onClick={onClick}>
+                            <div className={"sort-order ascending" + (sort.field === fieldName && sort.order === 'ascending' ? ' show': '')}>
+                                <Arrow width="15px" />
+                            </div>
+                            <span className={sortableHeaderClass}>
+                                {Object.keys(fieldIconMapper).includes(fieldName) ? fieldIconMapper[fieldName]() : prettyName}
+                            </span>
+                            <div className={"sort-order descending" + (sort.field === fieldName && sort.order === 'descending' ? ' show': '')}>
+                                <Arrow width="15px" />
+                            </div>
                         </div>
-                        <span className={sortableHeaderClass}>
-                            {Object.keys(fieldIconMapper).includes(fieldName) ? fieldIconMapper[fieldName]() : prettyName}
-                        </span>
-                        <div className={"sort-order descending" + (sort.field === fieldName && sort.order === 'descending' ? ' show': '')}>
-                            <Arrow width="15px" />
-                        </div>
-                    </div>
-                )
-            })
-        }
+                    )
+                })
+            }
         </ div>
     )
 }
 
-function PiratesCsgList({ piratesCsgList, setActiveCsgItem, sort, setSort }) {
+function PiratesCsgList({
+    piratesCsgList,
+    sort,
+    setSort,
+    stagedCollectionAdds,
+    stagedCollectionRemoves,
+    setStagedCollectionAdds,
+    setStagedCollectionRemoves
+}) {
+    const userCollection = useObservableState<CsgItem[]>(userCollection$, [])
+
+    function getCsgListWithOwned() {
+        let updatedPiratesCsgList = [...piratesCsgList]
+
+        if(userCollection.length > 0) {
+            return piratesCsgList.map((item: CsgItem) => {
+                return {
+                    ...item,
+                    owned: userCollection.find(collectionItem => collectionItem._id === item._id)?.count
+                }
+            })
+        }
+
+        return updatedPiratesCsgList
+    }
+
     return (
         <div id='csg-list'>
             <HeaderRow sort={sort} setSort={setSort} />
-            <CsgItemRows piratesCsgList={piratesCsgList} setActive={setActiveCsgItem} />
+            <CsgItemRows
+                piratesCsgList={getCsgListWithOwned()}
+                stagedCollectionAddsList={stagedCollectionAdds}
+                stagedCollectionRemovesList={stagedCollectionRemoves}
+                setStagedCollectionAdds={setStagedCollectionAdds}
+                setStagedCollectionRemoves={setStagedCollectionRemoves}
+            />
         </div>
     )
 }

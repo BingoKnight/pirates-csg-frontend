@@ -1,9 +1,9 @@
 import _ from 'lodash'
+import { useObservableState } from 'observable-hooks'
 import React, { useEffect, useRef, useState } from 'react'
-import { Outlet } from 'react-router-dom'
 import { v4 as uuid4 } from 'uuid'
 
-import { getKeywordsDictionary, getPiratesCsgList } from '../api.js'
+import { addToCollection, removeFromCollection } from '../api.js'
 import Button from '../components/Button.tsx'
 import Dropdown, { MultiItemDropdown } from '../components/Dropdown.tsx'
 import {
@@ -19,20 +19,27 @@ import {
     VikingImage,
     WhiteBeardRaidersImage
 } from '../components/FactionImages.tsx'
-import Layout from '../components/Layout.tsx'
 import Loading from '../components/Loading.tsx'
 import PiratesCsgList from '../components/PiratesCsgList.tsx';
 import Slider from '../components/Slider.tsx'
 import { TextInput } from '../components/TextInput.tsx'
 import ToggleButton from '../components/ToggleButton.tsx'
+import { isEditing$, toggleIsEditing } from '../services/editCollectionService.ts'
+import { CsgItem } from '../types/csgItem.ts'
 
 import { TABLET_VIEW, PHONE_VIEW } from '../constants.js'
 import { ReactComponent as DownArrow } from '../images/angle-down-solid.svg'
 import { ReactComponent as Arrow } from '../images/arrow-solid.svg'
 import { ReactComponent as Alert } from '../images/circle-exclamation-solid.svg'
-import {ReactComponent as QuestionMark } from '../images/circle-question-regular.svg'
+import { ReactComponent as QuestionMark } from '../images/circle-question-regular.svg'
+import { ReactComponent as Pencil } from '../images/pencil-solid.svg'
+import { ReactComponent as Save } from '../images/save-solid.svg'
+import { ReactComponent as Trash } from '../images/trash-solid.svg'
 import noImage from '../images/no-image.jpg'
+import { pushNotification } from '../services/notificationService.ts'
+import { NotificationType } from '../types/notification.ts'
 import setIconMapper from '../utils/setIconMapper.tsx'
+import { isLoggedIn } from '../utils/user.ts'
 
 import '../styles/home.scss';
 
@@ -43,9 +50,12 @@ const SortOrder = {
     descending: 'descending'
 }
 
+// TODO: fix sort, if sorting on masts it removes crew (could also be a problem for cargo/movement)
 // TODO: fix tablet view to be more like computer view
 // TODO: preload image on faction query change
 // TODO: replace spinning wheel with empty rows with moving gradient to signify loading
+// TODO: add redux, right now sorting by owned items count is based on session storage
+//       which could be a problem if someone clears their session storage
 
 function FactionToggles({ factionList, filterFactions, queriedFactions }) {
     const [filteredFactions, setFilteredFactions] = useState(new Set(queriedFactions))
@@ -170,6 +180,37 @@ function sortIgnoreNull(csgList, sortOrder, sortField) {
     return [...sortedWithoutFalsy, ...csgList.filter(val => isNaN(val[sortField]))]
 }
 
+function sortNumerically(csgList, sortOrder, sortField) {
+    const unownedItems = csgList.filter(item => !item[sortField])
+    const numericallySortedList = [...csgList]
+        .filter(item => item[sortField])
+        .sort((a, b) => {
+            return sortCompare(a[sortField], b[sortField], sortOrder)
+        })
+
+    if(sortOrder === SortOrder.ascending) {
+        return [...unownedItems, ...numericallySortedList]
+    }
+
+    return [...numericallySortedList, ...unownedItems]
+}
+
+function sortOwnedItems(csgList, sortOrder, _) {
+    const userCollection = JSON.parse(sessionStorage.getItem('userCollection') || '[]')
+    const csgListWithCount = csgList.map(item => {
+        const matchingItem = userCollection.find(collectionItem => collectionItem._id === item._id)
+        if(matchingItem) {
+            return {
+                ...item,
+                count: matchingItem.count
+            }
+        }
+        return item
+    })
+
+    return sortNumerically(csgListWithCount, sortOrder, 'count')
+}
+
 function defaultSort(csgList, sortOrder, sortField) {
     return [...csgList].sort((a, b) =>
         sortCompare(a[sortField], b[sortField], sortOrder)
@@ -186,7 +227,8 @@ function sortList(piratesCsgList, sort) {
         masts: sortIgnoreNull,
         cargo: sortIgnoreNull,
         link: sortIgnoreNull,
-        id: sortIgnoreNull
+        id: sortIgnoreNull,
+        owned: sortOwnedItems
     }
 
     return (sort.field in sortHandlers ? sortHandlers[sort.field] : defaultSort)(piratesCsgList, sort.order, sort.field)
@@ -432,7 +474,7 @@ function PageControl(props) {
         setPageNumber(pageNumber - 1)
     }
 
-    const pageControlClass = 'page-control-container' + (className ? ` ${className}` : '')
+    const pageControlClass = 'row page-control' + (className ? ` ${className}` : '')
     let nextPageLabel = 'Next'
     let prevPageLabel = 'Previous'
 
@@ -442,8 +484,7 @@ function PageControl(props) {
     }
 
     return (
-        <div className={pageControlClass}>
-            <div className="row page-control">
+            <div className={pageControlClass}>
                 <div className="row">
                 <PageSizeSelect pageSize={pageSize} setPageSize={setPageSize} />
                 </div>
@@ -473,7 +514,6 @@ function PageControl(props) {
                     >{nextPageLabel}</PageButton>
                 </div></div>
             </div>
-        </div>
     )
 }
 
@@ -972,8 +1012,35 @@ function AdvancedFilters({ query, setQuery, piratesCsgList }) {
 
 }
 
-function Content({ windowWidth }) {
-    const sessionStorageQuery = JSON.parse(sessionStorage.getItem('query'))
+function EditCollectionButtons({ isEditingCollection, saveEdits, discardEdits }) {
+    if (!isLoggedIn())
+        return null
+
+    if (isEditingCollection) {
+        return (
+            <div className='row'>
+                <Button className="save-edit-button" onClick={saveEdits}>
+                    <Save width="15px" />
+                    <span className="save-edit-button-text">Save</span>
+                </Button>
+                <Button className="discard-edit-button" onClick={discardEdits}>
+                    <Trash width="15px" />
+                    <span className="discard-edit-button-text">Cancel</span>
+                </Button>
+            </div>
+        )
+    }
+
+    return (
+        <Button className="edit-collection-button" onClick={toggleIsEditing}>
+            <Pencil width="15px" />
+            <span className="edit-button-text">Edit Collection</span>
+        </Button>
+    )
+}
+
+function PiratesCsgSearch({ csgListSubscription, sessionStoragePiratesCsgListKey, sessionStorageQueryKey }) {
+    const sessionStorageQuery = JSON.parse(sessionStorage.getItem(sessionStorageQueryKey))
 
     const [query, setQuery] = useState({
         search: sessionStorageQuery?.search || '',
@@ -994,23 +1061,28 @@ function Content({ windowWidth }) {
         keywords: sessionStorageQuery?.keywords || []
     })
 
-    const [completeCsgList, setCompleteCsgList] = useState(JSON.parse(sessionStorage.getItem('piratesCsgList')) || [])
+    const completeCsgList = useObservableState<CsgItem[]>(csgListSubscription, [])
 
     // filteredCsgList should be used to determine size because sortedCsgList doesn't affect maxPages
     const [filteredCsgList, setFilteredCsgList] = useState(updateQuery(completeCsgList, query))
 
     const sessionStorageSort = JSON.parse(sessionStorage.getItem('sort'))
     const [sort, setSort] = useState(sessionStorageSort || {field: null, order: null})
-
     const [sortedCsgList, setSortedCsgList] = useState(sortList(filteredCsgList, sort))
+
+    const [stagedCollectionAdds, setStagedCollectionAdds] = useState<string[]>([])
+    const [stagedCollectionRemoves, setStagedCollectionRemoves] = useState<string[]>([])
 
     const localStoragePageSize = parseInt(localStorage.getItem('pageSize'))
     const defaultPageSize = pageSizeOptions.includes(localStoragePageSize) ? localStoragePageSize : 25
     const [pageSize, setPageSize] = useState(defaultPageSize || 25)
     const [maxPages, setMaxPages] = useState(calculateMaxPages(filteredCsgList.length, pageSize))
     const [pageNumber, setPageNumber] = useState(parseInt(sessionStorage.getItem('page')) || 1)
+    const [windowWidth, setWindowWidth] = useState(window.innerWidth)
 
-    const [apiFetchComplete, setApiFetchComplete] = useState(sessionStorage.getItem('piratesCsgList') !== null)
+    const [apiFetchComplete, setApiFetchComplete] = useState(sessionStorage.getItem(sessionStoragePiratesCsgListKey) !== null)
+
+    const isEditingCollection = useObservableState<boolean>(isEditing$, false)
 
     const searchRef = useRef(null)
 
@@ -1021,6 +1093,60 @@ function Content({ windowWidth }) {
                 .filter(faction => !['ut', 'none'].includes(faction.toLowerCase()))
         )
     ]
+
+    function saveEdits() {
+        let requestPromises = []
+
+        if (stagedCollectionRemoves.length > 0)
+            requestPromises.push(removeFromCollection(stagedCollectionRemoves))
+
+        if (stagedCollectionAdds.length > 0)
+            requestPromises.push(addToCollection(stagedCollectionAdds))
+
+        Promise.all(requestPromises).finally(() => {
+            let notificationRemoveMessage = ''
+            let notificationAddMessage = ''
+
+            const itemsRemoved = completeCsgList.filter(item => stagedCollectionRemoves.includes(item._id))
+            const itemsAdded = completeCsgList.filter(item => stagedCollectionAdds.includes(item._id))
+
+            if (itemsRemoved.length > 2) {
+                notificationRemoveMessage += `Removed: ${itemsRemoved.length}`
+            } else if (stagedCollectionRemoves.length > 0) {
+                notificationRemoveMessage += `Removed ${itemsRemoved.map(item => item.name).join(' and ')}`
+            }
+
+            if (itemsAdded.length > 2) {
+                notificationAddMessage += `Added: ${itemsAdded.length}`
+            } else if (stagedCollectionAdds.length > 0) {
+                notificationAddMessage += `Added ${itemsAdded.map(item => item.name).join(' and ')}`
+            }
+
+            if (notificationRemoveMessage) {
+                pushNotification({
+                    type: NotificationType.success,
+                    message: notificationRemoveMessage
+                })
+            }
+
+            if (notificationAddMessage) {
+                pushNotification({
+                    type: NotificationType.success,
+                    message: notificationAddMessage
+                })
+            }
+
+            setStagedCollectionAdds([])
+            setStagedCollectionRemoves([])
+            toggleIsEditing()
+        })
+    }
+
+    function discardEdits() {
+        toggleIsEditing()
+        setStagedCollectionAdds([])
+        setStagedCollectionRemoves([])
+    }
 
     function updatePageSize(value) {
         localStorage.setItem('pageSize', value)
@@ -1065,28 +1191,25 @@ function Content({ windowWidth }) {
         await Promise.all(imagePromiseList)
     }
 
+    function updateWindowWidth() {
+        const width = window.innerWidth
+        setWindowWidth(width)
+    }
+
     useEffect(() => {
-        function updateCsgLists(csgList) {
-            const filtered = csgList.filter(
-                csgItem => csgItem.ability || !csgItem.set.toLowerCase() === 'unreleased'
-            )
-            setCompleteCsgList(filtered)
-            updateQuery(filtered, query, sort, setSortedCsgList, setFilteredCsgList)
-        }
-
-        async function fetchData() {
-            updateCsgLists(await getPiratesCsgList())
-            await getKeywordsDictionary()
-            setApiFetchComplete(true)
-        }
-
-        if(!completeCsgList || completeCsgList.length === 0)
-            fetchData()
-    }, [])
+        updateWindowWidth()
+        window.addEventListener('resize', updateWindowWidth)
+        return () => window.removeEventListener('resize', updateWindowWidth)
+    })
 
     useEffect(() => {
         updateQuery(completeCsgList, query, sort, setSortedCsgList, setFilteredCsgList)
-        sessionStorage.setItem('query', JSON.stringify(query))
+        setApiFetchComplete(true)
+    }, [completeCsgList])
+
+    useEffect(() => {
+        updateQuery(completeCsgList, query, sort, setSortedCsgList, setFilteredCsgList)
+        sessionStorage.setItem(sessionStorageQueryKey, JSON.stringify(query))
 
         const timer = setTimeout(() => {
             preloadImages()
@@ -1116,11 +1239,21 @@ function Content({ windowWidth }) {
             piratesCsgList={getPiratesListPage(sortedCsgList, pageSize, pageNumber)}
             sort={sort}
             setSort={handleUpdatedSort}
+            stagedCollectionAdds={stagedCollectionAdds}
+            stagedCollectionRemoves={stagedCollectionRemoves}
+            setStagedCollectionAdds={setStagedCollectionAdds}
+            setStagedCollectionRemoves={setStagedCollectionRemoves}
         />
     }
 
     return (
         <>
+            {
+                windowWidth <= TABLET_VIEW
+                && <div className="edit-collection-button-group mobile">
+                    <EditCollectionButtons isEditingCollection={isEditingCollection} saveEdits={saveEdits} discardEdits={discardEdits} />
+                </div>
+            }
             <div className="row query-content">
                 <div className="row search-row">
                     <TextInput
@@ -1135,18 +1268,30 @@ function Content({ windowWidth }) {
                 <div className="row faction-row">
                     <FactionToggles factionList={factionList} filterFactions={filterFactions} queriedFactions={query.factions}/>
                 </div>
-                { apiFetchComplete && <AdvancedFilters query={query} setQuery={setQuery} piratesCsgList={completeCsgList} /> }
+                {
+                    completeCsgList.length > 0
+                    && apiFetchComplete
+                    && <AdvancedFilters query={query} setQuery={setQuery} piratesCsgList={completeCsgList} />
+                }
             </div>
-            <PageControl
-                className="upper"
-                pageNumber={pageNumber}
-                maxPages={maxPages}
-                setPageNumber={setPageNumber}
-                lenPageNumbers={windowWidth <= TABLET_VIEW ? 3 : 5}
-                pageSize={pageSize}
-                setPageSize={updatePageSize}
-                windowWidth={windowWidth}
-            />
+            <div className="page-edit-container">
+                {
+                    windowWidth > TABLET_VIEW
+                    && <div className="edit-collection-button-group">
+                        <EditCollectionButtons isEditingCollection={isEditingCollection} saveEdits={saveEdits} discardEdits={discardEdits} />
+                    </div>
+                }
+                <PageControl
+                    className="upper"
+                    pageNumber={pageNumber}
+                    maxPages={maxPages}
+                    setPageNumber={setPageNumber}
+                    lenPageNumbers={windowWidth <= TABLET_VIEW ? 3 : 5}
+                    pageSize={pageSize}
+                    setPageSize={updatePageSize}
+                    windowWidth={windowWidth}
+                />
+            </div>
             <div className='result-content'>
                 {piratesList}
             </div>
@@ -1169,27 +1314,5 @@ function Content({ windowWidth }) {
     )
 }
 
-function Home() {
-    const [windowWidth, setWindowWidth] = useState(window.innerWidth)
-
-    function updateWindowWidth() {
-        const width = window.innerWidth
-        setWindowWidth(width)
-    }
-
-    useEffect(() => {
-        updateWindowWidth()
-        window.addEventListener('resize', updateWindowWidth)
-        return () => window.removeEventListener('resize', updateWindowWidth)
-    })
-
-    return (
-       <Layout>
-            <Outlet />
-            <Content windowWidth={windowWidth} />
-        </Layout>
-    ) 
-}
-
-export default Home;
+export default PiratesCsgSearch
 

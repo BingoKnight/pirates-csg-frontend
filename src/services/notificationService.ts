@@ -8,7 +8,6 @@ export const notifications$ = new BehaviorSubject<NotificationObject[]>([])
 const MAX_INDEX = 4
 
 export function pushNotification(pushedNotification: PushNotification) {
-    console.log(pushedNotification)
     const id = uuidv4()
     const notification = {
         id,
@@ -21,7 +20,6 @@ export function pushNotification(pushedNotification: PushNotification) {
     notifications$.value.slice(MAX_INDEX).forEach(n => clearTimeout(n.timer))
 
     notifications$.next([notification, ...notifications$.value.slice(0, MAX_INDEX)])
-    
 }
 
 export function popNotification(id: string) {

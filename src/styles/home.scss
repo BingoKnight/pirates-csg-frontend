@@ -27,35 +27,109 @@ $raritiesColors: (
     width: 100%;
 }
 
-.page-control-container {
+.page-edit-container {
     display: flex;
+
     width: 100%;
+    margin-top: 30px;
 }
 
-.page-control-container.upper {
-    justify-content: end;
-    margin-top: 50px;
 
-    .page-control {
-        margin-right: 40px;
-    }
+.edit-collection-button-group {
+    margin-left: 40px;
 
     @include breakpoint(tablet) {
-        justify-content: center;
-        .page-control {
-            margin-right: 0px;
+        margin-left: 10px;
+        bottom: 5px;
+    }
+
+    &.mobile {
+        position: fixed;
+        bottom: 10px;
+
+        align-self: flex-start;
+        margin-left: 10px;
+    }
+
+    .edit-collection-button,
+    .discard-edit-button,
+    .save-edit-button {
+        display: flex;
+        align-content: center;
+
+        border-radius: 25px;
+        padding: 10px 10px;
+        backdrop-filter: blur(25px);
+    }
+
+    .edit-collection-button {
+        svg {
+            fill: #fff;
+        }
+
+        .edit-button-text {
+            display: flex;
+            margin-left: 10px;
+
+            @include breakpoint(tablet) {
+                display: none;
+            }
+        }
+    }
+
+    .save-edit-button {
+        margin-right: 10px;
+
+        svg {
+            fill: #7D88FC;
+        }
+
+        .save-edit-button-text {
+            display: flex;
+            margin-left: 10px;
+
+            @include breakpoint(tablet) {
+                display: none;
+            }
+        }
+    }
+
+    .discard-edit-button {
+        svg {
+            fill: #F65A5A;
+        }
+
+        .discard-edit-button-text {
+            display: flex;
+            margin-left: 10px;
+
+            @include breakpoint(tablet) {
+                display: none;
+            }
         }
     }
 }
 
-.page-control-container.lower {
-    justify-content: center;
-    margin-top: 20px;
-}
-
 .page-control {
+    flex: 1;
     .col {
         flex: 0;
+    }
+
+    &.upper {
+        justify-content: end;
+
+        margin-right: 40px;
+
+        @include breakpoint(tablet) {
+            justify-content: center;
+            margin-right: 0px;
+        }
+    }
+
+    &.lower {
+        justify-content: center;
+        margin-top: 20px;
     }
 
     .page-button {

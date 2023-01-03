@@ -2,6 +2,7 @@ import {
     BaseMoveImage,
     CannonsImage,
     CargoImage,
+    CollectionImage,
     FactionImage,
     LinkImage,
     MastsImage,
@@ -17,7 +18,8 @@ const fieldIconMapper = {
     link: (props) => <LinkImage {...props} />,
     rarity: (props) => <RarityImage {...props} />,
     faction: (props) => <FactionImage {...props} />,
-    pointCost: (props) => <PointCostImage {...props} />
+    pointCost: (props) => <PointCostImage {...props} />,
+    owned: (props) => <CollectionImage {...props} />
 }
 
 export default fieldIconMapper

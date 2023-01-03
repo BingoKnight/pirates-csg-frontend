@@ -1,7 +1,8 @@
 import React from 'react'
 
-import  baseMoveSvg  from '../images/field-icons/baseMove.svg'
+import baseMoveSvg  from '../images/field-icons/baseMove.svg'
 import cannonsSvg from '../images/field-icons/cannons.svg'
+import cardsSvg from '../images/field-icons/cards.svg'
 import cargoSvg from '../images/field-icons/cargo.svg'
 import mastsSvg from '../images/field-icons/masts.svg'
 import linkSvg from '../images/field-icons/link.svg'
@@ -88,6 +89,16 @@ export function PointCostImage(props) {
     return <img
         src={pointCostSvg}
         alt='Point Cost'
+        className='field-icon'
+        {...defaultProps}
+        {...props}
+    />
+}
+
+export function CollectionImage(props) {
+    return <img
+        src={cardsSvg}
+        alt='Collection'
         className='field-icon'
         {...defaultProps}
         {...props}

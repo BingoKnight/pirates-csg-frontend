@@ -8,8 +8,9 @@ import CsgModal from './components/modal/CsgModal.tsx';
 import PrivateRoute from './components/PrivateRoute.tsx';
 import AccountSettings from './pages/AccountSettings.tsx';
 import ForgotUsername from './pages/ForgotUsername.tsx';
-import Home from './pages/Home';
+import Home from './pages/Home.tsx';
 import Login from './pages/Login.tsx';
+import PiratesCollection from './pages/PiratesCollection.tsx';
 import Registration from './pages/Registration.tsx';
 import NotFoundPage from './pages/NotFoundPage.tsx';
 
@@ -35,6 +36,11 @@ root.render(
                     <Route path='account-settings' element={<AccountSettings />} />
                 </Route>
                 {/* <Route path='/forgot-username' element={<ForgotUsername />} /> */}
+                <Route path='/collection' element={<PrivateRoute />}>
+                    <Route path='' element={<PiratesCollection />}>
+                        <Route path='details/:id' element={<CsgModal />} />
+                    </Route>
+                </Route>
                 <Route path='*' element={<NotFoundPage />} />
             </Routes>
         </Router>

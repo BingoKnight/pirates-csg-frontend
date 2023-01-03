@@ -150,6 +150,10 @@
         }
     }
 
+    .modal-options-menu {
+        margin-top: -20px;
+    }
+
     .link-dropdown {
         display: inline-block;
     
@@ -189,7 +193,7 @@
             content: "";
             position: absolute;
             top: -15px;
-            left: 5px;
+            left: 15px;
     
             rotate: 45deg;
     
@@ -323,40 +327,7 @@
             height: 40px;
         }
     }
-    
-    .copy-button {
-        cursor: pointer;
-        flex: 1;
-    }
-    
-    .copy-tooltip {
-        position: absolute;
-        margin-left: -42px;
-        margin-top: 10px;
-        padding: 4px;
-        z-index: 15;
-    
-        border-radius: $modal-border-radius;
-    
-        background-color: #fff;
-        color: #000;
-    
-        font-size: 0.9rem;
-    
-        .circle-check-col {
-            margin-bottom: -3px;
-            svg {
-                fill: #28a443;
-            }
-        }
-    
-        .row{
-            .col {
-                padding: 0 3px;
-            }
-        }
-    }
-    
+
     .keywords-row {
         margin: 30px 0 0 45px;
         align-items: start;

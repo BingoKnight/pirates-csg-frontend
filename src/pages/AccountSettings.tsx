@@ -44,14 +44,8 @@ function AccountSettings() {
 
     useEffect(() => {
         async function getCurrentEmail() {
-            const sessionUser = sessionStorage.getItem('user')
-            if(sessionUser && JSON.parse(sessionUser).email) {
-                setCurrentEmail(JSON.parse(sessionUser).email)
-            } else {
-                getUser()
-                    .then(res => res.json())
-                    .then(json => setCurrentEmail(json.email))
-            }
+            const user = await getUser()
+            setCurrentEmail(user.email)
         }
 
         getCurrentEmail()

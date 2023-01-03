@@ -144,6 +144,14 @@ $faction-icons: (
         font-size: 1.3rem;
         border: 2px solid transparent;
     }
+
+    &.edit-mode-green {
+        background-color: rgba(0, 255, 0, 0.1);
+    }
+
+    &.edit-mode-red {
+        background-color: rgba(255, 0, 0, 0.1);
+    }
 }
 
 .csg-item-row {
@@ -166,6 +174,10 @@ $faction-icons: (
 
 .set-col {
     flex: 2;
+
+    @include breakpoint(tablet) {
+        display: none !important;
+    }
 }
 
 .faction-col {
@@ -209,6 +221,21 @@ $faction-icons: (
 
     @include breakpoint(phone) {
         display: none !important;
+    }
+}
+
+.owned-col {
+    font-family: windlass, serif;
+    flex: 2 0;
+
+    .owned {
+        color: green;
+        font-size: 1.6rem;;
+    }
+
+    .not-owned {
+        color: red;
+        font-size: 1.8rem;;
     }
 }
 

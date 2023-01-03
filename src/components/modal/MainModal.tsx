@@ -1,16 +1,20 @@
-import React, {useEffect, useState} from 'react'
+import { useObservableState } from 'observable-hooks'
+import React, { useState } from 'react'
 
 import Button from '../Button.tsx'
 import CannonImage from '../CannonImages.tsx'
 import { ReactComponent as DownArrow } from '../../images/angle-down-solid.svg'
-import { ReactComponent as Copy } from '../../images/copy-regular.svg'
-import { ReactComponent as CircleCheck } from '../../images/check-circle.svg'
 import noImage from '../../images/no-image.jpg'
+import { ModalOptions } from './ModalBase.tsx'
+import { userCollection$ } from '../../services/globalState.ts'
+import { CsgItem } from '../../types/csgItem.ts'
 import factionImageMapper from '../../utils/factionImageMapper.tsx'
 import fieldIconMapper from '../../utils/fieldIconMapper.tsx'
 import setIconMapper from '../../utils/setIconMapper.tsx'
 
 import '../../styles/mainModal.scss'
+
+// TODO: fort in modal doesn't show cannons like it should, same with mobile
 
 function ModalOverlay({ closeModal, children }) {
     return (
@@ -113,39 +117,6 @@ function CsgShipStats({ csgItem }) {
     )
 }
 
-function CopyButton({ csgItemId }) {
-    const [ showTooltip, setShowTooltip] = useState(false)
-
-    function handleClick() {
-        navigator.clipboard.writeText(`${process.env.REACT_APP_PIRATE_CSG_FE_BASE_URL}/details/${csgItemId}`)
-        setShowTooltip(true)
-    }
-
-    useEffect(() => {
-        if (showTooltip) {
-            const intervalId = setInterval(() => setShowTooltip(false), 7000)
-            return () => clearInterval(intervalId)
-        }
-    }, [showTooltip])
-
-    return (
-        <div className="copy-button">
-            <Copy onClick={handleClick} />
-            {
-                showTooltip
-                && <div className="copy-tooltip">
-                    <div className="row">
-                        <div className="col circle-check-col">
-                            <CircleCheck />
-                        </div>
-                        <div className="col">Copied</div>
-                    </div>
-                </div>
-            }
-        </div>
-    )
-}
-
 function LinkIcon({ link }) {
     return (
         <div className="link-dropdown">
@@ -160,6 +131,10 @@ function LinkIcon({ link }) {
 }
 
 function CsgStats({ csgItem }) {
+    const userCollection = useObservableState(userCollection$, [])
+
+    const isInCollection = userCollection.map((item: CsgItem) => item._id).includes(csgItem._id)
+
     return (
         <div className="col" id="stats-col">
             <div className="row">
@@ -173,9 +148,8 @@ function CsgStats({ csgItem }) {
                     <span id="name">{csgItem.name}</span>
                     { csgItem.link && <LinkIcon link={csgItem.link} /> }
                 </div>
-                <CopyButton csgItemId={csgItem._id} />
+                <ModalOptions csgItem={csgItem} isInCollection={isInCollection} />
             </div>
-
             { csgItem.type.toLowerCase() === 'ship' && <CsgShipStats csgItem={csgItem} /> }
         </div>
     )

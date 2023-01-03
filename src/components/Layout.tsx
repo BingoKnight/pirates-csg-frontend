@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react'
+import _ from 'lodash'
+import React, { useEffect } from 'react'
 import {useLocation} from 'react-router-dom'
 
 import Header from './Header.tsx'
@@ -7,20 +8,30 @@ import { getCookie } from '../utils/cookies.ts'
 import { useStatefulNavigate } from '../utils/hooks.ts'
 
 import '../styles/layout.scss'
+import { refreshKeywordsDictionary, refreshPiratesCsgList, refreshUser, refreshUserCollection } from '../services/globalState.ts'
 
 function Layout({ children }) {
     const navigate = useStatefulNavigate()
     const location = useLocation()
 
-    const user = JSON.parse(sessionStorage.getItem('user') || "{}")
-    const isLoggedIn = getCookie('x-token') && user.username && user.email
+    refreshPiratesCsgList()
+    refreshKeywordsDictionary()
+    refreshUser()
+    refreshUserCollection()
 
     useEffect(() => {
-        if(isLoggedIn && ['/login', '/register'].includes(location.pathname)) {
-            const { from } = ['/login', '/register'].includes(location.state?.from) ? { from: '/' } : location.state || { from: '/' }
+        const invalidUserPaths = ['/login', '/register']
+        const protectedPaths = ['/collection']
+
+        if(getCookie('x-token') && invalidUserPaths.includes(location.pathname)) {
+            const { from } = invalidUserPaths.includes(location.state?.from) ? { from: '/' } : location.state || { from: '/' }
+            navigate(from, true)
+        } else if(!getCookie('x-token') && protectedPaths.includes(location.pathname)) {
+            const { from } = protectedPaths.includes(location.state?.from) ? { from: '/login' } : location.state || { from: '/login' }
             navigate(from, true)
         }
     }, [])
+
     return (
         <div>
             <div id="backdrops">
