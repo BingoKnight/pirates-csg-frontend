@@ -29,7 +29,6 @@ function NotificationItem({ id, type, message }) {
 }
 
 function NotificationList({ notifications }) {
-    console.log(notifications)
     return notifications.map(notification => {
         return (
             <NotificationItem {...notification} />
