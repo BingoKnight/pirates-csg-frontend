@@ -1,11 +1,19 @@
 import _ from 'lodash'
 import { useObservableState } from 'observable-hooks'
 import React, { MouseEventHandler, useEffect, useRef, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 
 import CannonImage from './CannonImages.tsx'
-import Button, { LinkButton } from './Button.tsx'
+import { LinkButton } from './Button.tsx'
 import { ReactComponent as Arrow } from '../images/angle-down-solid.svg'
-import { isEditing$ } from '../services/editCollectionService.ts'
+import { setStagedCollectionAdds, setStagedCollectionRemoves } from '../redux/slices/stagedCollectionEdits.ts'
+import {
+    isEditing$,
+    // setStagedCollectionAdds,
+    // setStagedCollectionRemoves,
+    // stagedCollectionAdds$,
+    // stagedCollectionRemoves$
+} from '../services/editCollectionService.ts'
 import { userCollection$ } from '../services/globalState.ts'
 import { CsgItem } from '../types/csgItem.ts'
 import factionImageMapper from '../utils/factionImageMapper.tsx'
@@ -127,35 +135,39 @@ function CsgItemColumns({ csgItem }) {
 
 function CsgItemRows({
     piratesCsgList,
-    stagedCollectionAddsList,
-    stagedCollectionRemovesList,
-    setStagedCollectionAdds,
-    setStagedCollectionRemoves
+    // stagedCollectionAddsList,
+    // stagedCollectionRemovesList,
+    // setStagedCollectionAdds,
+    // setStagedCollectionRemoves
 }) {
     const isEditingCollection = useObservableState<boolean>(isEditing$, false)
+    // const stagedCollectionAddList = useObservableState<string[]>(stagedCollectionAdds$, [])
+    // const stagedCollectionRemoveList = useObservableState<string[]>(stagedCollectionRemoves$, [])
+    const stagedCollectionEdits = useSelector((state) => state.stagedCollectionEdits.value)
+    const dispatch = useDispatch()
 
     function toggleCsgItem(csgItem: CsgItem) {
         const [stagedList, setStaged] = csgItem.owned
-            ? [stagedCollectionRemovesList, setStagedCollectionRemoves]
-            : [stagedCollectionAddsList, setStagedCollectionAdds]
+            ? [stagedCollectionEdits.removes, setStagedCollectionRemoves]
+            : [stagedCollectionEdits.adds, setStagedCollectionAdds]
 
         const newStagedItems = stagedList.includes(csgItem._id)
             ? stagedList.filter(id => id !== csgItem._id)
             : [...stagedList, csgItem._id]
 
-        setStaged(newStagedItems)
+        dispatch(setStaged(newStagedItems))
     }
 
     function getLinkButtonProps(csgItem: CsgItem) {
         let backgroundColorClass = ''
 
         if (isEditingCollection && csgItem.owned && csgItem.owned > 0) {
-            if([...stagedCollectionAddsList, ...stagedCollectionRemovesList].includes(csgItem._id))
+            if([...stagedCollectionEdits.adds, ...stagedCollectionEdits.removes].includes(csgItem._id))
                 backgroundColorClass = 'edit-mode-red'
             else
                 backgroundColorClass = 'edit-mode-green'
         } else if (isEditingCollection && !csgItem.owned) {
-            if([...stagedCollectionAddsList, ...stagedCollectionRemovesList].includes(csgItem._id))
+            if([...stagedCollectionEdits.adds, ...stagedCollectionEdits.removes].includes(csgItem._id))
                 backgroundColorClass = 'edit-mode-green'
             else
                 backgroundColorClass = 'edit-mode-red'
@@ -262,10 +274,10 @@ function PiratesCsgList({
     piratesCsgList,
     sort,
     setSort,
-    stagedCollectionAdds,
-    stagedCollectionRemoves,
-    setStagedCollectionAdds,
-    setStagedCollectionRemoves
+    // stagedCollectionAdds,
+    // stagedCollectionRemoves,
+    // setStagedCollectionAdds,
+    // setStagedCollectionRemoves
 }) {
     const userCollection = useObservableState<CsgItem[]>(userCollection$, [])
 
@@ -289,10 +301,10 @@ function PiratesCsgList({
             <HeaderRow sort={sort} setSort={setSort} />
             <CsgItemRows
                 piratesCsgList={getCsgListWithOwned()}
-                stagedCollectionAddsList={stagedCollectionAdds}
-                stagedCollectionRemovesList={stagedCollectionRemoves}
-                setStagedCollectionAdds={setStagedCollectionAdds}
-                setStagedCollectionRemoves={setStagedCollectionRemoves}
+                // stagedCollectionAddsList={stagedCollectionAdds}
+                // stagedCollectionRemovesList={stagedCollectionRemoves}
+                // setStagedCollectionAdds={setStagedCollectionAdds}
+                // setStagedCollectionRemoves={setStagedCollectionRemoves}
             />
         </div>
     )

@@ -1,6 +1,7 @@
 import _ from 'lodash'
 import { useObservableState } from 'observable-hooks'
 import React, { useEffect, useRef, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { v4 as uuid4 } from 'uuid'
 
 import { addToCollection, removeFromCollection } from '../api.js'
@@ -24,7 +25,15 @@ import PiratesCsgList from '../components/PiratesCsgList.tsx';
 import Slider from '../components/Slider.tsx'
 import { TextInput } from '../components/TextInput.tsx'
 import ToggleButton from '../components/ToggleButton.tsx'
-import { isEditing$, toggleIsEditing } from '../services/editCollectionService.ts'
+import { setStagedCollectionAdds, setStagedCollectionRemoves } from '../redux/slices/stagedCollectionEdits.ts'
+import {
+    isEditing$,
+    // setStagedCollectionAdds,
+    // setStagedCollectionRemoves,
+    // stagedCollectionAdds$,
+    // stagedCollectionRemoves$,
+    toggleIsEditing
+} from '../services/editCollectionService.ts'
 import { CsgItem } from '../types/csgItem.ts'
 
 import { TABLET_VIEW, PHONE_VIEW } from '../constants.js'
@@ -1039,7 +1048,14 @@ function EditCollectionButtons({ isEditingCollection, saveEdits, discardEdits })
     )
 }
 
-function PiratesCsgSearch({ csgListSubscription, sessionStoragePiratesCsgListKey, sessionStorageQueryKey }) {
+// TODO: Prevent re-render when adding/removing items from staged edits
+//       This re-render removes the scrolling background color class and flashes the icons
+function PiratesCsgSearch({
+    csgListSubscription,
+    isFetchCompleteSubscription,
+    sessionStorageQueryKey,
+    sessionStoragePageNumberKey
+}) {
     const sessionStorageQuery = JSON.parse(sessionStorage.getItem(sessionStorageQueryKey))
 
     const [query, setQuery] = useState({
@@ -1062,6 +1078,7 @@ function PiratesCsgSearch({ csgListSubscription, sessionStoragePiratesCsgListKey
     })
 
     const completeCsgList = useObservableState<CsgItem[]>(csgListSubscription, [])
+    const isCsgListFetchComplete = useObservableState<boolean>(isFetchCompleteSubscription, false)
 
     // filteredCsgList should be used to determine size because sortedCsgList doesn't affect maxPages
     const [filteredCsgList, setFilteredCsgList] = useState(updateQuery(completeCsgList, query))
@@ -1070,17 +1087,16 @@ function PiratesCsgSearch({ csgListSubscription, sessionStoragePiratesCsgListKey
     const [sort, setSort] = useState(sessionStorageSort || {field: null, order: null})
     const [sortedCsgList, setSortedCsgList] = useState(sortList(filteredCsgList, sort))
 
-    const [stagedCollectionAdds, setStagedCollectionAdds] = useState<string[]>([])
-    const [stagedCollectionRemoves, setStagedCollectionRemoves] = useState<string[]>([])
+    const stagedCollectionEdits = useSelector((state) => state.stagedCollectionEdits.value)
+    const dispatch = useDispatch()
+    // const stagedCollectionRemoveList = useObservableState<string[]>(stagedCollectionRemoves$, [])
 
     const localStoragePageSize = parseInt(localStorage.getItem('pageSize'))
     const defaultPageSize = pageSizeOptions.includes(localStoragePageSize) ? localStoragePageSize : 25
     const [pageSize, setPageSize] = useState(defaultPageSize || 25)
     const [maxPages, setMaxPages] = useState(calculateMaxPages(filteredCsgList.length, pageSize))
-    const [pageNumber, setPageNumber] = useState(parseInt(sessionStorage.getItem('page')) || 1)
+    const [pageNumber, setPageNumber] = useState(parseInt(sessionStorage.getItem(sessionStoragePageNumberKey)) || 1)
     const [windowWidth, setWindowWidth] = useState(window.innerWidth)
-
-    const [apiFetchComplete, setApiFetchComplete] = useState(sessionStorage.getItem(sessionStoragePiratesCsgListKey) !== null)
 
     const isEditingCollection = useObservableState<boolean>(isEditing$, false)
 
@@ -1097,28 +1113,28 @@ function PiratesCsgSearch({ csgListSubscription, sessionStoragePiratesCsgListKey
     function saveEdits() {
         let requestPromises = []
 
-        if (stagedCollectionRemoves.length > 0)
-            requestPromises.push(removeFromCollection(stagedCollectionRemoves))
+        if (stagedCollectionEdits.removes.length > 0)
+            requestPromises.push(removeFromCollection(stagedCollectionEdits.removes))
 
-        if (stagedCollectionAdds.length > 0)
-            requestPromises.push(addToCollection(stagedCollectionAdds))
+        if (stagedCollectionEdits.adds.length > 0)
+            requestPromises.push(addToCollection(stagedCollectionEdits.adds))
 
         Promise.all(requestPromises).finally(() => {
             let notificationRemoveMessage = ''
             let notificationAddMessage = ''
 
-            const itemsRemoved = completeCsgList.filter(item => stagedCollectionRemoves.includes(item._id))
-            const itemsAdded = completeCsgList.filter(item => stagedCollectionAdds.includes(item._id))
+            const itemsRemoved = completeCsgList.filter(item => stagedCollectionEdits.removes.includes(item._id))
+            const itemsAdded = completeCsgList.filter(item => stagedCollectionEdits.adds.includes(item._id))
 
             if (itemsRemoved.length > 2) {
                 notificationRemoveMessage += `Removed: ${itemsRemoved.length}`
-            } else if (stagedCollectionRemoves.length > 0) {
+            } else if (stagedCollectionEdits.removes.length > 0) {
                 notificationRemoveMessage += `Removed ${itemsRemoved.map(item => item.name).join(' and ')}`
             }
 
             if (itemsAdded.length > 2) {
                 notificationAddMessage += `Added: ${itemsAdded.length}`
-            } else if (stagedCollectionAdds.length > 0) {
+            } else if (stagedCollectionEdits.adds.length > 0) {
                 notificationAddMessage += `Added ${itemsAdded.map(item => item.name).join(' and ')}`
             }
 
@@ -1136,8 +1152,10 @@ function PiratesCsgSearch({ csgListSubscription, sessionStoragePiratesCsgListKey
                 })
             }
 
-            setStagedCollectionAdds([])
-            setStagedCollectionRemoves([])
+            dispatch(setStagedCollectionAdds([]))
+            dispatch(setStagedCollectionRemoves([]))
+            // setStagedCollectionAdds([])
+            // setStagedCollectionRemoves([])
             toggleIsEditing()
         })
     }
@@ -1204,7 +1222,6 @@ function PiratesCsgSearch({ csgListSubscription, sessionStoragePiratesCsgListKey
 
     useEffect(() => {
         updateQuery(completeCsgList, query, sort, setSortedCsgList, setFilteredCsgList)
-        setApiFetchComplete(true)
     }, [completeCsgList])
 
     useEffect(() => {
@@ -1218,7 +1235,7 @@ function PiratesCsgSearch({ csgListSubscription, sessionStoragePiratesCsgListKey
         return () => { clearTimeout(timer) }
     }, [query])
 
-    useEffect(() => { sessionStorage.setItem('page', pageNumber) }, [pageNumber])
+    useEffect(() => { sessionStorage.setItem(sessionStoragePageNumberKey, pageNumber.toString()) }, [pageNumber])
 
     useEffect(() => {
         const newMaxPages = calculateMaxPages(filteredCsgList.length, pageSize)
@@ -1234,15 +1251,15 @@ function PiratesCsgSearch({ csgListSubscription, sessionStoragePiratesCsgListKey
 
     let piratesList = <Loading />
 
-    if (apiFetchComplete) {
+    if (isCsgListFetchComplete) {
         piratesList = <PiratesCsgList
             piratesCsgList={getPiratesListPage(sortedCsgList, pageSize, pageNumber)}
             sort={sort}
             setSort={handleUpdatedSort}
-            stagedCollectionAdds={stagedCollectionAdds}
-            stagedCollectionRemoves={stagedCollectionRemoves}
-            setStagedCollectionAdds={setStagedCollectionAdds}
-            setStagedCollectionRemoves={setStagedCollectionRemoves}
+            // stagedCollectionAdds={stagedCollectionAdds}
+            // stagedCollectionRemoves={stagedCollectionRemoves}
+            // setStagedCollectionAdds={setStagedCollectionAdds}
+            // setStagedCollectionRemoves={setStagedCollectionRemoves}
         />
     }
 
@@ -1270,7 +1287,7 @@ function PiratesCsgSearch({ csgListSubscription, sessionStoragePiratesCsgListKey
                 </div>
                 {
                     completeCsgList.length > 0
-                    && apiFetchComplete
+                    && isCsgListFetchComplete
                     && <AdvancedFilters query={query} setQuery={setQuery} piratesCsgList={completeCsgList} />
                 }
             </div>

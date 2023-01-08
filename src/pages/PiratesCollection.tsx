@@ -3,7 +3,7 @@ import { Outlet } from 'react-router-dom'
 
 import Layout from  '../components/Layout.tsx'
 import PiratesCsgSearch from '../components/PiratesCsgSearch.tsx'
-import { userCollection$ } from '../services/globalState.ts'
+import { isUserCollectionFetchComplete$, userCollection$ } from '../services/globalState.ts'
 
 function PiratesCollection() {
     return (
@@ -11,8 +11,9 @@ function PiratesCollection() {
             <Outlet />
             <PiratesCsgSearch
                 csgListSubscription={userCollection$}
-                sessionStoragePiratesCsgListKey="userCollection"
+                isFetchCompleteSubscription={isUserCollectionFetchComplete$}
                 sessionStorageQueryKey="collectionQuery"
+                sessionStoragePageNumberKey="collectionPageNumber"
             />
         </Layout>
     )
