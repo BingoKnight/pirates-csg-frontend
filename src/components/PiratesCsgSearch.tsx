@@ -1039,7 +1039,12 @@ function EditCollectionButtons({ isEditingCollection, saveEdits, discardEdits })
     )
 }
 
-function PiratesCsgSearch({ csgListSubscription, sessionStoragePiratesCsgListKey, sessionStorageQueryKey }) {
+function PiratesCsgSearch({
+    csgListSubscription,
+    isFetchCompleteSubscription,
+    sessionStorageQueryKey,
+    sessionStoragePageNumberKey
+}) {
     const sessionStorageQuery = JSON.parse(sessionStorage.getItem(sessionStorageQueryKey))
 
     const [query, setQuery] = useState({
@@ -1062,6 +1067,7 @@ function PiratesCsgSearch({ csgListSubscription, sessionStoragePiratesCsgListKey
     })
 
     const completeCsgList = useObservableState<CsgItem[]>(csgListSubscription, [])
+    const isCsgListFetchComplete = useObservableState<boolean>(isFetchCompleteSubscription, true)
 
     // filteredCsgList should be used to determine size because sortedCsgList doesn't affect maxPages
     const [filteredCsgList, setFilteredCsgList] = useState(updateQuery(completeCsgList, query))
@@ -1077,10 +1083,8 @@ function PiratesCsgSearch({ csgListSubscription, sessionStoragePiratesCsgListKey
     const defaultPageSize = pageSizeOptions.includes(localStoragePageSize) ? localStoragePageSize : 25
     const [pageSize, setPageSize] = useState(defaultPageSize || 25)
     const [maxPages, setMaxPages] = useState(calculateMaxPages(filteredCsgList.length, pageSize))
-    const [pageNumber, setPageNumber] = useState(parseInt(sessionStorage.getItem('page')) || 1)
+    const [pageNumber, setPageNumber] = useState(parseInt(sessionStorage.getItem(sessionStoragePageNumberKey)) || 1)
     const [windowWidth, setWindowWidth] = useState(window.innerWidth)
-
-    const [apiFetchComplete, setApiFetchComplete] = useState(sessionStorage.getItem(sessionStoragePiratesCsgListKey) !== null)
 
     const isEditingCollection = useObservableState<boolean>(isEditing$, false)
 
@@ -1204,7 +1208,6 @@ function PiratesCsgSearch({ csgListSubscription, sessionStoragePiratesCsgListKey
 
     useEffect(() => {
         updateQuery(completeCsgList, query, sort, setSortedCsgList, setFilteredCsgList)
-        setApiFetchComplete(true)
     }, [completeCsgList])
 
     useEffect(() => {
@@ -1218,7 +1221,7 @@ function PiratesCsgSearch({ csgListSubscription, sessionStoragePiratesCsgListKey
         return () => { clearTimeout(timer) }
     }, [query])
 
-    useEffect(() => { sessionStorage.setItem('page', pageNumber) }, [pageNumber])
+    useEffect(() => { sessionStorage.setItem(sessionStoragePageNumberKey, pageNumber.toString()) }, [pageNumber])
 
     useEffect(() => {
         const newMaxPages = calculateMaxPages(filteredCsgList.length, pageSize)
@@ -1234,7 +1237,7 @@ function PiratesCsgSearch({ csgListSubscription, sessionStoragePiratesCsgListKey
 
     let piratesList = <Loading />
 
-    if (apiFetchComplete) {
+    if (isCsgListFetchComplete) {
         piratesList = <PiratesCsgList
             piratesCsgList={getPiratesListPage(sortedCsgList, pageSize, pageNumber)}
             sort={sort}
@@ -1270,7 +1273,7 @@ function PiratesCsgSearch({ csgListSubscription, sessionStoragePiratesCsgListKey
                 </div>
                 {
                     completeCsgList.length > 0
-                    && apiFetchComplete
+                    && isCsgListFetchComplete
                     && <AdvancedFilters query={query} setQuery={setQuery} piratesCsgList={completeCsgList} />
                 }
             </div>
