@@ -59,7 +59,6 @@ const SortOrder = {
 
 // TODO: fix sort, if sorting on masts it removes crew (could also be a problem for cargo/movement)
 // TODO: fix tablet view to be more like computer view
-// TODO: preload image on faction query change
 // TODO: replace spinning wheel with empty rows with moving gradient to signify loading
 // TODO: add redux, right now sorting by owned items count is based on session storage
 //       which could be a problem if someone clears their session storage
@@ -1220,13 +1219,15 @@ function PiratesCsgSearch({
     useEffect(() => {
         updateQuery(completeCsgList, query, sort, setSortedCsgList, setFilteredCsgList)
         sessionStorage.setItem(sessionStorageQueryKey, JSON.stringify(query))
+    }, [query])
 
+    useEffect(() => {
         const timer = setTimeout(() => {
             preloadImages()
         }, 500)
 
         return () => { clearTimeout(timer) }
-    }, [query])
+    }, [sortedCsgList])
 
     useEffect(() => { sessionStorage.setItem(sessionStoragePageNumberKey, pageNumber.toString()) }, [pageNumber])
 
