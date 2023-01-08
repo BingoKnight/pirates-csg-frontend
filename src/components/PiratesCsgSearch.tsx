@@ -24,7 +24,14 @@ import PiratesCsgList from '../components/PiratesCsgList.tsx';
 import Slider from '../components/Slider.tsx'
 import { TextInput } from '../components/TextInput.tsx'
 import ToggleButton from '../components/ToggleButton.tsx'
-import { isEditing$, toggleIsEditing } from '../services/editCollectionService.ts'
+import {
+    isEditing$,
+    setStagedCollectionAdds,
+    setStagedCollectionRemoves,
+    stagedCollectionAdds$,
+    stagedCollectionRemoves$,
+    toggleIsEditing
+} from '../services/editCollectionService.ts'
 import { CsgItem } from '../types/csgItem.ts'
 
 import { TABLET_VIEW, PHONE_VIEW } from '../constants.js'
@@ -1076,8 +1083,8 @@ function PiratesCsgSearch({
     const [sort, setSort] = useState(sessionStorageSort || {field: null, order: null})
     const [sortedCsgList, setSortedCsgList] = useState(sortList(filteredCsgList, sort))
 
-    const [stagedCollectionAdds, setStagedCollectionAdds] = useState<string[]>([])
-    const [stagedCollectionRemoves, setStagedCollectionRemoves] = useState<string[]>([])
+    const stagedCollectionAdds = useObservableState<string[]>(stagedCollectionAdds$, [])
+    const stagedCollectionRemoves = useObservableState<string[]>(stagedCollectionRemoves$, [])
 
     const localStoragePageSize = parseInt(localStorage.getItem('pageSize'))
     const defaultPageSize = pageSizeOptions.includes(localStoragePageSize) ? localStoragePageSize : 25
@@ -1101,11 +1108,11 @@ function PiratesCsgSearch({
     function saveEdits() {
         let requestPromises = []
 
-        if (stagedCollectionRemoves.length > 0)
-            requestPromises.push(removeFromCollection(stagedCollectionRemoves))
-
         if (stagedCollectionAdds.length > 0)
             requestPromises.push(addToCollection(stagedCollectionAdds))
+
+        if (stagedCollectionRemoves.length > 0)
+            requestPromises.push(removeFromCollection(stagedCollectionRemoves))
 
         Promise.all(requestPromises).finally(() => {
             let notificationRemoveMessage = ''
@@ -1242,10 +1249,6 @@ function PiratesCsgSearch({
             piratesCsgList={getPiratesListPage(sortedCsgList, pageSize, pageNumber)}
             sort={sort}
             setSort={handleUpdatedSort}
-            stagedCollectionAdds={stagedCollectionAdds}
-            stagedCollectionRemoves={stagedCollectionRemoves}
-            setStagedCollectionAdds={setStagedCollectionAdds}
-            setStagedCollectionRemoves={setStagedCollectionRemoves}
         />
     }
 
