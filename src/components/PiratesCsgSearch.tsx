@@ -1111,11 +1111,11 @@ function PiratesCsgSearch({
     function saveEdits() {
         let requestPromises = []
 
-        if (stagedCollectionAdds.length > 0)
-            requestPromises.push(addToCollection(stagedCollectionAdds))
-
         if (stagedCollectionRemoves.length > 0)
             requestPromises.push(removeFromCollection(stagedCollectionRemoves))
+
+        if (stagedCollectionAdds.length > 0)
+            requestPromises.push(addToCollection(stagedCollectionAdds))
 
         Promise.all(requestPromises).finally(() => {
             let notificationRemoveMessage = ''
