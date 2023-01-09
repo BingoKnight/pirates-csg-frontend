@@ -57,6 +57,8 @@ const SortOrder = {
     descending: 'descending'
 }
 
+// TODO: allow refreshing to remove current queries/sorts. Maybe store sorts/filters in state
+//       instead of session storage
 // TODO: fix sort, if sorting on masts it removes crew (could also be a problem for cargo/movement)
 // TODO: fix tablet view to be more like computer view
 // TODO: replace spinning wheel with empty rows with moving gradient to signify loading
@@ -173,9 +175,11 @@ function sortBaseMove(csgList, sortOrder, _) {
         d: 9
     }
 
-    return [...csgList].filter(val => val.baseMove).sort((a, b) =>
+    const sortedBaseMoveItems = [...csgList].filter(val => val.baseMove).sort((a, b) =>
         sortCompare(baseMoveEnumerator[a.baseMove.toLowerCase()], baseMoveEnumerator[b.baseMove.toLowerCase()], sortOrder)
     )
+
+    return [...sortedBaseMoveItems, ...csgList.filter(item => !item.baseMove)]
 }
 
 function sortIgnoreNull(csgList, sortOrder, sortField) {
@@ -183,7 +187,7 @@ function sortIgnoreNull(csgList, sortOrder, sortField) {
         .filter(val => val[sortField] || val[sortField] === 0)
         .sort((a, b) => sortCompare(a[sortField], b[sortField], sortOrder))
 
-    return [...sortedWithoutFalsy, ...csgList.filter(val => isNaN(val[sortField]))]
+    return [...sortedWithoutFalsy, ...csgList.filter(val => isNaN(parseInt(val[sortField])))]
 }
 
 function sortNumerically(csgList, sortOrder, sortField) {
