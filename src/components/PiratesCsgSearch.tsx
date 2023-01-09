@@ -24,7 +24,14 @@ import PiratesCsgList from '../components/PiratesCsgList.tsx';
 import Slider from '../components/Slider.tsx'
 import { TextInput } from '../components/TextInput.tsx'
 import ToggleButton from '../components/ToggleButton.tsx'
-import { isEditing$, toggleIsEditing } from '../services/editCollectionService.ts'
+import {
+    isEditing$,
+    setStagedCollectionAdds,
+    setStagedCollectionRemoves,
+    stagedCollectionAdds$,
+    stagedCollectionRemoves$,
+    toggleIsEditing
+} from '../services/editCollectionService.ts'
 import { CsgItem } from '../types/csgItem.ts'
 
 import { TABLET_VIEW, PHONE_VIEW } from '../constants.js'
@@ -50,9 +57,10 @@ const SortOrder = {
     descending: 'descending'
 }
 
+// TODO: allow refreshing to remove current queries/sorts. Maybe store sorts/filters in state
+//       instead of session storage
 // TODO: fix sort, if sorting on masts it removes crew (could also be a problem for cargo/movement)
 // TODO: fix tablet view to be more like computer view
-// TODO: preload image on faction query change
 // TODO: replace spinning wheel with empty rows with moving gradient to signify loading
 // TODO: add redux, right now sorting by owned items count is based on session storage
 //       which could be a problem if someone clears their session storage
@@ -167,9 +175,11 @@ function sortBaseMove(csgList, sortOrder, _) {
         d: 9
     }
 
-    return [...csgList].filter(val => val.baseMove).sort((a, b) =>
+    const sortedBaseMoveItems = [...csgList].filter(val => val.baseMove).sort((a, b) =>
         sortCompare(baseMoveEnumerator[a.baseMove.toLowerCase()], baseMoveEnumerator[b.baseMove.toLowerCase()], sortOrder)
     )
+
+    return [...sortedBaseMoveItems, ...csgList.filter(item => !item.baseMove)]
 }
 
 function sortIgnoreNull(csgList, sortOrder, sortField) {
@@ -177,7 +187,7 @@ function sortIgnoreNull(csgList, sortOrder, sortField) {
         .filter(val => val[sortField] || val[sortField] === 0)
         .sort((a, b) => sortCompare(a[sortField], b[sortField], sortOrder))
 
-    return [...sortedWithoutFalsy, ...csgList.filter(val => isNaN(val[sortField]))]
+    return [...sortedWithoutFalsy, ...csgList.filter(val => isNaN(parseInt(val[sortField])))]
 }
 
 function sortNumerically(csgList, sortOrder, sortField) {
@@ -1039,7 +1049,12 @@ function EditCollectionButtons({ isEditingCollection, saveEdits, discardEdits })
     )
 }
 
-function PiratesCsgSearch({ csgListSubscription, sessionStoragePiratesCsgListKey, sessionStorageQueryKey }) {
+function PiratesCsgSearch({
+    csgListSubscription,
+    isFetchCompleteSubscription,
+    sessionStorageQueryKey,
+    sessionStoragePageNumberKey
+}) {
     const sessionStorageQuery = JSON.parse(sessionStorage.getItem(sessionStorageQueryKey))
 
     const [query, setQuery] = useState({
@@ -1062,6 +1077,7 @@ function PiratesCsgSearch({ csgListSubscription, sessionStoragePiratesCsgListKey
     })
 
     const completeCsgList = useObservableState<CsgItem[]>(csgListSubscription, [])
+    const isCsgListFetchComplete = useObservableState<boolean>(isFetchCompleteSubscription, true)
 
     // filteredCsgList should be used to determine size because sortedCsgList doesn't affect maxPages
     const [filteredCsgList, setFilteredCsgList] = useState(updateQuery(completeCsgList, query))
@@ -1070,17 +1086,15 @@ function PiratesCsgSearch({ csgListSubscription, sessionStoragePiratesCsgListKey
     const [sort, setSort] = useState(sessionStorageSort || {field: null, order: null})
     const [sortedCsgList, setSortedCsgList] = useState(sortList(filteredCsgList, sort))
 
-    const [stagedCollectionAdds, setStagedCollectionAdds] = useState<string[]>([])
-    const [stagedCollectionRemoves, setStagedCollectionRemoves] = useState<string[]>([])
+    const stagedCollectionAdds = useObservableState<string[]>(stagedCollectionAdds$, [])
+    const stagedCollectionRemoves = useObservableState<string[]>(stagedCollectionRemoves$, [])
 
     const localStoragePageSize = parseInt(localStorage.getItem('pageSize'))
     const defaultPageSize = pageSizeOptions.includes(localStoragePageSize) ? localStoragePageSize : 25
     const [pageSize, setPageSize] = useState(defaultPageSize || 25)
     const [maxPages, setMaxPages] = useState(calculateMaxPages(filteredCsgList.length, pageSize))
-    const [pageNumber, setPageNumber] = useState(parseInt(sessionStorage.getItem('page')) || 1)
+    const [pageNumber, setPageNumber] = useState(parseInt(sessionStorage.getItem(sessionStoragePageNumberKey)) || 1)
     const [windowWidth, setWindowWidth] = useState(window.innerWidth)
-
-    const [apiFetchComplete, setApiFetchComplete] = useState(sessionStorage.getItem(sessionStoragePiratesCsgListKey) !== null)
 
     const isEditingCollection = useObservableState<boolean>(isEditing$, false)
 
@@ -1204,21 +1218,22 @@ function PiratesCsgSearch({ csgListSubscription, sessionStoragePiratesCsgListKey
 
     useEffect(() => {
         updateQuery(completeCsgList, query, sort, setSortedCsgList, setFilteredCsgList)
-        setApiFetchComplete(true)
     }, [completeCsgList])
 
     useEffect(() => {
         updateQuery(completeCsgList, query, sort, setSortedCsgList, setFilteredCsgList)
         sessionStorage.setItem(sessionStorageQueryKey, JSON.stringify(query))
+    }, [query])
 
+    useEffect(() => {
         const timer = setTimeout(() => {
             preloadImages()
         }, 500)
 
         return () => { clearTimeout(timer) }
-    }, [query])
+    }, [sortedCsgList])
 
-    useEffect(() => { sessionStorage.setItem('page', pageNumber) }, [pageNumber])
+    useEffect(() => { sessionStorage.setItem(sessionStoragePageNumberKey, pageNumber.toString()) }, [pageNumber])
 
     useEffect(() => {
         const newMaxPages = calculateMaxPages(filteredCsgList.length, pageSize)
@@ -1234,15 +1249,11 @@ function PiratesCsgSearch({ csgListSubscription, sessionStoragePiratesCsgListKey
 
     let piratesList = <Loading />
 
-    if (apiFetchComplete) {
+    if (isCsgListFetchComplete) {
         piratesList = <PiratesCsgList
             piratesCsgList={getPiratesListPage(sortedCsgList, pageSize, pageNumber)}
             sort={sort}
             setSort={handleUpdatedSort}
-            stagedCollectionAdds={stagedCollectionAdds}
-            stagedCollectionRemoves={stagedCollectionRemoves}
-            setStagedCollectionAdds={setStagedCollectionAdds}
-            setStagedCollectionRemoves={setStagedCollectionRemoves}
         />
     }
 
@@ -1270,7 +1281,7 @@ function PiratesCsgSearch({ csgListSubscription, sessionStoragePiratesCsgListKey
                 </div>
                 {
                     completeCsgList.length > 0
-                    && apiFetchComplete
+                    && isCsgListFetchComplete
                     && <AdvancedFilters query={query} setQuery={setQuery} piratesCsgList={completeCsgList} />
                 }
             </div>

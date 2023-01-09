@@ -1,11 +1,17 @@
 import _ from 'lodash'
 import { useObservableState } from 'observable-hooks'
-import React, { MouseEventHandler, useEffect, useRef, useState } from 'react'
+import React, { MouseEventHandler, useEffect, useRef } from 'react'
 
 import CannonImage from './CannonImages.tsx'
-import Button, { LinkButton } from './Button.tsx'
+import { LinkButton } from './Button.tsx'
 import { ReactComponent as Arrow } from '../images/angle-down-solid.svg'
-import { isEditing$ } from '../services/editCollectionService.ts'
+import {
+    isEditing$,
+    setStagedCollectionAdds,
+    setStagedCollectionRemoves,
+    stagedCollectionAdds$,
+    stagedCollectionRemoves$
+} from '../services/editCollectionService.ts'
 import { userCollection$ } from '../services/globalState.ts'
 import { CsgItem } from '../types/csgItem.ts'
 import factionImageMapper from '../utils/factionImageMapper.tsx'
@@ -125,19 +131,15 @@ function CsgItemColumns({ csgItem }) {
         })
 }
 
-function CsgItemRows({
-    piratesCsgList,
-    stagedCollectionAddsList,
-    stagedCollectionRemovesList,
-    setStagedCollectionAdds,
-    setStagedCollectionRemoves
-}) {
+function CsgItemRows({ piratesCsgList }) {
     const isEditingCollection = useObservableState<boolean>(isEditing$, false)
+    const stagedCollectionAdds = useObservableState<string[]>(stagedCollectionAdds$, [])
+    const stagedCollectionRemoves = useObservableState<string[]>(stagedCollectionRemoves$, [])
 
     function toggleCsgItem(csgItem: CsgItem) {
         const [stagedList, setStaged] = csgItem.owned
-            ? [stagedCollectionRemovesList, setStagedCollectionRemoves]
-            : [stagedCollectionAddsList, setStagedCollectionAdds]
+            ? [stagedCollectionRemoves, setStagedCollectionRemoves]
+            : [stagedCollectionAdds, setStagedCollectionAdds]
 
         const newStagedItems = stagedList.includes(csgItem._id)
             ? stagedList.filter(id => id !== csgItem._id)
@@ -150,12 +152,12 @@ function CsgItemRows({
         let backgroundColorClass = ''
 
         if (isEditingCollection && csgItem.owned && csgItem.owned > 0) {
-            if([...stagedCollectionAddsList, ...stagedCollectionRemovesList].includes(csgItem._id))
+            if([...stagedCollectionAdds, ...stagedCollectionRemoves].includes(csgItem._id))
                 backgroundColorClass = 'edit-mode-red'
             else
                 backgroundColorClass = 'edit-mode-green'
         } else if (isEditingCollection && !csgItem.owned) {
-            if([...stagedCollectionAddsList, ...stagedCollectionRemovesList].includes(csgItem._id))
+            if([...stagedCollectionAdds, ...stagedCollectionRemoves].includes(csgItem._id))
                 backgroundColorClass = 'edit-mode-green'
             else
                 backgroundColorClass = 'edit-mode-red'
@@ -258,15 +260,7 @@ function HeaderRow({ sort, setSort }) {
     )
 }
 
-function PiratesCsgList({
-    piratesCsgList,
-    sort,
-    setSort,
-    stagedCollectionAdds,
-    stagedCollectionRemoves,
-    setStagedCollectionAdds,
-    setStagedCollectionRemoves
-}) {
+function PiratesCsgList({ piratesCsgList, sort, setSort }) {
     const userCollection = useObservableState<CsgItem[]>(userCollection$, [])
 
     function getCsgListWithOwned() {
@@ -287,13 +281,7 @@ function PiratesCsgList({
     return (
         <div id='csg-list'>
             <HeaderRow sort={sort} setSort={setSort} />
-            <CsgItemRows
-                piratesCsgList={getCsgListWithOwned()}
-                stagedCollectionAddsList={stagedCollectionAdds}
-                stagedCollectionRemovesList={stagedCollectionRemoves}
-                setStagedCollectionAdds={setStagedCollectionAdds}
-                setStagedCollectionRemoves={setStagedCollectionRemoves}
-            />
+            <CsgItemRows piratesCsgList={getCsgListWithOwned()} />
         </div>
     )
 }

@@ -14,12 +14,12 @@ function Layout({ children }) {
     const navigate = useStatefulNavigate()
     const location = useLocation()
 
-    refreshPiratesCsgList()
-    refreshKeywordsDictionary()
-    refreshUser()
-    refreshUserCollection()
-
     useEffect(() => {
+        refreshPiratesCsgList()
+        refreshKeywordsDictionary()
+        refreshUser()
+        refreshUserCollection()
+
         const invalidUserPaths = ['/login', '/register']
         const protectedPaths = ['/collection']
 

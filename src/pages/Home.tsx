@@ -3,7 +3,7 @@ import { Outlet } from 'react-router-dom'
 
 import Layout from '../components/Layout.tsx'
 import PiratesCsgSearch from '../components/PiratesCsgSearch.tsx'
-import { piratesCsgList$ } from '../services/globalState.ts'
+import { isCsgListFetchComplete$, piratesCsgList$ } from '../services/globalState.ts'
 
 import '../styles/home.scss'
 
@@ -13,8 +13,9 @@ function Home() {
             <Outlet />
             <PiratesCsgSearch
                 csgListSubscription={piratesCsgList$}
-                sessionStoragePiratesCsgListKey="piratesCsgList"
-                sessionStorageQueryKey="query"
+                isFetchCompleteSubscription={isCsgListFetchComplete$}
+                sessionStorageQueryKey='query'
+                sessionStoragePageNumberKey='mainPageNumber'
             />
         </Layout>
     ) 
