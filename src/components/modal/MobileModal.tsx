@@ -100,27 +100,6 @@ function CannonsCol({ cannons }) {
     )
 }
 
-function CsgShipStats({ csgItem }) {
-    return (
-        <div className="row stats-row">
-            <div className="col">
-                <div className="row">
-                    <div className="row stat masts-stat">
-                        <div className="col icon">{fieldIconMapper.masts({height: '20px'})}</div>
-                        <div className="col value">{csgItem.masts}</div>
-                    </div>
-                    <div className="row stat cargo-stat">
-                        <div className="col icon">{fieldIconMapper.cargo({height: '20px'})}</div>
-                        <div className="col value">{csgItem.cargo}</div>
-                    </div>
-                    <BaseMoveCol baseMove={csgItem.baseMove} />
-                    <CannonsCol cannons={csgItem.cannons} />
-                </div>
-            </div>
-        </div>
-    )
-}
-
 function Faction({ faction }) {
     return <span>{!['ut', 'none'].includes(faction.toLowerCase()) && factionImageMapper[faction.toLowerCase()]({height: '30px'})}</span>
 }
@@ -299,7 +278,26 @@ function DetailsContent({ csgItem, closeModal }) {
     return (
         <>
             <CsgItemHeader csgItem={csgItem} />
-            { csgItem.type.toLowerCase() === 'ship' && <CsgShipStats csgItem={csgItem} /> }
+            <div className="row stats-row">
+                <div className="col">
+                    <div className="row">
+                        { csgItem.type.toLowerCase() === 'ship' &&
+                            <>
+                                <div className="row stat masts-stat">
+                                    <div className="col icon">{fieldIconMapper.masts({height: '20px'})}</div>
+                                    <div className="col value">{csgItem.masts}</div>
+                                </div>
+                                <div className="row stat cargo-stat">
+                                    <div className="col icon">{fieldIconMapper.cargo({height: '20px'})}</div>
+                                    <div className="col value">{csgItem.cargo}</div>
+                                </div>
+                                <BaseMoveCol baseMove={csgItem.baseMove} />
+                            </>
+                        }
+                        { ['ship', 'fort'].includes(csgItem.type.toLowerCase()) && <CannonsCol cannons={csgItem.cannons} /> }
+                    </div>
+                </div>
+            </div>
             <Ability ability={csgItem.ability} />
             { csgItem.link && <CsgItemLink link={csgItem.link} /> }
             <CsgItemImage csgItem={csgItem} />

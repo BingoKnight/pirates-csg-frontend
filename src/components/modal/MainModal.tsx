@@ -14,8 +14,6 @@ import setIconMapper from '../../utils/setIconMapper.tsx'
 
 import '../../styles/mainModal.scss'
 
-// TODO: fort in modal doesn't show cannons like it should, same with mobile
-
 function ModalOverlay({ closeModal, children }) {
     return (
         <div className='fixed-overlay' onClick={closeModal}>
@@ -96,27 +94,6 @@ function CannonsCol({ cannons }) {
     )
 }
 
-function CsgShipStats({ csgItem }) {
-    return (
-        <div className="row stats-row">
-            <div className="col">
-                <div className="row">
-                    <div className="row stat masts-stat">
-                        <div className="col icon">{fieldIconMapper.masts({height: '23px'})}</div>
-                        <div className="col value">{csgItem.masts}</div>
-                    </div>
-                    <div className="row stat cargo-stat">
-                        <div className="col icon">{fieldIconMapper.cargo({height: '23px'})}</div>
-                        <div className="col value">{csgItem.cargo}</div>
-                    </div>
-                    <BaseMoveCol baseMove={csgItem.baseMove} />
-                    <CannonsCol cannons={csgItem.cannons} />
-                </div>
-            </div>
-        </div>
-    )
-}
-
 function LinkIcon({ link }) {
     return (
         <div className="link-dropdown">
@@ -150,7 +127,27 @@ function CsgStats({ csgItem }) {
                 </div>
                 <ModalOptions csgItem={csgItem} isInCollection={isInCollection} />
             </div>
-            { csgItem.type.toLowerCase() === 'ship' && <CsgShipStats csgItem={csgItem} /> }
+            <div className="row stats-row">
+                <div className="col">
+                    <div className="row">
+                        {
+                            csgItem.type.toLowerCase() === 'ship' &&
+                            <>
+                                <div className="row stat masts-stat">
+                                    <div className="col icon">{fieldIconMapper.masts({height: '23px'})}</div>
+                                    <div className="col value">{csgItem.masts}</div>
+                                </div>
+                                <div className="row stat cargo-stat">
+                                    <div className="col icon">{fieldIconMapper.cargo({height: '23px'})}</div>
+                                    <div className="col value">{csgItem.cargo}</div>
+                                </div>
+                                <BaseMoveCol baseMove={csgItem.baseMove} />
+                            </>
+                        }
+                        { ['fort', 'ship'].includes(csgItem.type.toLowerCase()) && <CannonsCol cannons={csgItem.cannons} /> }
+                    </div>
+                </div>
+            </div>
         </div>
     )
 }
