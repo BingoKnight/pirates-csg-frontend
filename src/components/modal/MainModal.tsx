@@ -249,7 +249,7 @@ function CsgItemDetails({ csgItem, closeModal }){
     return (
         <>
             <div className="row title-and-stats-row">
-                {csgItem.pointCost && <CsgPoints pointCost={csgItem.pointCost} />}
+                {(csgItem.pointCost || csgItem.pointCost === 0) && <CsgPoints pointCost={csgItem.pointCost} />}
                 <CsgStats csgItem={csgItem} />
             </div>
             <div className="row">
