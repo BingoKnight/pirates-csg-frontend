@@ -21,8 +21,6 @@ import { isLoggedIn } from '../utils/user.ts'
 
 import '../styles/piratesCsgList.scss'
 
-// TODO: when scrolling down the bottom of the page is white, almost like the body is scrolling
-
 enum OrderedCsgFields {
     rarity = 'rarity',
     // image = 'image',
