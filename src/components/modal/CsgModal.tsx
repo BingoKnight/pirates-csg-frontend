@@ -44,7 +44,7 @@ function CsgModal() {
         return <Navigate to='/' replace />
 
     if (window.innerWidth <= TABLET_VIEW) {
-        return <MobileModal csgItem={csgItem} closeModal={closeModal} />
+        return <MobileModal csgItem={csgItem} closeModal={closeModal} bodyWindow={window.scrollY}/>
     }
     return <MainModal csgItem={csgItem} closeModal={closeModal} />
 }

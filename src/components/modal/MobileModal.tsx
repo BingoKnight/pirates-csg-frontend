@@ -241,39 +241,6 @@ function KeywordsSection({ keywords, ability }) {
     )
 }
 
-function CopyButton({ csgItemId }) {
-    const [ showTooltip, setShowTooltip] = useState(false)
-
-    function handleClick() {
-        navigator.clipboard.writeText(`${process.env.REACT_APP_PIRATE_CSG_FE_BASE_URL}?_id=${csgItemId}`)
-        setShowTooltip(true)
-    }
-
-    useEffect(() => {
-        if (showTooltip) {
-            const intervalId = setInterval(() => setShowTooltip(false), 7000)
-            return () => clearInterval(intervalId)
-        }
-    }, [showTooltip])
-
-    return (
-        <div className="copy-button">
-            <Copy onClick={handleClick} height="30px" />
-            {
-                showTooltip
-                && <div className="copy-tooltip" onClick={() => setShowTooltip(false)}>
-                    <div className="row">
-                        <div className="col circle-check-col">
-                            <CircleCheck />
-                        </div>
-                        <div className="col">Copied</div>
-                    </div>
-                </div>
-            }
-        </div>
-    )
-}
-
 function DetailsContent({ csgItem, closeModal }) {
     return (
         <>
@@ -314,14 +281,17 @@ function DetailsContent({ csgItem, closeModal }) {
 function MobileModal({ csgItem, closeModal }) {
     useEffect(() => {
         document.body.style.position = 'fixed'
+        document.body.style.bottom = `2000px`
 
         return function cleanup () {
             document.body.style.position = ''
+            document.body.style.bottom = ''
         }
     })
 
     return (
         <div className="mobile-modal" onClick={e => e.stopPropagation()}>
+            <div className="background" />
             <div className="mobile-modal-content">
                 <DetailsContent csgItem={csgItem} closeModal={closeModal} />
             </div>

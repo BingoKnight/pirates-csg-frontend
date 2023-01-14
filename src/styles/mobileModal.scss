@@ -9,9 +9,15 @@
     height: 100%;
     overflow: auto;
 
-    background: rgba(0, 0, 0, 0.4);
-
-    backdrop-filter: blur(25px);
+    .background {
+        position: fixed;
+        bottom: 0;
+        width: 100vw;
+        height: 120vh;
+        z-index: -1;
+        overflow-x: hidden;
+        backdrop-filter: blur(25px);
+    }
 
     z-index: 11;
 
