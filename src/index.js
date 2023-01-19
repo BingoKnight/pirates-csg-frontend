@@ -7,6 +7,7 @@ import ReactDOM from 'react-dom/client';
 import CsgModal from './components/modal/CsgModal.tsx';
 import PrivateRoute from './components/PrivateRoute.tsx';
 import AccountSettings from './pages/AccountSettings.tsx';
+import FleetsList from './pages/Fleets.tsx';
 import ForgotUsername from './pages/ForgotUsername.tsx';
 import Home from './pages/Home.tsx';
 import Login from './pages/Login.tsx';
@@ -41,6 +42,7 @@ root.render(
                         <Route path='details/:id' element={<CsgModal />} />
                     </Route>
                 </Route>
+                <Route path='/fleets' element={<FleetsList />} />
                 <Route path='*' element={<NotFoundPage />} />
             </Routes>
         </Router>

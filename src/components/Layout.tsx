@@ -6,9 +6,15 @@ import Header from './Header.tsx'
 import NotificationsContainer from './Notification.tsx'
 import { getCookie } from '../utils/cookies.ts'
 import { useStatefulNavigate } from '../utils/hooks.ts'
+import {
+    getFleetPage,
+    refreshKeywordsDictionary,
+    refreshPiratesCsgList,
+    refreshUser,
+    refreshUserCollection
+} from '../services/globalState.ts'
 
 import '../styles/layout.scss'
-import { refreshKeywordsDictionary, refreshPiratesCsgList, refreshUser, refreshUserCollection } from '../services/globalState.ts'
 
 function Layout({ children }) {
     const navigate = useStatefulNavigate()
@@ -19,6 +25,7 @@ function Layout({ children }) {
         refreshKeywordsDictionary()
         refreshUser()
         refreshUserCollection()
+        getFleetPage(1)
 
         const invalidUserPaths = ['/login', '/register']
         const protectedPaths = ['/collection']

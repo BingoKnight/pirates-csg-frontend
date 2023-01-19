@@ -121,6 +121,12 @@ function NavBar({ user, isMobileView }) {
             isVisible: true
         },
         {
+            name: 'Fleets',
+            path: '/fleets',
+            icon: <CollectionIcon />,
+            isVisible: true
+        },
+        {
             name: 'Collection',
             path: '/collection',
             icon: <CollectionIcon />,

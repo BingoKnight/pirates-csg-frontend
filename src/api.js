@@ -310,3 +310,13 @@ export async function removeFromCollection(itemIds) {
         })
 }
 
+export async function getFleetList(page, limit = 50) {
+    return _get(`/v1/fleet?page=${page}&limit=${limit}`)
+        .then(res => res.json())
+        .then(json => json )
+}
+
+export async function getUrl(url) {
+    return _get(url).then(res => res.json()).then(json => json)
+}
+
