@@ -15,6 +15,7 @@ import Registration from './pages/Registration.tsx';
 import NotFoundPage from './pages/NotFoundPage.tsx';
 
 import reportWebVitals from './reportWebVitals';
+import Maintenance from './pages/Maintenance.tsx';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -27,6 +28,8 @@ root.render(
     <React.StrictMode>
         <Router>
             <Routes>
+                <Route path='*' element={<Maintenance />} />
+                {/*
                 <Route path='/' element={<Home />}>
                     <Route path='details/:id' element={<CsgModal />} />
                 </Route>
@@ -35,13 +38,15 @@ root.render(
                 <Route path='/user' element={<PrivateRoute />}>
                     <Route path='account-settings' element={<AccountSettings />} />
                 </Route>
-                {/* <Route path='/forgot-username' element={<ForgotUsername />} /> */}
+                TODO: comment out forgot username route when uncommenting block
+                <Route path='/forgot-username' element={<ForgotUsername />} />
                 <Route path='/collection' element={<PrivateRoute />}>
                     <Route path='' element={<PiratesCollection />}>
                         <Route path='details/:id' element={<CsgModal />} />
                     </Route>
                 </Route>
                 <Route path='*' element={<NotFoundPage />} />
+                */}
             </Routes>
         </Router>
     </React.StrictMode>

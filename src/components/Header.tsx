@@ -160,24 +160,7 @@ function NavBar({ user, isMobileView }) {
 
     return (
         <>
-            <div className="nav-bar row">
-                {
-                    links
-                        .filter(link => link.isVisible)
-                        .map(link => (
-                            <LinkButton
-                                to={link.path}
-                                className={'nav-link' + (location.pathname === link.path ? ' active' : '')}
-                            >
-                                {link.name}
-                            </LinkButton>
-                        ))
-                }
-            </div>
-            { user
-                ? <UserDropDown username={user.username} />
-                : <LinkButton className="login-button" to="/login">Login</LinkButton>
-            }
+
         </>
     )
 }
