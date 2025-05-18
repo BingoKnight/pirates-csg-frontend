@@ -81,8 +81,8 @@ function Registration() {
                 </div>
             </div>
         </Layout>
-    ) 
+    )
 }
 
-export default Registration;
+export default Registration
 

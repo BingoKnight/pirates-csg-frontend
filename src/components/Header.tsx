@@ -11,6 +11,7 @@ import { ReactComponent as LogoutIcon } from '../images/logout-solid.svg'
 import { ReactComponent as LoginIcon } from '../images/login-solid.svg'
 import { ReactComponent as GearIcon } from '../images/gear-solid.svg'
 import { ReactComponent as CollectionIcon } from '../images/field-icons/cards.svg'
+import { ReactComponent as ShipIcon } from '../images/ship.svg'
 import ShipImage from '../images/ship-logo.png'
 import { useStatefulNavigate, useOutsideClickRef } from '../utils/hooks.ts'
 
@@ -123,7 +124,7 @@ function NavBar({ user, isMobileView }) {
         {
             name: 'Fleets',
             path: '/fleets',
-            icon: <CollectionIcon />,
+            icon: <ShipIcon />,
             isVisible: true
         },
         {
