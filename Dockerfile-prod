@@ -1,0 +1,11 @@
+FROM node:18
+WORKDIR /code
+
+COPY ./src ./src
+COPY ./public ./public
+COPY ./package.json ./package.json
+COPY ./package-lock.json ./package-lock.json
+
+RUN npm ci
+RUN npm i -g serve
+RUN npm run build
